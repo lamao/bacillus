@@ -1,9 +1,13 @@
 package com.invenit.bacillus
 
 import com.badlogic.gdx.ApplicationAdapter
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.ScreenUtils
+import com.invenit.bacillus.model.Field
+import com.invenit.bacillus.model.Point
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -11,24 +15,39 @@ import com.badlogic.gdx.utils.ScreenUtils
  */
 class BacillusGdxGame : ApplicationAdapter() {
 
-    lateinit var batch: SpriteBatch
-    lateinit var img: Texture
+    private lateinit var shapeRenderer: ShapeRenderer
+
+    private val field = Field(Settings.GridWidth, Settings.GridHeight)
 
     override fun create() {
-        batch = SpriteBatch()
-        img = Texture("badlogic.jpg")
+        shapeRenderer = ShapeRenderer()
+
+        for (i in 1..10) {
+            field.spawnCreature()
+        }
     }
 
     override fun render() {
-        ScreenUtils.clear(1f, 0f, 0f, 1f)
-        batch.begin()
-        batch.draw(img, 0f, 0f)
-        batch.end()
+        ScreenUtils.clear(0f, 0f, 0.1f, 0.5f)
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.color = Color.BLUE
+        for (bacillus in field.bacilli) {
+            shapeRenderer.circle(
+                bacillus.position.toDisplayX(),
+                bacillus.position.toDisplayY(),
+                Settings.CellSize.toFloat()
+            )
+        }
+        shapeRenderer.end()
     }
 
     override fun dispose() {
-        batch.dispose()
-        img.dispose()
+        shapeRenderer.dispose()
     }
+
+    private fun Point.toDisplayX(): Float = (this.x * Settings.CellSize).toFloat()
+
+    private fun Point.toDisplayY(): Float = (this.y * Settings.CellSize).toFloat()
 
 }

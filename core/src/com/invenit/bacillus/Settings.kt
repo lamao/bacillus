@@ -6,9 +6,13 @@ package com.invenit.bacillus
  */
 object Settings {
 
-    val Width = 500
-    val Height = 500
+    const val Width = 1000
+    const val Height = 500
 
-    val GridWidth = 20
-    val GridHeight = 20
+    const val CellSize = 10
+
+    const val GridWidth = Width / CellSize
+    const val GridHeight = Height / CellSize
+
+    const val Fps = 100
 }
