@@ -16,6 +16,8 @@ fun main(args: Array<String>) {
     config.width = Settings.Width
     config.height = Settings.Height
 
+    config.samples = 4
+
     val applicationAdapter = BacillusGdxGame()
     LwjglApplication(applicationAdapter, config)
 

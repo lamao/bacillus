@@ -4,6 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
@@ -12,6 +14,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Point
 
+
 /**
  * Created by vyacheslav.mischeryakov
  * Created 15.11.2021
@@ -19,7 +22,7 @@ import com.invenit.bacillus.model.Point
 class BacillusGdxGame : ApplicationAdapter() {
 
     companion object {
-        private const val OneSecond = 1000L
+        private const val OneSecond = 1000_000_000L
         const val TicInterval = OneSecond.toFloat() / Settings.Fps
 
         val Transparent = Color(0f, 0f, 0f, 0.3f)
@@ -28,11 +31,15 @@ class BacillusGdxGame : ApplicationAdapter() {
     private var lastTicTime = 0L
 
     private lateinit var shapeRenderer: ShapeRenderer
+    private lateinit var batch: SpriteBatch
+    private lateinit var font: BitmapFont
 
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
 
     override fun create() {
         shapeRenderer = ShapeRenderer()
+        batch = SpriteBatch()
+        font = BitmapFont()
 
         for (i in 1..10) {
             field.spawnCreature()
@@ -41,7 +48,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     override fun render() {
 
-        val currentTime = TimeUtils.millis()
+        val currentTime = TimeUtils.nanoTime()
         if (currentTime - lastTicTime >= TicInterval) {
             lastTicTime = currentTime
 
@@ -89,10 +96,16 @@ class BacillusGdxGame : ApplicationAdapter() {
         }
         shapeRenderer.end()
 
+        batch.begin()
+        font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f);
+        batch.end()
+
     }
 
     override fun dispose() {
         shapeRenderer.dispose()
+        batch.dispose()
+        font.dispose()
     }
 
     private fun Point.toDisplay(): Vector2 = Vector2(
