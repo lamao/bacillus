@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
+import com.invenit.bacillus.model.Bacillus
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Point
 
@@ -67,32 +68,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         shapeRenderer.setAutoShapeType(true)
         shapeRenderer.begin()
         for (bacillus in field.bacilli) {
-            val displayPosition = bacillus.position.toDisplay()
-            val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
-
-            shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
-            shapeRenderer.color = Color.GRAY
-            shapeRenderer.circle(
-                displayPosition.x,
-                displayPosition.y,
-                (Settings.CellSize / 4).toFloat()
-            )
-
-            shapeRenderer.set(ShapeRenderer.ShapeType.Line)
-            shapeRenderer.line(
-                displayPosition.x,
-                displayPosition.y,
-                projectedPosition.x,
-                projectedPosition.y
-            )
-
-            shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
-            shapeRenderer.color = Color.BLUE
-            shapeRenderer.circle(
-                projectedPosition.x,
-                projectedPosition.y,
-                (Settings.CellSize / 2).toFloat()
-            )
+            bacillus.drawBacillus(ticPercentage)
         }
         shapeRenderer.end()
 
@@ -100,6 +76,35 @@ class BacillusGdxGame : ApplicationAdapter() {
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f);
         batch.end()
 
+    }
+
+    private fun Bacillus.drawBacillus(ticPercentage: Float) {
+        val displayPosition = this.position.toDisplay()
+        val projectedPosition = displayPosition.projectedPosition(this.direction, ticPercentage)
+
+        shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.color = Color.GRAY
+        shapeRenderer.circle(
+            displayPosition.x,
+            displayPosition.y,
+            (Settings.CellSize / 4).toFloat()
+        )
+
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line)
+        shapeRenderer.line(
+            displayPosition.x,
+            displayPosition.y,
+            projectedPosition.x,
+            projectedPosition.y
+        )
+
+        shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.color = Color.BLUE
+        shapeRenderer.circle(
+            projectedPosition.x,
+            projectedPosition.y,
+            (Settings.CellSize / 2).toFloat()
+        )
     }
 
     override fun dispose() {
