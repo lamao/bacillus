@@ -21,6 +21,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     }
 
     private var lastTicMillis = 0L
+    private var lastFrameMillis = 0L
 
     private lateinit var shapeRenderer: ShapeRenderer
 
@@ -41,17 +42,15 @@ class BacillusGdxGame : ApplicationAdapter() {
             lastTicMillis = currentMillis
 
             for (bacillus in field.bacilli) {
-                val newPosition = bacillus.position + getRandomDirection()
-                bacillus.position = if (field.isOutside(newPosition)) {
-                    field.fitInside(newPosition)
-                } else {
-                    newPosition
-                }
+                bacillus.direction = getRandomDirection()
             }
+
+            field.moveBacilli()
         }
 
         ScreenUtils.clear(0f, 0f, 0.1f, 0.5f)
 
+        val ticPercentage = (currentMillis - lastFrameMillis) / TicInterval
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         shapeRenderer.color = Color.BLUE
         for (bacillus in field.bacilli) {

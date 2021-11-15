@@ -11,11 +11,16 @@ class Field(val width: Int, val height: Int) {
     val bacilli: MutableList<Bacillus> = mutableListOf()
 
     fun spawnCreature(): Bacillus {
-        val position = Point(
-            MathUtils.random(width - 1),
-            MathUtils.random(height - 1)
+        val bacillus = Bacillus(
+            position = Point(
+                MathUtils.random(width - 1),
+                MathUtils.random(height - 1)
+            ),
+            direction = Point(
+                MathUtils.random(-1, 1),
+                MathUtils.random(-1, 1)
+            )
         )
-        val bacillus = Bacillus(position)
         bacilli.add(bacillus)
 
         return bacillus
@@ -44,5 +49,16 @@ class Field(val width: Int, val height: Int) {
         }
 
         return Point(x, y)
+    }
+
+    fun moveBacilli() {
+        for (bacillus in bacilli) {
+            val newPosition = bacillus.position + bacillus.direction
+            bacillus.position = if (isOutside(newPosition)) {
+                fitInside(newPosition)
+            } else {
+                newPosition
+            }
+        }
     }
 }
