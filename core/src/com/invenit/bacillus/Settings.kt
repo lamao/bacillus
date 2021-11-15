@@ -14,5 +14,5 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val Fps = 10
+    const val Fps = 0.5f
 }
