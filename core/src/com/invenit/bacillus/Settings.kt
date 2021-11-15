@@ -9,10 +9,10 @@ object Settings {
     const val Width = 1000
     const val Height = 500
 
-    const val CellSize = 10
+    const val CellSize = 20
 
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val Fps = 100
+    const val Fps = 10
 }

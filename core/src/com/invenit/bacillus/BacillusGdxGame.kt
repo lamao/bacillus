@@ -2,10 +2,10 @@ package com.invenit.bacillus
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.ScreenUtils
+import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Point
 
@@ -14,6 +14,13 @@ import com.invenit.bacillus.model.Point
  * Created 15.11.2021
  */
 class BacillusGdxGame : ApplicationAdapter() {
+
+    companion object {
+        private const val OneSecond = 1000L
+        const val TicInterval = OneSecond.toFloat() / Settings.Fps
+    }
+
+    private var lastTicMillis = 0L
 
     private lateinit var shapeRenderer: ShapeRenderer
 
@@ -28,6 +35,21 @@ class BacillusGdxGame : ApplicationAdapter() {
     }
 
     override fun render() {
+
+        val currentMillis = TimeUtils.millis()
+        if (currentMillis - lastTicMillis >= TicInterval) {
+            lastTicMillis = currentMillis
+
+            for (bacillus in field.bacilli) {
+                val newPosition = bacillus.position + getRandomDirection()
+                bacillus.position = if (field.isOutside(newPosition)) {
+                    field.fitInside(newPosition)
+                } else {
+                    newPosition
+                }
+            }
+        }
+
         ScreenUtils.clear(0f, 0f, 0.1f, 0.5f)
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
@@ -36,7 +58,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             shapeRenderer.circle(
                 bacillus.position.toDisplayX(),
                 bacillus.position.toDisplayY(),
-                Settings.CellSize.toFloat()
+                (Settings.CellSize / 2).toFloat()
             )
         }
         shapeRenderer.end()
@@ -46,8 +68,13 @@ class BacillusGdxGame : ApplicationAdapter() {
         shapeRenderer.dispose()
     }
 
-    private fun Point.toDisplayX(): Float = (this.x * Settings.CellSize).toFloat()
+    private fun Point.toDisplayX(): Float = (this.x * Settings.CellSize + Settings.CellSize / 2).toFloat()
 
-    private fun Point.toDisplayY(): Float = (this.y * Settings.CellSize).toFloat()
+    private fun Point.toDisplayY(): Float = (this.y * Settings.CellSize + Settings.CellSize / 2).toFloat()
+
+    private fun getRandomDirection(): Point = Point(
+        x = MathUtils.random(-1, 1),
+        y = MathUtils.random(-1, 1)
+    )
 
 }
