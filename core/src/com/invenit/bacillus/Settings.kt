@@ -14,5 +14,10 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val Fps = 3f
+    const val TicDelaySeconds = 0.3f
+
+    const val DefaultHealth = 50
+    const val ProbabilityToSpawn = 1f
+
+    const val InitNumberOfBacilli = 100
 }

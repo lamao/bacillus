@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
@@ -24,12 +23,13 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     companion object {
         private const val OneSecond = 1000_000_000L
-        const val TicInterval = OneSecond.toFloat() / Settings.Fps
+        const val TicInterval = OneSecond.toFloat() * Settings.TicDelaySeconds
 
         val Transparent = Color(0f, 0f, 0f, 0.3f)
     }
 
     private var lastTicTime = 0L
+    private var ticsPassed = 0L
 
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var batch: SpriteBatch
@@ -42,7 +42,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        for (i in 1..10) {
+        for (i in 1..Settings.InitNumberOfBacilli) {
             field.spawnCreature()
         }
     }
@@ -53,11 +53,8 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (currentTime - lastTicTime >= TicInterval) {
             lastTicTime = currentTime
 
-            field.moveBacilli()
-
-            for (bacillus in field.bacilli) {
-                bacillus.direction = getRandomDirection()
-            }
+            field.doTic()
+            ticsPassed++
         }
 
         ScreenUtils.clear(0f, 0f, 0.1f, 0.5f)
@@ -65,46 +62,55 @@ class BacillusGdxGame : ApplicationAdapter() {
         Gdx.gl.glEnable(GL30.GL_BLEND)
 
         val ticPercentage = (currentTime - lastTicTime) / TicInterval
-        shapeRenderer.setAutoShapeType(true)
-        shapeRenderer.begin()
-        for (bacillus in field.bacilli) {
-            bacillus.drawBacillus(ticPercentage)
-        }
-        shapeRenderer.end()
+        field.bacilli.draw(ticPercentage)
 
         batch.begin()
-        font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f);
+        font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
+        font.draw(batch, "Population: ${field.bacilli.count()}", 10f, Settings.Height - 30f)
+        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 50f)
         batch.end()
 
     }
 
-    private fun Bacillus.drawBacillus(ticPercentage: Float) {
-        val displayPosition = this.position.toDisplay()
-        val projectedPosition = displayPosition.projectedPosition(this.direction, ticPercentage)
+    private fun MutableList<Bacillus>.draw(ticPercentage: Float) {
 
-        shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.color = Color.GRAY
-        shapeRenderer.circle(
-            displayPosition.x,
-            displayPosition.y,
-            (Settings.CellSize / 4).toFloat()
-        )
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+        for (bacillus in this) {
+            val displayPosition = bacillus.position.toDisplay()
+            val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
+            shapeRenderer.line(
+                displayPosition.x,
+                displayPosition.y,
+                projectedPosition.x,
+                projectedPosition.y
+            )
+        }
+        shapeRenderer.end()
 
-        shapeRenderer.set(ShapeRenderer.ShapeType.Line)
-        shapeRenderer.line(
-            displayPosition.x,
-            displayPosition.y,
-            projectedPosition.x,
-            projectedPosition.y
-        )
 
-        shapeRenderer.set(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.color = Color.BLUE
-        shapeRenderer.circle(
-            projectedPosition.x,
-            projectedPosition.y,
-            (Settings.CellSize / 2).toFloat()
-        )
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        for (bacillus in this) {
+            val displayPosition = bacillus.position.toDisplay()
+            val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
+
+            shapeRenderer.color = Color.GRAY
+            shapeRenderer.circle(
+                displayPosition.x,
+                displayPosition.y,
+                (Settings.CellSize / 4).toFloat()
+            )
+
+
+            shapeRenderer.color = Color.BLUE
+            shapeRenderer.circle(
+                projectedPosition.x,
+                projectedPosition.y,
+                (Settings.CellSize / 2).toFloat()
+            )
+        }
+        shapeRenderer.end()
+
     }
 
     override fun dispose() {
@@ -116,11 +122,6 @@ class BacillusGdxGame : ApplicationAdapter() {
     private fun Point.toDisplay(): Vector2 = Vector2(
         (this.x * Settings.CellSize + Settings.CellSize / 2).toFloat(),
         (this.y * Settings.CellSize + Settings.CellSize / 2).toFloat()
-    )
-
-    private fun getRandomDirection(): Point = Point(
-        x = MathUtils.random(-1, 1),
-        y = MathUtils.random(-1, 1)
     )
 
     private fun Vector2.projectedPosition(direction: Point, percentage: Float): Vector2 = Vector2(

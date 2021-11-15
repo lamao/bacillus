@@ -1,6 +1,7 @@
 package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
+import com.invenit.bacillus.Settings
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -10,28 +11,40 @@ class Field(val width: Int, val height: Int) {
 
     val bacilli: MutableList<Bacillus> = mutableListOf()
 
+    fun doTic() {
+
+        moveBacilli()
+
+        bacilli.removeIf { it.health < 0 }
+        for (bacillus in bacilli) {
+            bacillus.health--
+            bacillus.direction = getRandomDirection()
+        }
+
+        if (MathUtils.random(1f) < Settings.ProbabilityToSpawn) {
+            spawnCreature()
+        }
+    }
+
     fun spawnCreature(): Bacillus {
         val bacillus = Bacillus(
             position = Point(
                 MathUtils.random(width - 1),
                 MathUtils.random(height - 1)
             ),
-            direction = Point(
-                MathUtils.random(-1, 1),
-                MathUtils.random(-1, 1)
-            )
+            direction = getRandomDirection()
         )
         bacilli.add(bacillus)
 
         return bacillus
     }
 
-    fun isOutside(position: Point): Boolean {
+    private fun isOutside(position: Point): Boolean {
         return position.x < 0 || position.x >= width
                 || position.y < 0 || position.y >= height
     }
 
-    fun fitInside(position: Point): Point {
+    private fun fitInside(position: Point): Point {
         val x = if (position.x < 0) {
             0
         } else if (position.x >= width) {
@@ -51,7 +64,7 @@ class Field(val width: Int, val height: Int) {
         return Point(x, y)
     }
 
-    fun moveBacilli() {
+    private fun moveBacilli() {
         for (bacillus in bacilli) {
             val newPosition = bacillus.position + bacillus.direction
             bacillus.position = if (isOutside(newPosition)) {
@@ -61,4 +74,9 @@ class Field(val width: Int, val height: Int) {
             }
         }
     }
+
+    private fun getRandomDirection(): Point = Point(
+        x = MathUtils.random(-1, 1),
+        y = MathUtils.random(-1, 1)
+    )
 }
