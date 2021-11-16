@@ -70,7 +70,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
-        font.draw(batch, "Population: ${field.bacilli.count()}", 10f, Settings.Height - 30f)
+        font.draw(batch, "Population: ${field.bacilli.size}", 10f, Settings.Height - 30f)
         font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 50f)
         batch.end()
 
@@ -79,16 +79,41 @@ class BacillusGdxGame : ApplicationAdapter() {
     private fun drawGrid(field: Field) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
         shapeRenderer.color = Color.DARK_GRAY
+
+        for (y in 0 until field.height) {
+            shapeRenderer.line(
+                0f,
+                y * Settings.CellSize.toFloat(),
+                Settings.Width.toFloat(),
+                y * Settings.CellSize.toFloat()
+            )
+        }
+
+        for (x in 0 until field.width) {
+            shapeRenderer.line(
+                x * Settings.CellSize.toFloat(),
+                0f,
+                x * Settings.CellSize.toFloat(),
+                Settings.Height.toFloat()
+            )
+        }
+
         for (y in 0 until field.height) {
             for (x in 0 until field.width) {
                 if (field.grid[y][x] != null) {
                     val displayPosition = Point(x, y).toDisplay()
 
-                    shapeRenderer.rect(
+                    shapeRenderer.line(
                         displayPosition.x - Settings.CellSize / 2,
                         displayPosition.y - Settings.CellSize / 2,
-                        Settings.CellSize.toFloat(),
-                        Settings.CellSize.toFloat()
+                        displayPosition.x + Settings.CellSize / 2,
+                        displayPosition.y + Settings.CellSize / 2
+                    )
+                    shapeRenderer.line(
+                        displayPosition.x - Settings.CellSize / 2,
+                        displayPosition.y + Settings.CellSize / 2,
+                        displayPosition.x + Settings.CellSize / 2,
+                        displayPosition.y - Settings.CellSize / 2
                     )
                 }
             }
