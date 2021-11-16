@@ -9,7 +9,7 @@ object Settings {
     const val Width = 500
     const val Height = 500
 
-    const val CellSize = 20
+    const val CellSize = 10
 
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
@@ -23,15 +23,16 @@ object Settings {
     const val AttackDamage = 10
 
     const val ReproductionRange = 1
+    const val SensivityRange = 1
 
-    const val ProbabilityToSpawnBacillus = 0.0f
-    const val ProbabilityToSpawnFood = 0.0f
+    const val ProbabilityToSpawnBacillus = 0.005f
+    const val ProbabilityToSpawnFood = 0.01f
 
     const val InitNumberOfFood = 50
     const val InitNumberOfBacilli = 10
 
     object Debug {
-        const val displayGrid = true
-        const val displaySourcePosition = true
+        const val displayGrid = false
+        const val displaySourcePosition = false
     }
 }

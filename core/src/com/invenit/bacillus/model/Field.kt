@@ -2,6 +2,7 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
+import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.roundToInt
 
@@ -10,6 +11,10 @@ import kotlin.math.roundToInt
  * Created 15.11.2021
  */
 class Field(val width: Int, val height: Int) {
+
+    companion object {
+        val NoDirection: Point = Point(0, 0)
+    }
 
     val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
 
@@ -21,23 +26,54 @@ class Field(val width: Int, val height: Int) {
             .filter { it.energy < 0 }
             .forEach(this::kill)
 
-
+        reproduceOrganics()
         moveOrganics()
 
-        organics.filter { it.body == Substance.Protein }
-            .forEach {
-                it.energy--
-                it.direction = getRandomFreeDirection(it.position, it.body)
-            }
         organics.filter { it.consume == Substance.Nothing }
-            .forEach { it.energy = min(it.energy + 1, Settings.MaxHealth) }
+            .forEach { it.energy = min(it.energy + 2, Settings.MaxHealth) }
 
-        if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
-            spawn(Substance.Protein, Substance.Cellulose)
+        organics.forEach {
+            it.energy--
+            val directionToFood = it.getDirectionToFood()
+            it.direction = if (directionToFood == NoDirection) {
+                getRandomFreeDirection(it.position, it.body)
+            } else {
+                directionToFood
+            }
+
+            if (it.direction != NoDirection) {
+                it.energy--
+            }
         }
-        if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
-            spawn(Substance.Cellulose, Substance.Nothing)
+
+    }
+
+    private fun Organic.getDirectionToFood(): Point {
+        for (x in max(this.position.x - Settings.SensivityRange, 0)..min(
+            this.position.x + Settings.SensivityRange,
+            width - 1
+        )) {
+            for (y in max(this.position.y - Settings.SensivityRange, 0)..min(
+                this.position.y + Settings.SensivityRange,
+                height - 1
+            )) {
+                if (grid[y][x]?.body == this.consume && (x != this.position.x || y != this.position.y)) {
+                    return Point(x - this.position.x, y - this.position.y)
+                }
+            }
         }
+
+        return NoDirection
+    }
+
+    private fun reproduceOrganics() {
+
+        val offspings = organics
+            .filter { it.energy >= Settings.ReproductionThreshold }
+            .mapNotNull { it.split() }
+            .toList()
+
+        organics.addAll(offspings)
     }
 
     fun spawn(body: Substance, consume: Substance): Organic {
@@ -146,13 +182,6 @@ class Field(val width: Int, val height: Int) {
             grid[cell.position.y][cell.position.x] = null
             grid[newPosition.y][newPosition.x] = cell
             cell.position = newPosition
-
-            if (cell.energy >= Settings.ReproductionThreshold) {
-                val offsping = cell.split()
-                if (offsping != null) {
-                    offspings.add(offsping)
-                }
-            }
         }
 
         organics.addAll(offspings)

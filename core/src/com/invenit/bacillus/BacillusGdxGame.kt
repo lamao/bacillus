@@ -7,10 +7,14 @@ import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
-import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.Field
+import com.invenit.bacillus.model.Organic
+import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.model.Substance
 
 
 /**
@@ -23,7 +27,8 @@ class BacillusGdxGame : ApplicationAdapter() {
         private const val OneSecond = 1000_000_000L
         const val TicInterval = OneSecond.toFloat() * Settings.TicDelaySeconds
 
-        val Transparent = Color(0f, 0f, 0f, 0.3f)
+        val TransparentMask = Color(0f, 0f, 0f, 1f)
+        val ReproductionMask = Color(0.5f, 0.0f, 0f, 0f)
     }
 
     private var lastTicTime = 0L
@@ -56,6 +61,14 @@ class BacillusGdxGame : ApplicationAdapter() {
             lastTicTime = currentTime
 
             field.doTic()
+
+            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
+                field.spawn(Substance.Protein, Substance.Cellulose)
+            }
+            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
+                field.spawn(Substance.Cellulose, Substance.Nothing)
+            }
+
             ticsPassed++
         }
 
@@ -172,35 +185,15 @@ class BacillusGdxGame : ApplicationAdapter() {
 
 
             val alpha = 0.3f + 0.7f * (cell.energy.toFloat() / Settings.MaxHealth.toFloat())
-            shapeRenderer.color = when {
-                cell.body == Substance.Cellulose ->
-                    Color(0f, 1f, 0f, alpha)
-                cell.energy < Settings.ReproductionThreshold ->
-                    Color(0f, 0f, 1f, alpha)
-                else ->
-                    Color(1f, 0.5f, 0f, alpha)
+            shapeRenderer.color = cell.body.color
+                .sub(TransparentMask)
+                .add(0f, 0f, 0f, alpha)
+            if (cell.energy >= Settings.ReproductionThreshold) {
+                shapeRenderer.color.add(ReproductionMask)
             }
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
-                (Settings.CellSize / 2).toFloat()
-            )
-        }
-        shapeRenderer.end()
-
-    }
-
-    private fun MutableList<Something>.draw() {
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        for (something in this) {
-            val displayPosition = something.position.toDisplay()
-
-            shapeRenderer.color =
-                Color(0f, 1f, 0f, 0.3f + 0.7f * (something.energy.toFloat() / Settings.MaxHealth.toFloat()))
-            shapeRenderer.circle(
-                displayPosition.x,
-                displayPosition.y,
                 (Settings.CellSize / 2).toFloat()
             )
         }
