@@ -29,25 +29,26 @@ class Field(val width: Int, val height: Int) {
                 it.energy--
                 it.direction = getRandomFreeDirection(it.position, it.body)
             }
-        organics.filter { it.body == Substance.Cellulose }
+        organics.filter { it.consume == Substance.Nothing }
             .forEach { it.energy = min(it.energy + 1, Settings.MaxHealth) }
 
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
-            spawn(Substance.Protein)
+            spawn(Substance.Protein, Substance.Cellulose)
         }
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
-            spawn(Substance.Cellulose)
+            spawn(Substance.Cellulose, Substance.Nothing)
         }
     }
 
-    fun spawn(body: Substance): Organic {
+    fun spawn(body: Substance, consume: Substance): Organic {
         val position = getRandomFreePosition()
 
         val bacillus = Organic(
             position = position,
             direction = getRandomFreeDirection(position, body),
             energy = getRandomHealth(),
-            body = body
+            body = body,
+            consume = consume
         )
         organics.add(bacillus)
         grid[position.y][position.x] = bacillus
@@ -75,7 +76,8 @@ class Field(val width: Int, val height: Int) {
             position = offspingPosition,
             direction = getRandomFreeDirection(offspingPosition, this.body),
             energy = offspingHealth,
-            body = this.body
+            body = this.body,
+            consume = this.consume
         )
         grid[offspingPosition.y][offspingPosition.x] = offsping
         return offsping
@@ -129,7 +131,7 @@ class Field(val width: Int, val height: Int) {
                 isFree(newPosition) -> {
                     newPosition
                 }
-                getSomething(newPosition)?.body == Substance.Cellulose -> {
+                getSomething(newPosition)?.body == cell.consume -> {
                     val food = getSomething(newPosition)!!
                     food.energy -= Settings.AttackDamage
                     cell.energy = min(cell.energy + Settings.AttackDamage, Settings.MaxHealth)

@@ -8,6 +8,7 @@ class Organic(
     position: Point,
     energy: Int,
     var direction: Point,
-    body: Substance
+    body: Substance,
+    val consume: Substance
 ) : Something(position, energy, body) {
 }

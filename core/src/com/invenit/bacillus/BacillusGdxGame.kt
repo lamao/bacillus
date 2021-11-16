@@ -41,11 +41,11 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfFood) {
-            field.spawn(Substance.Cellulose)
+            field.spawn(Substance.Cellulose, Substance.Nothing)
         }
 
         for (i in 1..Settings.InitNumberOfBacilli) {
-            field.spawn(Substance.Protein)
+            field.spawn(Substance.Protein, Substance.Cellulose)
         }
     }
 

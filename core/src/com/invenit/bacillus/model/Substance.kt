@@ -6,6 +6,7 @@ package com.invenit.bacillus.model
  * Created: 16.11.21
  */
 enum class Substance {
+    Nothing,
     Protein,
     Cellulose
 }
