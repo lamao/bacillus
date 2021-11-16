@@ -2,6 +2,7 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
+import java.lang.Integer.max
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -89,7 +90,7 @@ class Field(val width: Int, val height: Int) {
         )
 
         val newPosition = position + direction
-        if (isOutside(newPosition) || !isFree(newPosition)) {
+        if (isOutside(newPosition)) {
             return Point(0, 0)
         }
 
@@ -139,6 +140,12 @@ class Field(val width: Int, val height: Int) {
                 isFree(newPosition) -> {
                     newPosition
                 }
+                getSomething(newPosition) !is Bacillus -> {
+                    val food = getSomething(newPosition)!!
+                    food.health -= Settings.AttackDamage
+                    bacillus.health = max(bacillus.health + Settings.AttackDamage, Settings.MaxHealth)
+                    bacillus.position
+                }
                 else -> {
                     bacillus.position
                 }
@@ -150,12 +157,15 @@ class Field(val width: Int, val height: Int) {
         }
     }
 
-    private fun isFree(position: Point): Boolean = grid[position.y][position.x] == null
+    private fun isFree(position: Point): Boolean = getSomething(position) == null
+
+    private fun getSomething(position: Point) = grid[position.y][position.x]
 
     private fun killBacillus(bacillus: Bacillus) {
         bacilli.remove(bacillus)
         grid[bacillus.position.y][bacillus.position.x] = null
     }
+
     private fun killFood(food: Something) {
         foods.remove(food)
         grid[food.position.y][food.position.x] = null

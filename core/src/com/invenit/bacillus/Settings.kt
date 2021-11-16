@@ -18,6 +18,8 @@ object Settings {
 
     const val DefaultHealth = 50
     const val MaxHealth = 200
+    const val AttackDamage = 10
+
     const val ProbabilityToSpawnBacillus = 0.9f
     const val ProbabilityToSpawnFood = 0.3f
 
