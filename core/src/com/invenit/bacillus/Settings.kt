@@ -17,7 +17,7 @@ object Settings {
     const val TicDelaySeconds = 0.3f
 
     const val DefaultHealth = 50
-    const val ProbabilityToSpawn = 1f
+    const val ProbabilityToSpawn = 0.9f
 
     const val InitNumberOfBacilli = 100
 
