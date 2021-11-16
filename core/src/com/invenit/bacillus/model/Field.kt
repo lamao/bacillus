@@ -3,6 +3,7 @@ package com.invenit.bacillus.model
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
 import java.lang.Integer.min
+import kotlin.math.roundToInt
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -76,18 +77,18 @@ class Field(val width: Int, val height: Int) {
         this.health -= offspingHealth
 
         val offspingPosition = this.position + offspringOffset
-        if (!isOutside(offspingPosition) && isFree(offspingPosition)) {
-            val offsping = Bacillus(
-                position = offspingPosition,
-                direction = getRandomFreeDirection(offspingPosition),
-                health = offspingHealth
-            )
-            grid[offspingPosition.y][offspingPosition.x] = offsping
-            return offsping
+        if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
+            this.health += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
+            return null
         }
 
-        return null
-
+        val offsping = Bacillus(
+            position = offspingPosition,
+            direction = getRandomFreeDirection(offspingPosition),
+            health = offspingHealth
+        )
+        grid[offspingPosition.y][offspingPosition.x] = offsping
+        return offsping
     }
 
     private fun Something.split(): Something? {
@@ -100,16 +101,17 @@ class Field(val width: Int, val height: Int) {
 
         this.health -= offspingHealth
         val offspingPosition = this.position + offspringOffset
-        if (!isOutside(offspingPosition) && isFree(offspingPosition)) {
-            val offsping = Something(
-                position = offspingPosition,
-                health = offspingHealth
-            )
-            grid[offspingPosition.y][offspingPosition.x] = offsping
-            return offsping
+        if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
+            this.health += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
+            return null
         }
 
-        return null
+        val offsping = Something(
+            position = offspingPosition,
+            health = offspingHealth
+        )
+        grid[offspingPosition.y][offspingPosition.x] = offsping
+        return offsping
     }
 
     fun spawnFood(): Something {
