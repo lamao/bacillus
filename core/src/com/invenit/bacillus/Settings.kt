@@ -6,10 +6,10 @@ package com.invenit.bacillus
  */
 object Settings {
 
-    const val Width = 500
-    const val Height = 500
+    const val Width = 1000
+    const val Height = 1000
 
-    const val CellSize = 10
+    const val CellSize = 20
 
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
@@ -25,8 +25,7 @@ object Settings {
     const val ReproductionRange = 1
     const val SensivityRange = 1
 
-    const val ProbabilityToSpawnBacillus = 0.005f
-    const val ProbabilityToSpawnFood = 0.01f
+    const val ProbabilityToSpawnOrganics = 0.1f
 
     const val InitNumberOfFood = 50
     const val InitNumberOfBacilli = 10

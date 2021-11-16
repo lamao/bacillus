@@ -15,6 +15,7 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
 import com.invenit.bacillus.model.Substance
+import kotlin.math.sqrt
 
 
 /**
@@ -46,11 +47,11 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfFood) {
-            field.spawn(Substance.Cellulose, Substance.Nothing)
+            field.spawn(Substance.Green, Substance.Nothing)
         }
 
         for (i in 1..Settings.InitNumberOfBacilli) {
-            field.spawn(Substance.Protein, Substance.Cellulose)
+            field.spawn(Substance.Blue, Substance.Green)
         }
     }
 
@@ -62,11 +63,10 @@ class BacillusGdxGame : ApplicationAdapter() {
 
             field.doTic()
 
-            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
-                field.spawn(Substance.Protein, Substance.Cellulose)
-            }
-            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
-                field.spawn(Substance.Cellulose, Substance.Nothing)
+            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
+                val body = Substance.values()[MathUtils.random(1, Substance.values().size - 1)]
+                val consume = Substance.values()[MathUtils.random(Substance.values().size - 1)]
+                field.spawn(body, consume)
             }
 
             ticsPassed++
@@ -88,13 +88,13 @@ class BacillusGdxGame : ApplicationAdapter() {
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
         font.draw(
             batch,
-            "Bacilli: ${field.organics.filter { it.body == Substance.Protein }.count()}",
+            "Bacilli: ${field.organics.filter { it.body == Substance.Blue }.count()}",
             10f,
             Settings.Height - 30f
         )
         font.draw(
             batch,
-            "Food: ${field.organics.filter { it.body == Substance.Cellulose }.count()}",
+            "Food: ${field.organics.filter { it.body == Substance.Green }.count()}",
             10f,
             Settings.Height - 50f
         )
@@ -153,7 +153,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.body == Substance.Protein }
+            this.filter { it.body == Substance.Blue }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -174,7 +174,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.body == Substance.Protein) {
+            if (Settings.Debug.displaySourcePosition && cell.body == Substance.Blue) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
@@ -195,6 +195,14 @@ class BacillusGdxGame : ApplicationAdapter() {
                 projectedPosition.x,
                 projectedPosition.y,
                 (Settings.CellSize / 2).toFloat()
+            )
+            shapeRenderer.color = cell.consume.color
+                .sub(TransparentMask)
+                .add(0f, 0f, 0f, sqrt(alpha))
+            shapeRenderer.circle(
+                projectedPosition.x,
+                projectedPosition.y,
+                (Settings.CellSize / 4).toFloat()
             )
         }
         shapeRenderer.end()

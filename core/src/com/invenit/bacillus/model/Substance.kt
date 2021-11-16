@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Color
  */
 enum class Substance(val color: Color) {
     Nothing(Color.BLACK),
-    Protein(Color.BLUE),
-    Cellulose(Color.GREEN)
+    Blue(Color.BLUE),
+    Green(Color.GREEN),
+    Orange(Color.ORANGE),
+    Pink(Color.PINK)
 }

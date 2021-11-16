@@ -36,7 +36,7 @@ class Field(val width: Int, val height: Int) {
             it.energy--
             val directionToFood = it.getDirectionToFood()
             it.direction = if (directionToFood == NoDirection) {
-                getRandomFreeDirection(it.position, it.body)
+                getRandomFreeDirection(it.position, it.consume)
             } else {
                 directionToFood
             }
@@ -81,7 +81,7 @@ class Field(val width: Int, val height: Int) {
 
         val bacillus = Organic(
             position = position,
-            direction = getRandomFreeDirection(position, body),
+            direction = getRandomFreeDirection(position, consume),
             energy = getRandomHealth(),
             body = body,
             consume = consume
@@ -110,7 +110,7 @@ class Field(val width: Int, val height: Int) {
 
         val offsping = Organic(
             position = offspingPosition,
-            direction = getRandomFreeDirection(offspingPosition, this.body),
+            direction = getRandomFreeDirection(offspingPosition, this.consume),
             energy = offspingHealth,
             body = this.body,
             consume = this.consume
@@ -133,8 +133,8 @@ class Field(val width: Int, val height: Int) {
         MathUtils.random(height - 1)
     )
 
-    private fun getRandomFreeDirection(position: Point, body: Substance): Point {
-        if (body == Substance.Cellulose) {
+    private fun getRandomFreeDirection(position: Point, consume: Substance): Point {
+        if (consume == Substance.Nothing) {
             return Point(0, 0)
         }
 
