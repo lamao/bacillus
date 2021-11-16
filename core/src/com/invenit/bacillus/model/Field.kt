@@ -57,6 +57,31 @@ class Field(val width: Int, val height: Int) {
         return bacillus
     }
 
+    private fun Bacillus.split(): Bacillus? {
+        val offspringOffset = Point(
+            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
+            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
+        )
+
+        val offspingHealth = getRandomHealth()
+
+        this.health -= offspingHealth
+
+        val offspingPosition = this.position + offspringOffset
+        if (!isOutside(offspingPosition) && isFree(offspingPosition)) {
+            val offsping = Bacillus(
+                position = offspingPosition,
+                direction = getRandomFreeDirection(offspingPosition),
+                health = offspingHealth
+            )
+            grid[offspingPosition.y][offspingPosition.x] = offsping
+            return offsping
+        }
+
+        return null
+
+    }
+
     fun spawnFood(): Something {
         val position = getRandomFreePosition()
         val food = Something(
@@ -134,6 +159,7 @@ class Field(val width: Int, val height: Int) {
     }
 
     private fun moveBacilli() {
+        val offspings = mutableListOf<Bacillus>()
         for (bacillus in bacilli) {
             var newPosition = bacillus.position + bacillus.direction
             newPosition = when {
@@ -144,6 +170,7 @@ class Field(val width: Int, val height: Int) {
                     val food = getSomething(newPosition)!!
                     food.health -= Settings.AttackDamage
                     bacillus.health = max(bacillus.health + Settings.AttackDamage, Settings.MaxHealth)
+
                     bacillus.position
                 }
                 else -> {
@@ -154,7 +181,16 @@ class Field(val width: Int, val height: Int) {
             grid[bacillus.position.y][bacillus.position.x] = null
             grid[newPosition.y][newPosition.x] = bacillus
             bacillus.position = newPosition
+
+            if (bacillus.health >= Settings.ReproductionThreshold) {
+                val offsping = bacillus.split()
+                if (offsping != null) {
+                    offspings.add(offsping)
+                }
+            }
         }
+
+        bacilli.addAll(offspings)
     }
 
     private fun isFree(position: Point): Boolean = getSomething(position) == null

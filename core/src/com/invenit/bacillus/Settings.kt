@@ -6,7 +6,7 @@ package com.invenit.bacillus
  */
 object Settings {
 
-    const val Width = 1000
+    const val Width = 500
     const val Height = 500
 
     const val CellSize = 20
@@ -14,17 +14,20 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val TicDelaySeconds = 0.3f
+    const val TicDelaySeconds = 0.5f
 
     const val DefaultHealth = 50
+    const val ReproductionThreshold = 100
     const val MaxHealth = 200
     const val AttackDamage = 10
 
-    const val ProbabilityToSpawnBacillus = 0.9f
+    const val ReproductionRange = 1
+
+    const val ProbabilityToSpawnBacillus = 0.0f
     const val ProbabilityToSpawnFood = 0.3f
 
-    const val InitNumberOfFood = 10
-    const val InitNumberOfBacilli = 100
+    const val InitNumberOfFood = 3
+    const val InitNumberOfBacilli = 10
 
     object Debug {
         const val displayGrid = true
