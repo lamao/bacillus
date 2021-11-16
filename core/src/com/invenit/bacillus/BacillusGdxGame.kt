@@ -77,8 +77,9 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
-        font.draw(batch, "Population: ${field.bacilli.size}", 10f, Settings.Height - 30f)
-        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 50f)
+        font.draw(batch, "Bacilli: ${field.bacilli.size}", 10f, Settings.Height - 30f)
+        font.draw(batch, "Food: ${field.foods.size}", 10f, Settings.Height - 50f)
+        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 70f)
         batch.end()
 
     }
