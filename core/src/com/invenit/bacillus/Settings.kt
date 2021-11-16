@@ -31,7 +31,7 @@ object Settings {
     const val InitNumberOfBacilli = 10
 
     object Debug {
-        const val displayGrid = false
-        const val displaySourcePosition = false
+        const val displayGrid = true
+        const val displaySourcePosition = true
     }
 }

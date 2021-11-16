@@ -13,60 +13,49 @@ class Field(val width: Int, val height: Int) {
 
     val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
 
-    val bacilli: MutableList<Bacillus> = mutableListOf()
-
-    val foods: MutableList<Something> = mutableListOf()
+    val organics: MutableList<Organic> = mutableListOf()
 
     fun doTic() {
 
-        bacilli.filter { it.health < 0 }
-            .forEach(this::killBacillus)
+        organics
+            .filter { it.energy < 0 }
+            .forEach(this::kill)
 
-        foods.filter { it.health < 0 }
-            .forEach(this::killFood)
 
-        moveBacilli()
+        moveOrganics()
 
-        for (bacillus in bacilli) {
-            bacillus.health--
-            bacillus.direction = getRandomFreeDirection(bacillus.position)
-        }
-
-        val foodOffsprings = mutableListOf<Something>()
-        for (food in foods) {
-            food.health = min(food.health + 1, Settings.MaxHealth)
-            if (food.health >= Settings.ReproductionThreshold) {
-                val offspring = food.split()
-                if (offspring != null) {
-                    foodOffsprings.add(offspring)
-                }
+        organics.filter { it.body == Substance.Protein }
+            .forEach {
+                it.energy--
+                it.direction = getRandomFreeDirection(it.position, it.body)
             }
-        }
-        foods.addAll(foodOffsprings)
+        organics.filter { it.body == Substance.Cellulose }
+            .forEach { it.energy = min(it.energy + 1, Settings.MaxHealth) }
 
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
-            spawnBacilli()
+            spawn(Substance.Protein)
         }
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
-            spawnFood()
+            spawn(Substance.Cellulose)
         }
     }
 
-    fun spawnBacilli(): Bacillus {
+    fun spawn(body: Substance): Organic {
         val position = getRandomFreePosition()
 
-        val bacillus = Bacillus(
+        val bacillus = Organic(
             position = position,
-            direction = getRandomFreeDirection(position),
-            health = getRandomHealth()
+            direction = getRandomFreeDirection(position, body),
+            energy = getRandomHealth(),
+            body = body
         )
-        bacilli.add(bacillus)
+        organics.add(bacillus)
         grid[position.y][position.x] = bacillus
 
         return bacillus
     }
 
-    private fun Bacillus.split(): Bacillus? {
+    private fun Organic.split(): Organic? {
         val offspringOffset = Point(
             MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
             MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
@@ -74,56 +63,22 @@ class Field(val width: Int, val height: Int) {
 
         val offspingHealth = getRandomHealth()
 
-        this.health -= offspingHealth
+        this.energy -= offspingHealth
 
         val offspingPosition = this.position + offspringOffset
         if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
-            this.health += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
+            this.energy += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
             return null
         }
 
-        val offsping = Bacillus(
+        val offsping = Organic(
             position = offspingPosition,
-            direction = getRandomFreeDirection(offspingPosition),
-            health = offspingHealth
+            direction = getRandomFreeDirection(offspingPosition, this.body),
+            energy = offspingHealth,
+            body = this.body
         )
         grid[offspingPosition.y][offspingPosition.x] = offsping
         return offsping
-    }
-
-    private fun Something.split(): Something? {
-        val offspringOffset = Point(
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
-        )
-
-        val offspingHealth = getRandomHealth()
-
-        this.health -= offspingHealth
-        val offspingPosition = this.position + offspringOffset
-        if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
-            this.health += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
-            return null
-        }
-
-        val offsping = Something(
-            position = offspingPosition,
-            health = offspingHealth
-        )
-        grid[offspingPosition.y][offspingPosition.x] = offsping
-        return offsping
-    }
-
-    fun spawnFood(): Something {
-        val position = getRandomFreePosition()
-        val food = Something(
-            position = position,
-            health = getRandomHealth()
-        )
-        foods.add(food)
-        grid[position.y][position.x] = food
-
-        return food
     }
 
     private fun getRandomFreePosition(): Point {
@@ -140,7 +95,11 @@ class Field(val width: Int, val height: Int) {
         MathUtils.random(height - 1)
     )
 
-    private fun getRandomFreeDirection(position: Point): Point {
+    private fun getRandomFreeDirection(position: Point, body: Substance): Point {
+        if (body == Substance.Cellulose) {
+            return Point(0, 0)
+        }
+
         val direction = Point(
             x = MathUtils.random(-1, 1),
             y = MathUtils.random(-1, 1)
@@ -162,80 +121,48 @@ class Field(val width: Int, val height: Int) {
                 || position.y < 0 || position.y >= height
     }
 
-    private fun fitInside(position: Point): Point {
-        val x = when {
-            position.x < 0 -> {
-                0
-            }
-            position.x >= width -> {
-                width - 1
-            }
-            else -> {
-                position.x
-            }
-        }
-
-        val y = when {
-            position.y < 0 -> {
-                0
-            }
-            position.y >= height -> {
-                height - 1
-            }
-            else -> {
-                position.y
-            }
-        }
-
-        return Point(x, y)
-    }
-
-    private fun moveBacilli() {
-        val offspings = mutableListOf<Bacillus>()
-        for (bacillus in bacilli) {
-            var newPosition = bacillus.position + bacillus.direction
+    private fun moveOrganics() {
+        val offspings = mutableListOf<Organic>()
+        for (cell in organics) {
+            var newPosition = cell.position + cell.direction
             newPosition = when {
                 isFree(newPosition) -> {
                     newPosition
                 }
-                getSomething(newPosition) !is Bacillus -> {
+                getSomething(newPosition)?.body == Substance.Cellulose -> {
                     val food = getSomething(newPosition)!!
-                    food.health -= Settings.AttackDamage
-                    bacillus.health = min(bacillus.health + Settings.AttackDamage, Settings.MaxHealth)
+                    food.energy -= Settings.AttackDamage
+                    cell.energy = min(cell.energy + Settings.AttackDamage, Settings.MaxHealth)
 
-                    bacillus.position
+                    cell.position
                 }
                 else -> {
-                    bacillus.position
+                    cell.position
                 }
             }
 
-            grid[bacillus.position.y][bacillus.position.x] = null
-            grid[newPosition.y][newPosition.x] = bacillus
-            bacillus.position = newPosition
+            grid[cell.position.y][cell.position.x] = null
+            grid[newPosition.y][newPosition.x] = cell
+            cell.position = newPosition
 
-            if (bacillus.health >= Settings.ReproductionThreshold) {
-                val offsping = bacillus.split()
+            if (cell.energy >= Settings.ReproductionThreshold) {
+                val offsping = cell.split()
                 if (offsping != null) {
                     offspings.add(offsping)
                 }
             }
         }
 
-        bacilli.addAll(offspings)
+        organics.addAll(offspings)
     }
 
     private fun isFree(position: Point): Boolean = getSomething(position) == null
 
     private fun getSomething(position: Point) = grid[position.y][position.x]
 
-    private fun killBacillus(bacillus: Bacillus) {
-        bacilli.remove(bacillus)
-        grid[bacillus.position.y][bacillus.position.x] = null
+    private fun kill(organic: Organic) {
+        organics.remove(organic)
+        grid[organic.position.y][organic.position.x] = null
     }
 
-    private fun killFood(food: Something) {
-        foods.remove(food)
-        grid[food.position.y][food.position.x] = null
-    }
 }

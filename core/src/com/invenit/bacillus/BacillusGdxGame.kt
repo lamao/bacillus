@@ -10,10 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
-import com.invenit.bacillus.model.Bacillus
-import com.invenit.bacillus.model.Field
-import com.invenit.bacillus.model.Point
-import com.invenit.bacillus.model.Something
+import com.invenit.bacillus.model.*
 
 
 /**
@@ -44,11 +41,11 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfFood) {
-            field.spawnFood()
+            field.spawn(Substance.Cellulose)
         }
 
         for (i in 1..Settings.InitNumberOfBacilli) {
-            field.spawnBacilli()
+            field.spawn(Substance.Protein)
         }
     }
 
@@ -71,14 +68,23 @@ class BacillusGdxGame : ApplicationAdapter() {
         }
 
         val ticPercentage = (currentTime - lastTicTime) / TicInterval
-        field.foods.draw()
-        field.bacilli.draw(ticPercentage)
+        field.organics.draw(ticPercentage)
 
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
-        font.draw(batch, "Bacilli: ${field.bacilli.size}", 10f, Settings.Height - 30f)
-        font.draw(batch, "Food: ${field.foods.size}", 10f, Settings.Height - 50f)
+        font.draw(
+            batch,
+            "Bacilli: ${field.organics.filter { it.body == Substance.Protein }.count()}",
+            10f,
+            Settings.Height - 30f
+        )
+        font.draw(
+            batch,
+            "Food: ${field.organics.filter { it.body == Substance.Cellulose }.count()}",
+            10f,
+            Settings.Height - 50f
+        )
         font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 70f)
         batch.end()
 
@@ -129,33 +135,34 @@ class BacillusGdxGame : ApplicationAdapter() {
         shapeRenderer.end()
     }
 
-    private fun MutableList<Bacillus>.draw(ticPercentage: Float) {
+    private fun MutableList<Organic>.draw(ticPercentage: Float) {
 
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            for (bacillus in this) {
-                val displayPosition = bacillus.position.toDisplay()
-                val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
-                shapeRenderer.line(
-                    displayPosition.x,
-                    displayPosition.y,
-                    projectedPosition.x,
-                    projectedPosition.y
-                )
-            }
+            this.filter { it.body == Substance.Protein }
+                .forEach { cell ->
+                    val displayPosition = cell.position.toDisplay()
+                    val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
+                    shapeRenderer.line(
+                        displayPosition.x,
+                        displayPosition.y,
+                        projectedPosition.x,
+                        projectedPosition.y
+                    )
+                }
             shapeRenderer.end()
         }
 
 
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        for (bacillus in this) {
-            val displayPosition = bacillus.position.toDisplay()
-            val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
+        for (cell in this) {
+            val displayPosition = cell.position.toDisplay()
+            val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            shapeRenderer.color = Color.GRAY
-            if (Settings.Debug.displaySourcePosition) {
+            if (Settings.Debug.displaySourcePosition && cell.body == Substance.Protein) {
+                shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
                     displayPosition.y,
@@ -164,11 +171,14 @@ class BacillusGdxGame : ApplicationAdapter() {
             }
 
 
-            val alpha = 0.3f + 0.7f *  (bacillus.health.toFloat() / Settings.MaxHealth.toFloat())
-            shapeRenderer.color = if (bacillus.health < Settings.ReproductionThreshold) {
-                Color(0f, 0f, 1f, alpha)
-            } else {
-                Color(1f, 0.5f, 0f, alpha)
+            val alpha = 0.3f + 0.7f * (cell.energy.toFloat() / Settings.MaxHealth.toFloat())
+            shapeRenderer.color = when {
+                cell.body == Substance.Cellulose ->
+                    Color(0f, 1f, 0f, alpha)
+                cell.energy < Settings.ReproductionThreshold ->
+                    Color(0f, 0f, 1f, alpha)
+                else ->
+                    Color(1f, 0.5f, 0f, alpha)
             }
             shapeRenderer.circle(
                 projectedPosition.x,
@@ -186,7 +196,8 @@ class BacillusGdxGame : ApplicationAdapter() {
         for (something in this) {
             val displayPosition = something.position.toDisplay()
 
-            shapeRenderer.color = Color(0f, 1f, 0f, 0.3f + 0.7f *  (something.health.toFloat() / Settings.MaxHealth.toFloat()))
+            shapeRenderer.color =
+                Color(0f, 1f, 0f, 0.3f + 0.7f * (something.energy.toFloat() / Settings.MaxHealth.toFloat()))
             shapeRenderer.circle(
                 displayPosition.x,
                 displayPosition.y,
