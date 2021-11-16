@@ -20,4 +20,9 @@ object Settings {
     const val ProbabilityToSpawn = 1f
 
     const val InitNumberOfBacilli = 100
+
+    object Debug {
+        val displayGrid = true
+        val displaySourcePosition = true
+    }
 }

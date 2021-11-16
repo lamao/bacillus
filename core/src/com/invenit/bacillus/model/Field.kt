@@ -9,16 +9,20 @@ import com.invenit.bacillus.Settings
  */
 class Field(val width: Int, val height: Int) {
 
+    val grid: Array<Array<Bacillus?>> = Array(height) { arrayOfNulls<Bacillus?>(width) }
+
     val bacilli: MutableList<Bacillus> = mutableListOf()
 
     fun doTic() {
 
+        bacilli.filter { it.health < 0 }
+            .forEach(this::killBacillus)
+
         moveBacilli()
 
-        bacilli.removeIf { it.health < 0 }
         for (bacillus in bacilli) {
             bacillus.health--
-            bacillus.direction = getRandomDirection()
+            bacillus.direction = getRandomFreeDirection(bacillus.position)
         }
 
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawn) {
@@ -27,16 +31,44 @@ class Field(val width: Int, val height: Int) {
     }
 
     fun spawnCreature(): Bacillus {
+        val position = getRandomFreePosition()
+
         val bacillus = Bacillus(
-            position = Point(
-                MathUtils.random(width - 1),
-                MathUtils.random(height - 1)
-            ),
-            direction = getRandomDirection()
+            position = position,
+            direction = getRandomFreeDirection(position)
         )
         bacilli.add(bacillus)
+        grid[position.y][position.x] = bacillus
 
         return bacillus
+    }
+
+    private fun getRandomFreePosition(): Point {
+        var position = getRandomPosition()
+        while (!isFree(position)) {
+            position = getRandomPosition()
+        }
+
+        return position
+    }
+
+    private fun getRandomPosition() = Point(
+        MathUtils.random(width - 1),
+        MathUtils.random(height - 1)
+    )
+
+    private fun getRandomFreeDirection(position: Point): Point {
+        val direction = Point(
+            x = MathUtils.random(-1, 1),
+            y = MathUtils.random(-1, 1)
+        )
+
+        val newPosition = position + direction
+        if (isOutside(newPosition) || !isFree(newPosition)) {
+            return Point(0, 0)
+        }
+
+        return direction
     }
 
     private fun isOutside(position: Point): Boolean {
@@ -45,20 +77,28 @@ class Field(val width: Int, val height: Int) {
     }
 
     private fun fitInside(position: Point): Point {
-        val x = if (position.x < 0) {
-            0
-        } else if (position.x >= width) {
-            width - 1
-        } else {
-            position.x
+        val x = when {
+            position.x < 0 -> {
+                0
+            }
+            position.x >= width -> {
+                width - 1
+            }
+            else -> {
+                position.x
+            }
         }
 
-        val y = if (position.y < 0) {
-            0
-        } else if (position.y >= height) {
-            height - 1
-        } else {
-            position.y
+        val y = when {
+            position.y < 0 -> {
+                0
+            }
+            position.y >= height -> {
+                height - 1
+            }
+            else -> {
+                position.y
+            }
         }
 
         return Point(x, y)
@@ -66,17 +106,26 @@ class Field(val width: Int, val height: Int) {
 
     private fun moveBacilli() {
         for (bacillus in bacilli) {
-            val newPosition = bacillus.position + bacillus.direction
-            bacillus.position = if (isOutside(newPosition)) {
-                fitInside(newPosition)
-            } else {
-                newPosition
+            var newPosition = bacillus.position + bacillus.direction
+            newPosition = when {
+                isFree(newPosition) -> {
+                    newPosition
+                }
+                else -> {
+                    bacillus.position
+                }
             }
+
+            grid[bacillus.position.y][bacillus.position.x] = null
+            grid[newPosition.y][newPosition.x] = bacillus
+            bacillus.position = newPosition
         }
     }
 
-    private fun getRandomDirection(): Point = Point(
-        x = MathUtils.random(-1, 1),
-        y = MathUtils.random(-1, 1)
-    )
+    private fun isFree(position: Point): Boolean = grid[position.y][position.x] == null
+
+    private fun killBacillus(bacillus: Bacillus) {
+        bacilli.remove(bacillus)
+        grid[bacillus.position.y][bacillus.position.x] = null
+    }
 }

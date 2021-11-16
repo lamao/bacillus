@@ -61,6 +61,10 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         Gdx.gl.glEnable(GL30.GL_BLEND)
 
+        if (Settings.Debug.displayGrid) {
+            drawGrid(field)
+        }
+
         val ticPercentage = (currentTime - lastTicTime) / TicInterval
         field.bacilli.draw(ticPercentage)
 
@@ -72,20 +76,42 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     }
 
-    private fun MutableList<Bacillus>.draw(ticPercentage: Float) {
-
+    private fun drawGrid(field: Field) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
-        for (bacillus in this) {
-            val displayPosition = bacillus.position.toDisplay()
-            val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
-            shapeRenderer.line(
-                displayPosition.x,
-                displayPosition.y,
-                projectedPosition.x,
-                projectedPosition.y
-            )
+        shapeRenderer.color = Color.DARK_GRAY
+        for (y in 0 until field.height) {
+            for (x in 0 until field.width) {
+                if (field.grid[y][x] != null) {
+                    val displayPosition = Point(x, y).toDisplay()
+
+                    shapeRenderer.rect(
+                        displayPosition.x - Settings.CellSize / 2,
+                        displayPosition.y - Settings.CellSize / 2,
+                        Settings.CellSize.toFloat(),
+                        Settings.CellSize.toFloat()
+                    )
+                }
+            }
         }
         shapeRenderer.end()
+    }
+
+    private fun MutableList<Bacillus>.draw(ticPercentage: Float) {
+
+        if (Settings.Debug.displaySourcePosition) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+            for (bacillus in this) {
+                val displayPosition = bacillus.position.toDisplay()
+                val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
+                shapeRenderer.line(
+                    displayPosition.x,
+                    displayPosition.y,
+                    projectedPosition.x,
+                    projectedPosition.y
+                )
+            }
+            shapeRenderer.end()
+        }
 
 
 
@@ -94,12 +120,14 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = bacillus.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
 
-            shapeRenderer.color = Color.GRAY
-            shapeRenderer.circle(
-                displayPosition.x,
-                displayPosition.y,
-                (Settings.CellSize / 4).toFloat()
-            )
+            if (Settings.Debug.displaySourcePosition) {
+                shapeRenderer.color = Color.GRAY
+                shapeRenderer.circle(
+                    displayPosition.x,
+                    displayPosition.y,
+                    (Settings.CellSize / 4).toFloat()
+                )
+            }
 
 
             shapeRenderer.color = Color.BLUE
