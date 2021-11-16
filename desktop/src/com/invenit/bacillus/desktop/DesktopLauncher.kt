@@ -4,6 +4,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Settings
+import java.util.*
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -11,6 +12,9 @@ import com.invenit.bacillus.Settings
  */
 
 fun main(args: Array<String>) {
+
+    Locale.setDefault(Locale.US)
+
     val config = LwjglApplicationConfiguration()
     config.title = "Bacillus"
     config.width = Settings.Width

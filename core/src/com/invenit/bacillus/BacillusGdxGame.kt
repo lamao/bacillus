@@ -2,6 +2,7 @@ package com.invenit.bacillus
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -15,6 +16,8 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
 import com.invenit.bacillus.model.Substance
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 
@@ -26,7 +29,8 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     companion object {
         private const val OneSecond = 1000_000_000L
-        const val TicInterval = OneSecond.toFloat() * Settings.TicDelaySeconds
+        val TicInterval: Float
+            get() = OneSecond.toFloat() * Settings.TicDelaySeconds
 
         val TransparentMask = Color(0f, 0f, 0f, 1f)
         val ReproductionMask = Color(0.5f, 0.0f, 0f, 0f)
@@ -53,6 +57,12 @@ class BacillusGdxGame : ApplicationAdapter() {
     }
 
     override fun render() {
+
+        if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD)) {
+            Settings.TicDelaySeconds = min(3f, Settings.TicDelaySeconds + 0.01f)
+        } else if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT)) {
+            Settings.TicDelaySeconds = max(0f, Settings.TicDelaySeconds - 0.01f)
+        }
 
         val currentTime = TimeUtils.nanoTime()
         if (currentTime - lastTicTime >= TicInterval) {
@@ -87,12 +97,13 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
-        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 30f)
+        font.draw(batch, "Delay: %.2f secs".format(Settings.TicDelaySeconds), 10f, Settings.Height - 30f)
+        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 50f)
         font.draw(
             batch,
             "Population: ${field.organics.count()}",
             10f,
-            Settings.Height - 50f
+            Settings.Height - 70f
         )
 
         batch.end()

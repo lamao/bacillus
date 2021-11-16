@@ -14,8 +14,9 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val TicDelaySeconds = .03f
-    const val SmoothAnimation = TicDelaySeconds > 0.1f
+    var TicDelaySeconds = .03f
+    val SmoothAnimation: Boolean
+        get() = TicDelaySeconds > 0.2f
 
     const val DefaultHealth = 50
     const val ReproductionThreshold = 100
