@@ -9,12 +9,13 @@ object Settings {
     const val Width = 1000
     const val Height = 1000
 
-    const val CellSize = 20
+    const val CellSize = 10
 
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val TicDelaySeconds = .3f
+    const val TicDelaySeconds = .03f
+    const val SmoothAnimation = TicDelaySeconds > 0.1f
 
     const val DefaultHealth = 50
     const val ReproductionThreshold = 100
@@ -25,10 +26,11 @@ object Settings {
     const val ReproductionRange = 1
     const val SensivityRange = 1
 
-    const val ProbabilityToSpawnOrganics = 0.1f
+    const val ProbabilityToSpawnOrganics = 0.0f
+    const val MutationRate = 0.005f
+    const val EnexpectedDeathRate = 0.0001f
 
-    const val InitNumberOfFood = 50
-    const val InitNumberOfBacilli = 10
+    const val InitNumberOfOrganics = 50
 
     object Debug {
         const val displayGrid = false

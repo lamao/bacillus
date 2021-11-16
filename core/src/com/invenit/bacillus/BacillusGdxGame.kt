@@ -46,13 +46,10 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        for (i in 1..Settings.InitNumberOfFood) {
+        for (i in 1..Settings.InitNumberOfOrganics) {
             field.spawn(Substance.Green, Substance.Nothing)
         }
 
-        for (i in 1..Settings.InitNumberOfBacilli) {
-            field.spawn(Substance.Blue, Substance.Green)
-        }
     }
 
     override fun render() {
@@ -80,25 +77,24 @@ class BacillusGdxGame : ApplicationAdapter() {
             drawGrid(field)
         }
 
-        val ticPercentage = (currentTime - lastTicTime) / TicInterval
+        val ticPercentage = if (Settings.SmoothAnimation) {
+            (currentTime - lastTicTime) / TicInterval
+        } else {
+            0f
+        }
         field.organics.draw(ticPercentage)
 
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
+        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 30f)
         font.draw(
             batch,
-            "Bacilli: ${field.organics.filter { it.body == Substance.Blue }.count()}",
-            10f,
-            Settings.Height - 30f
-        )
-        font.draw(
-            batch,
-            "Food: ${field.organics.filter { it.body == Substance.Green }.count()}",
+            "Population: ${field.organics.count()}",
             10f,
             Settings.Height - 50f
         )
-        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 70f)
+
         batch.end()
 
     }

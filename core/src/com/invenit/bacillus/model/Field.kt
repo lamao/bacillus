@@ -23,7 +23,7 @@ class Field(val width: Int, val height: Int) {
     fun doTic() {
 
         organics
-            .filter { it.energy < 0 }
+            .filter { it.energy < 0 || MathUtils.random() < Settings.EnexpectedDeathRate}
             .forEach(this::kill)
 
         reproduceOrganics()
@@ -112,11 +112,27 @@ class Field(val width: Int, val height: Int) {
             position = offspingPosition,
             direction = getRandomFreeDirection(offspingPosition, this.consume),
             energy = offspingHealth,
-            body = this.body,
-            consume = this.consume
+            body = this.getBodyWithMutation(),
+            consume = this.getConsumeWithMutation()
         )
         grid[offspingPosition.y][offspingPosition.x] = offsping
         return offsping
+    }
+
+    private fun Organic.getBodyWithMutation(): Substance {
+        if (MathUtils.random() < Settings.MutationRate) {
+            return Substance.values()[MathUtils.random(1, Substance.values().size - 1)]
+        }
+
+        return this.body
+    }
+
+    private fun Organic.getConsumeWithMutation(): Substance {
+        if (MathUtils.random() < Settings.MutationRate) {
+            return Substance.values()[MathUtils.random(Substance.values().size - 1)]
+        }
+
+        return this.consume
     }
 
     private fun getRandomFreePosition(): Point {
