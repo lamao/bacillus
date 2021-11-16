@@ -9,14 +9,19 @@ import com.invenit.bacillus.Settings
  */
 class Field(val width: Int, val height: Int) {
 
-    val grid: Array<Array<Bacillus?>> = Array(height) { arrayOfNulls<Bacillus?>(width) }
+    val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
 
     val bacilli: MutableList<Bacillus> = mutableListOf()
+
+    val foods: MutableList<Something> = mutableListOf()
 
     fun doTic() {
 
         bacilli.filter { it.health < 0 }
             .forEach(this::killBacillus)
+
+        foods.filter { it.health < 0 }
+            .forEach(this::killFood)
 
         moveBacilli()
 
@@ -25,22 +30,42 @@ class Field(val width: Int, val height: Int) {
             bacillus.direction = getRandomFreeDirection(bacillus.position)
         }
 
-        if (MathUtils.random(1f) < Settings.ProbabilityToSpawn) {
-            spawnCreature()
+        for (food in foods) {
+            food.health--
+        }
+
+        if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
+            spawnBacilli()
+        }
+        if (MathUtils.random(1f) < Settings.ProbabilityToSpawnFood) {
+            spawnFood()
         }
     }
 
-    fun spawnCreature(): Bacillus {
+    fun spawnBacilli(): Bacillus {
         val position = getRandomFreePosition()
 
         val bacillus = Bacillus(
             position = position,
-            direction = getRandomFreeDirection(position)
+            direction = getRandomFreeDirection(position),
+            health = getRandomHealth()
         )
         bacilli.add(bacillus)
         grid[position.y][position.x] = bacillus
 
         return bacillus
+    }
+
+    fun spawnFood(): Something {
+        val position = getRandomFreePosition()
+        val food = Something(
+            position = position,
+            health = getRandomHealth()
+        )
+        foods.add(food)
+        grid[position.y][position.x] = food
+
+        return food
     }
 
     private fun getRandomFreePosition(): Point {
@@ -70,6 +95,9 @@ class Field(val width: Int, val height: Int) {
 
         return direction
     }
+
+    private fun getRandomHealth() =
+        Settings.DefaultHealth + MathUtils.random(-Settings.DefaultHealth / 4, Settings.DefaultHealth / 4)
 
     private fun isOutside(position: Point): Boolean {
         return position.x < 0 || position.x >= width
@@ -128,4 +156,9 @@ class Field(val width: Int, val height: Int) {
         bacilli.remove(bacillus)
         grid[bacillus.position.y][bacillus.position.x] = null
     }
+    private fun killFood(food: Something) {
+        foods.remove(food)
+        grid[food.position.y][food.position.x] = null
+    }
+
 }

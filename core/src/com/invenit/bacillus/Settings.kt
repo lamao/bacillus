@@ -17,12 +17,15 @@ object Settings {
     const val TicDelaySeconds = 0.3f
 
     const val DefaultHealth = 50
-    const val ProbabilityToSpawn = 0.9f
+    const val MaxHealth = 200
+    const val ProbabilityToSpawnBacillus = 0.9f
+    const val ProbabilityToSpawnFood = 0.3f
 
+    const val InitNumberOfFood = 10
     const val InitNumberOfBacilli = 100
 
     object Debug {
-        val displayGrid = true
-        val displaySourcePosition = true
+        const val displayGrid = true
+        const val displaySourcePosition = true
     }
 }

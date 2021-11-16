@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.model.Bacillus
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.model.Something
 
 
 /**
@@ -42,8 +43,12 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
+        for (i in 1..Settings.InitNumberOfFood) {
+            field.spawnFood()
+        }
+
         for (i in 1..Settings.InitNumberOfBacilli) {
-            field.spawnCreature()
+            field.spawnBacilli()
         }
     }
 
@@ -66,7 +71,9 @@ class BacillusGdxGame : ApplicationAdapter() {
         }
 
         val ticPercentage = (currentTime - lastTicTime) / TicInterval
+        field.foods.draw()
         field.bacilli.draw(ticPercentage)
+
 
         batch.begin()
         font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
@@ -125,6 +132,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+            shapeRenderer.color = Color.GRAY
             for (bacillus in this) {
                 val displayPosition = bacillus.position.toDisplay()
                 val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
@@ -145,8 +153,8 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = bacillus.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(bacillus.direction, ticPercentage)
 
+            shapeRenderer.color = Color.GRAY
             if (Settings.Debug.displaySourcePosition) {
-                shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
                     displayPosition.y,
@@ -155,10 +163,27 @@ class BacillusGdxGame : ApplicationAdapter() {
             }
 
 
-            shapeRenderer.color = Color(0f, 0f, 1f, 0.3f + 0.7f *  (bacillus.health.toFloat() / Settings.DefaultHealth.toFloat()))
+            shapeRenderer.color = Color(0f, 0f, 1f, 0.3f + 0.7f *  (bacillus.health.toFloat() / Settings.MaxHealth.toFloat()))
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
+                (Settings.CellSize / 2).toFloat()
+            )
+        }
+        shapeRenderer.end()
+
+    }
+
+    private fun MutableList<Something>.draw() {
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        for (something in this) {
+            val displayPosition = something.position.toDisplay()
+
+            shapeRenderer.color = Color(0f, 1f, 0f, 0.3f + 0.7f *  (something.health.toFloat() / Settings.MaxHealth.toFloat()))
+            shapeRenderer.circle(
+                displayPosition.x,
+                displayPosition.y,
                 (Settings.CellSize / 2).toFloat()
             )
         }
