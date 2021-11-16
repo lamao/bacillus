@@ -155,7 +155,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             }
 
 
-            shapeRenderer.color = Color.BLUE
+            shapeRenderer.color = Color(0f, 0f, 1f, 0.3f + 0.7f *  (bacillus.health.toFloat() / Settings.DefaultHealth.toFloat()))
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
