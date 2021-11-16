@@ -2,7 +2,7 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
-import java.lang.Integer.max
+import java.lang.Integer.min
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -31,9 +31,17 @@ class Field(val width: Int, val height: Int) {
             bacillus.direction = getRandomFreeDirection(bacillus.position)
         }
 
+        val foodOffsprings = mutableListOf<Something>()
         for (food in foods) {
-            food.health--
+            food.health = min(food.health + 1, Settings.MaxHealth)
+            if (food.health >= Settings.ReproductionThreshold) {
+                val offspring = food.split()
+                if (offspring != null) {
+                    foodOffsprings.add(offspring)
+                }
+            }
         }
+        foods.addAll(foodOffsprings)
 
         if (MathUtils.random(1f) < Settings.ProbabilityToSpawnBacillus) {
             spawnBacilli()
@@ -80,6 +88,28 @@ class Field(val width: Int, val height: Int) {
 
         return null
 
+    }
+
+    private fun Something.split(): Something? {
+        val offspringOffset = Point(
+            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
+            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
+        )
+
+        val offspingHealth = getRandomHealth()
+
+        this.health -= offspingHealth
+        val offspingPosition = this.position + offspringOffset
+        if (!isOutside(offspingPosition) && isFree(offspingPosition)) {
+            val offsping = Something(
+                position = offspingPosition,
+                health = offspingHealth
+            )
+            grid[offspingPosition.y][offspingPosition.x] = offsping
+            return offsping
+        }
+
+        return null
     }
 
     fun spawnFood(): Something {
@@ -169,7 +199,7 @@ class Field(val width: Int, val height: Int) {
                 getSomething(newPosition) !is Bacillus -> {
                     val food = getSomething(newPosition)!!
                     food.health -= Settings.AttackDamage
-                    bacillus.health = max(bacillus.health + Settings.AttackDamage, Settings.MaxHealth)
+                    bacillus.health = min(bacillus.health + Settings.AttackDamage, Settings.MaxHealth)
 
                     bacillus.position
                 }
@@ -206,5 +236,4 @@ class Field(val width: Int, val height: Int) {
         foods.remove(food)
         grid[food.position.y][food.position.x] = null
     }
-
 }

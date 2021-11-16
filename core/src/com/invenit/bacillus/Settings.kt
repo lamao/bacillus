@@ -14,7 +14,7 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
-    const val TicDelaySeconds = 0.5f
+    const val TicDelaySeconds = .3f
 
     const val DefaultHealth = 50
     const val ReproductionThreshold = 100
@@ -24,9 +24,9 @@ object Settings {
     const val ReproductionRange = 1
 
     const val ProbabilityToSpawnBacillus = 0.0f
-    const val ProbabilityToSpawnFood = 0.3f
+    const val ProbabilityToSpawnFood = 0.0f
 
-    const val InitNumberOfFood = 3
+    const val InitNumberOfFood = 100
     const val InitNumberOfBacilli = 10
 
     object Debug {
