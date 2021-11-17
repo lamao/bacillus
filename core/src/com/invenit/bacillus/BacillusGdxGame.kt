@@ -207,9 +207,6 @@ class BacillusGdxGame : ApplicationAdapter() {
             shapeRenderer.color = cell.body.color
                 .sub(TransparentMask)
                 .add(0f, 0f, 0f, alpha)
-            if (cell.energy >= Settings.ReproductionThreshold) {
-                shapeRenderer.color.add(ReproductionMask)
-            }
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,

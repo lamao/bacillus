@@ -45,7 +45,7 @@ class Field(val width: Int, val height: Int) {
             .forEach { it.consume(Settings.SunYield) }
         organics.forEach { it.consume(it.getSuitableProducedSubstanceAmount()) }
 
-        organics.forEach { it.energy-- }
+        organics.forEach { it.energy -= Settings.PermanentConsumption }
 
         organics.filter { it.canMove }
             .forEach { it.lookUp() }
@@ -64,7 +64,7 @@ class Field(val width: Int, val height: Int) {
         }
 
         if (this.direction != NoDirection) {
-            this.energy--
+            this.energy -= Settings.MoveConsumption
         }
     }
 
@@ -244,8 +244,8 @@ class Field(val width: Int, val height: Int) {
             }
             getSomething(newPosition)?.body == cell.consume -> {
                 val food = getSomething(newPosition)!!
-                food.drain(Settings.AttackDamage)
-                cell.consume(Settings.AttackDamage)
+                food.drain(Settings.BiteYield)
+                cell.consume(Settings.BiteYield)
 
                 cell.position
             }
