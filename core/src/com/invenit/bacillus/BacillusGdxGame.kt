@@ -12,10 +12,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
-import com.invenit.bacillus.model.Field
-import com.invenit.bacillus.model.Organic
-import com.invenit.bacillus.model.Point
-import com.invenit.bacillus.model.Substance
+import com.invenit.bacillus.model.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -90,7 +87,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             ticsPassed++
         }
 
-        ScreenUtils.clear(0f, 0f, 0.1f, 0.5f)
+        ScreenUtils.clear(0f, 0f, 0.1f, 1f)
 
         Gdx.gl.glEnable(GL30.GL_BLEND)
 
@@ -215,13 +212,29 @@ class BacillusGdxGame : ApplicationAdapter() {
                 projectedPosition.y,
                 radius
             )
-            shapeRenderer.color = cell.consume.color
-                .sub(TransparentMask)
-                .add(0f, 0f, 0f, sqrt(alpha))
-            shapeRenderer.circle(
-                projectedPosition.x,
-                projectedPosition.y,
-                radius / 2
+
+            if (radius >= 2f) {
+                shapeRenderer.color = cell.consume.color
+                    .sub(TransparentMask)
+                    .add(0f, 0f, 0f, sqrt(alpha))
+                shapeRenderer.circle(
+                    projectedPosition.x,
+                    projectedPosition.y,
+                    radius / 2
+                )
+            }
+        }
+
+        for (mineral in field.minerals) {
+            val displayPosition = mineral.position.toDisplay()
+            val radius = mineral.getRadius()
+            shapeRenderer.color = mineral.body.color
+
+            shapeRenderer.rect(
+                displayPosition.x - radius,
+                displayPosition.y - radius,
+                2 * radius,
+                2 * radius
             )
         }
         shapeRenderer.end()
@@ -233,14 +246,16 @@ class BacillusGdxGame : ApplicationAdapter() {
 
             val alpha = cell.getAlpha()
             val radius = cell.getRadius()
-            shapeRenderer.color = cell.produce.color
-                .sub(TransparentMask)
-                .add(0f, 0f, 0f, sqrt(alpha))
-            shapeRenderer.circle(
-                projectedPosition.x,
-                projectedPosition.y,
-                radius
-            )
+            if (radius >= 3f) {
+                shapeRenderer.color = cell.produce.color
+                    .sub(TransparentMask)
+                    .add(0f, 0f, 0f, sqrt(alpha))
+                shapeRenderer.circle(
+                    projectedPosition.x,
+                    projectedPosition.y,
+                    radius
+                )
+            }
         }
         shapeRenderer.end()
 
@@ -249,7 +264,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     private fun Organic.getAlpha() =
         0.3f + 0.7f * (this.energy.toFloat() / this.size.toFloat())
 
-    private fun Organic.getRadius() =
+    private fun Something.getRadius() =
         0.25f * CellRadius + 0.75f * CellRadius * (this.size.toFloat() / Settings.MaxSize)
 
     override fun dispose() {

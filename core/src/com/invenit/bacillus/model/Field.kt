@@ -18,9 +18,10 @@ class Field(val width: Int, val height: Int) {
         val NoDirection: Point = Point(0, 0)
     }
 
-    val grid: Array<Array<Organic?>> = Array(height) { arrayOfNulls<Organic?>(width) }
+    val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
 
     val organics: MutableList<Organic> = mutableListOf()
+    val minerals: MutableList<Mineral> = mutableListOf()
 
     fun doTic() {
 
@@ -100,7 +101,8 @@ class Field(val width: Int, val height: Int) {
                 height - 1
             )) {
                 val something = grid[y][x]
-                if (something?.produce == this.consume) {
+                // TODO: Refactor
+                if (something is Organic && something.produce == this.consume) {
                     val distance = max(abs(x - this.position.x), abs(y - this.position.y))
                     result += 1f / 2f.pow(distance - 1)
                 }
@@ -110,11 +112,6 @@ class Field(val width: Int, val height: Int) {
         return result.roundToInt()
     }
 
-
-    private fun reproduceOrganics() {
-
-
-    }
 
     fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
         val position = getRandomFreePosition()
@@ -263,13 +260,23 @@ class Field(val width: Int, val height: Int) {
     private fun isFree(position: Point): Boolean = getSomething(position) == null
 
     private fun getSomething(position: Point) = grid[position.y][position.x]
-    private fun setSomething(position: Point, something: Organic?) {
+    private fun setSomething(position: Point, something: Something?) {
         grid[position.y][position.x] = something
     }
 
     private fun kill(organic: Organic) {
         organics.remove(organic)
-        setSomething(organic.position, null)
+        if (organic.size > 0 ) {
+            val corps = Mineral(
+                organic.position,
+                organic.size,
+                organic.body
+            )
+            minerals.add(corps)
+            setSomething(organic.position, corps)
+        } else {
+            setSomething(organic.position, null)
+        }
     }
 
 }

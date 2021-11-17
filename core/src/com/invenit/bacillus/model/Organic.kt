@@ -30,9 +30,9 @@ class Organic(
         }
     }
 
-    fun drain(points: Int) {
-        size -= points
-        if (energy < size) {
+    override fun drain(points: Int) {
+        super.drain(points)
+        if (energy > size) {
             energy = size
         }
     }

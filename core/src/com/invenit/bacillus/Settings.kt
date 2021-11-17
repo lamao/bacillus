@@ -31,7 +31,7 @@ object Settings {
     const val ConsumingRange = 2
 
     const val ProbabilityToSpawnOrganics = 0.0f
-    const val MutationRate = 0.01f
+    const val MutationRate = 0.1f
     const val UnexpectedDeathRate = 0f
 
     const val InitNumberOfOrganics = 20

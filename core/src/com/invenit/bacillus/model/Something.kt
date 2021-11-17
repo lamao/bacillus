@@ -8,5 +8,10 @@ package com.invenit.bacillus.model
 open class Something(
     var position: Point,
     var size: Int,
-    val body: Substance) {
+    val body: Substance
+) {
+
+    open fun drain(points: Int) {
+        size -= points
+    }
 }
