@@ -28,8 +28,15 @@ class Field(val width: Int, val height: Int) {
             .filter { it.energy < 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
             .forEach(this::kill)
 
-        reproduceOrganics()
-        moveOrganics()
+        organics.addAll(
+            organics
+                .filter { it.energy >= Settings.ReproductionThreshold }
+                .mapNotNull { it.split() }
+                .toList()
+        )
+
+        organics.filter { it.canMove }
+            .forEach { it.move() }
 
         organics.filter { it.consume == Substance.Nothing }
             .forEach { it.energy = min(it.energy + 2, Settings.MaxHealth) }
@@ -37,24 +44,27 @@ class Field(val width: Int, val height: Int) {
             it.energy = min(it.energy + it.getSuitableProducedSubstanceAmount(), Settings.MaxHealth)
         }
 
-        organics.forEach {
-            it.energy--
-            val directionToFood = it.getDirectionToFood()
-            it.direction = if (directionToFood == NoDirection) {
-                getRandomFreeDirection(it.position, it.canMove)
-            } else {
-                directionToFood
-            }
+        organics.forEach { it.energy-- }
 
-            if (it.direction != NoDirection) {
-                it.energy--
-            }
+        organics.filter { it.canMove }
+            .forEach { it.lookUp() }
+
+        organics.forEach { it.age++ }
+
+    }
+
+    private fun Organic.lookUp() {
+
+        val directionToFood = this.getDirectionToFood()
+        this.direction = if (directionToFood == NoDirection) {
+            getRandomFreeDirection(this.position)
+        } else {
+            directionToFood
         }
 
-        organics.forEach {
-            it.age++
+        if (this.direction != NoDirection) {
+            this.energy--
         }
-
     }
 
     private fun Organic.getDirectionToFood(): Point {
@@ -105,28 +115,23 @@ class Field(val width: Int, val height: Int) {
 
     private fun reproduceOrganics() {
 
-        val offspings = organics
-            .filter { it.energy >= Settings.ReproductionThreshold }
-            .mapNotNull { it.split() }
-            .toList()
 
-        organics.addAll(offspings)
     }
 
-    fun spawn(body: Substance, consume: Substance, produce: Substance, movable: Boolean): Organic {
+    fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
         val position = getRandomFreePosition()
 
         val bacillus = Organic(
             position = position,
-            direction = getRandomFreeDirection(position, movable),
+            direction = if (canMove) getRandomFreeDirection(position) else NoDirection,
             energy = getRandomHealth(),
             body = body,
             consume = consume,
             produce = produce,
-            canMove = movable
+            canMove = canMove
         )
         organics.add(bacillus)
-        grid[position.y][position.x] = bacillus
+        setSomething(position, bacillus)
 
         return bacillus
     }
@@ -148,7 +153,7 @@ class Field(val width: Int, val height: Int) {
         }
 
         val offsping = cloneWithMutation(offspingPosition, offspingHealth)
-        grid[offspingPosition.y][offspingPosition.x] = offsping
+        setSomething(offspingPosition, offsping)
         return offsping
     }
 
@@ -187,7 +192,7 @@ class Field(val width: Int, val height: Int) {
 
         return Organic(
             position = offspingPosition,
-            direction = getRandomFreeDirection(offspingPosition, canMove),
+            direction = if (canMove) getRandomFreeDirection(offspingPosition) else NoDirection,
             energy = offspingHealth,
             body = body,
             consume = consume,
@@ -210,11 +215,7 @@ class Field(val width: Int, val height: Int) {
         MathUtils.random(height - 1)
     )
 
-    private fun getRandomFreeDirection(position: Point, movable: Boolean): Point {
-        if (!movable) {
-            return Point(0, 0)
-        }
-
+    private fun getRandomFreeDirection(position: Point): Point {
         val direction = Point(
             x = MathUtils.random(-1, 1),
             y = MathUtils.random(-1, 1)
@@ -236,41 +237,40 @@ class Field(val width: Int, val height: Int) {
                 || position.y < 0 || position.y >= height
     }
 
-    private fun moveOrganics() {
-        val offspings = mutableListOf<Organic>()
-        for (cell in organics) {
-            var newPosition = cell.position + cell.direction
-            newPosition = when {
-                isFree(newPosition) -> {
-                    newPosition
-                }
-                getSomething(newPosition)?.body == cell.consume -> {
-                    val food = getSomething(newPosition)!!
-                    food.energy -= Settings.AttackDamage
-                    cell.energy = min(cell.energy + Settings.AttackDamage, Settings.MaxHealth)
-
-                    cell.position
-                }
-                else -> {
-                    cell.position
-                }
+    private fun Organic.move() {
+        val cell = this
+        var newPosition = cell.position + cell.direction
+        newPosition = when {
+            isFree(newPosition) -> {
+                newPosition
             }
+            getSomething(newPosition)?.body == cell.consume -> {
+                val food = getSomething(newPosition)!!
+                food.energy -= Settings.AttackDamage
+                cell.energy = min(cell.energy + Settings.AttackDamage, Settings.MaxHealth)
 
-            grid[cell.position.y][cell.position.x] = null
-            grid[newPosition.y][newPosition.x] = cell
-            cell.position = newPosition
+                cell.position
+            }
+            else -> {
+                cell.position
+            }
         }
 
-        organics.addAll(offspings)
+        setSomething(cell.position, null)
+        setSomething(newPosition, cell)
+        cell.position = newPosition
     }
 
     private fun isFree(position: Point): Boolean = getSomething(position) == null
 
     private fun getSomething(position: Point) = grid[position.y][position.x]
+    private fun setSomething(position: Point, something: Organic?) {
+        grid[position.y][position.x] = something
+    }
 
     private fun kill(organic: Organic) {
         organics.remove(organic)
-        grid[organic.position.y][organic.position.x] = null
+        setSomething(organic.position, null)
     }
 
 }
