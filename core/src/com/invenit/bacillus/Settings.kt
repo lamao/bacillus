@@ -9,7 +9,7 @@ object Settings {
     const val Width = 1000
     const val Height = 1000
 
-    const val CellSize = 10
+    const val CellSize = 20
 
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
@@ -18,11 +18,12 @@ object Settings {
     val SmoothAnimation: Boolean
         get() = TicDelaySeconds > 0.2f
 
-    const val DefaultHealth = 50
+    const val DefaultSize = 50
     const val ReproductionThreshold = 100
     const val ReturnHealthWhenReproductionFails = 0.5f
-    const val MaxHealth = 200
+    const val MaxSize = 200
     const val AttackDamage = 10
+    const val SunYield = 2
     const val MaxAge = 1000
 
     const val ReproductionRange = 1
@@ -30,7 +31,7 @@ object Settings {
     const val ConsumingRange = 2
 
     const val ProbabilityToSpawnOrganics = 0.0f
-    const val MutationRate = 0.005f
+    const val MutationRate = 0.01f
     const val UnexpectedDeathRate = 0f
 
     const val InitNumberOfOrganics = 20

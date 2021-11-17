@@ -1,18 +1,41 @@
 package com.invenit.bacillus.model
 
+import com.invenit.bacillus.Settings
+
 /**
  * Created by vyacheslav.mischeryakov
  * Created 15.11.2021
  */
 class Organic(
     position: Point,
-    energy: Int,
+    size: Int,
     var direction: Point,
     body: Substance,
     val consume: Substance,
     val produce: Substance,
-    val canMove: Boolean,
+    val canMove: Boolean
+) : Something(position, size, body) {
     var age: Int = 0
-) : Something(position, energy, body) {
+    var energy: Int = size
+
+    fun consume(gain: Int) {
+        if (this.energy + gain <= this.size) {
+            this.energy += gain
+        } else {
+            val energyGain = this.size - this.energy
+            val sizeGain = gain - energyGain
+
+            this.energy += energyGain
+            this.size = Integer.min(this.size + sizeGain, Settings.MaxSize)
+        }
+    }
+
+    fun drain(points: Int) {
+        size -= points
+        if (energy < size) {
+            energy = size
+        }
+    }
+
 
 }

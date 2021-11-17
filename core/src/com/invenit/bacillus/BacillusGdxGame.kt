@@ -34,6 +34,8 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         val TransparentMask = Color(0f, 0f, 0f, 1f)
         val ReproductionMask = Color(0.5f, 0.0f, 0f, 0f)
+
+        val CellRadius = Settings.CellSize.toFloat() / 2
     }
 
     private var lastTicTime = 0L
@@ -51,7 +53,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfOrganics) {
-            field.spawn(Substance.Green, Substance.Nothing, Substance.White, false)
+            field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
         }
 
     }
@@ -169,7 +171,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.consume != Substance.Nothing }
+            this.filter { it.consume != Substance.Sun }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -190,17 +192,18 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.consume != Substance.Nothing) {
+            if (Settings.Debug.displaySourcePosition && cell.consume != Substance.Sun) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
                     displayPosition.y,
-                    (Settings.CellSize / 4).toFloat()
+                    CellRadius / 2
                 )
             }
 
 
-            val alpha = 0.3f + 0.7f * (cell.energy.toFloat() / Settings.MaxHealth.toFloat())
+            val alpha = cell.getAlpha()
+            val radius = cell.getRadius()
             shapeRenderer.color = cell.body.color
                 .sub(TransparentMask)
                 .add(0f, 0f, 0f, alpha)
@@ -210,7 +213,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
-                (Settings.CellSize / 2).toFloat()
+                radius
             )
             shapeRenderer.color = cell.consume.color
                 .sub(TransparentMask)
@@ -218,7 +221,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
-                (Settings.CellSize / 4).toFloat()
+                radius / 2
             )
         }
         shapeRenderer.end()
@@ -228,19 +231,26 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            val alpha = 0.3f + 0.7f * (cell.energy.toFloat() / Settings.MaxHealth.toFloat())
+            val alpha = cell.getAlpha()
+            val radius = cell.getRadius()
             shapeRenderer.color = cell.produce.color
                 .sub(TransparentMask)
                 .add(0f, 0f, 0f, sqrt(alpha))
             shapeRenderer.circle(
                 projectedPosition.x,
                 projectedPosition.y,
-                (Settings.CellSize / 2).toFloat()
+                radius
             )
         }
         shapeRenderer.end()
 
     }
+
+    private fun Organic.getAlpha() =
+        0.3f + 0.7f * (this.energy.toFloat() / this.size.toFloat())
+
+    private fun Organic.getRadius() =
+        0.25f * CellRadius + 0.75f * CellRadius * (this.size.toFloat() / Settings.MaxSize)
 
     override fun dispose() {
         shapeRenderer.dispose()

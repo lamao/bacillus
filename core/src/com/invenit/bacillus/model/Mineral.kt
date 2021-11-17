@@ -7,7 +7,7 @@ package com.invenit.bacillus.model
  */
 class Mineral(
     position: Point,
-    energy: Int,
+    size: Int,
     body: Substance
-) : Something(position, energy, body) {
+) : Something(position, size, body) {
 }

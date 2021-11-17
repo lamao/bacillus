@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils
  * Created: 16.11.21
  */
 enum class Substance(val color: Color) {
-    Nothing(Color.BLACK),
+    Sun(Color.BLACK),
     Blue(Color.BLUE),
     Green(Color.GREEN),
     Pink(Color.PINK),

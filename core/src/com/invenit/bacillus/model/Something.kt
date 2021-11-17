@@ -7,6 +7,6 @@ package com.invenit.bacillus.model
  */
 open class Something(
     var position: Point,
-    var energy: Int,
+    var size: Int,
     val body: Substance) {
 }

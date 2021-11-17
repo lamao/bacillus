@@ -25,12 +25,12 @@ class Field(val width: Int, val height: Int) {
     fun doTic() {
 
         organics
-            .filter { it.energy < 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
+            .filter { it.energy < 0 || it.size < 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
             .forEach(this::kill)
 
         organics.addAll(
             organics
-                .filter { it.energy >= Settings.ReproductionThreshold }
+                .filter { it.size >= Settings.ReproductionThreshold && it.energy >= Settings.ReproductionThreshold}
                 .mapNotNull { it.split() }
                 .toList()
         )
@@ -38,11 +38,9 @@ class Field(val width: Int, val height: Int) {
         organics.filter { it.canMove }
             .forEach { it.move() }
 
-        organics.filter { it.consume == Substance.Nothing }
-            .forEach { it.energy = min(it.energy + 2, Settings.MaxHealth) }
-        organics.forEach {
-            it.energy = min(it.energy + it.getSuitableProducedSubstanceAmount(), Settings.MaxHealth)
-        }
+        organics.filter { it.consume == Substance.Sun }
+            .forEach { it.consume(Settings.SunYield) }
+        organics.forEach { it.consume(it.getSuitableProducedSubstanceAmount()) }
 
         organics.forEach { it.energy-- }
 
@@ -124,7 +122,7 @@ class Field(val width: Int, val height: Int) {
         val bacillus = Organic(
             position = position,
             direction = if (canMove) getRandomFreeDirection(position) else NoDirection,
-            energy = getRandomHealth(),
+            size = getRandomSize(),
             body = body,
             consume = consume,
             produce = produce,
@@ -142,24 +140,25 @@ class Field(val width: Int, val height: Int) {
             MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
         )
 
-        val offspingHealth = getRandomHealth()
+        val offspingSize = getRandomSize()
 
-        this.energy -= offspingHealth
+        this.energy -= offspingSize
 
         val offspingPosition = this.position + offspringOffset
         if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
-            this.energy += (offspingHealth * Settings.ReturnHealthWhenReproductionFails).roundToInt()
+            this.energy += (offspingSize * Settings.ReturnHealthWhenReproductionFails).roundToInt()
             return null
         }
 
-        val offsping = cloneWithMutation(offspingPosition, offspingHealth)
+        this.size -= offspingSize
+        val offsping = cloneWithMutation(offspingPosition, offspingSize)
         setSomething(offspingPosition, offsping)
         return offsping
     }
 
     private fun Organic.cloneWithMutation(
         offspingPosition: Point,
-        offspingHealth: Int
+        offspingSize: Int
     ): Organic {
 
 
@@ -193,7 +192,7 @@ class Field(val width: Int, val height: Int) {
         return Organic(
             position = offspingPosition,
             direction = if (canMove) getRandomFreeDirection(offspingPosition) else NoDirection,
-            energy = offspingHealth,
+            size = offspingSize,
             body = body,
             consume = consume,
             produce = produce,
@@ -229,8 +228,8 @@ class Field(val width: Int, val height: Int) {
         return direction
     }
 
-    private fun getRandomHealth() =
-        Settings.DefaultHealth + MathUtils.random(-Settings.DefaultHealth / 4, Settings.DefaultHealth / 4)
+    private fun getRandomSize() =
+        Settings.DefaultSize + MathUtils.random(-Settings.DefaultSize / 4, Settings.DefaultSize / 4)
 
     private fun isOutside(position: Point): Boolean {
         return position.x < 0 || position.x >= width
@@ -246,8 +245,8 @@ class Field(val width: Int, val height: Int) {
             }
             getSomething(newPosition)?.body == cell.consume -> {
                 val food = getSomething(newPosition)!!
-                food.energy -= Settings.AttackDamage
-                cell.energy = min(cell.energy + Settings.AttackDamage, Settings.MaxHealth)
+                food.drain(Settings.AttackDamage)
+                cell.consume(Settings.AttackDamage)
 
                 cell.position
             }
