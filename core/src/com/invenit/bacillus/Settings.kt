@@ -23,15 +23,17 @@ object Settings {
     const val ReturnHealthWhenReproductionFails = 0.5f
     const val MaxHealth = 200
     const val AttackDamage = 10
+    const val MaxAge = 1000
 
     const val ReproductionRange = 1
-    const val SensivityRange = 1
+    const val VisionRange = 1
+    const val ConsumingRange = 2
 
     const val ProbabilityToSpawnOrganics = 0.0f
     const val MutationRate = 0.005f
-    const val EnexpectedDeathRate = 0.0001f
+    const val UnexpectedDeathRate = 0f
 
-    const val InitNumberOfOrganics = 50
+    const val InitNumberOfOrganics = 20
 
     object Debug {
         const val displayGrid = false

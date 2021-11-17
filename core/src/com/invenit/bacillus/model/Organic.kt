@@ -9,6 +9,10 @@ class Organic(
     energy: Int,
     var direction: Point,
     body: Substance,
-    val consume: Substance
+    val consume: Substance,
+    val produce: Substance,
+    val canMove: Boolean,
+    var age: Int = 0
 ) : Something(position, energy, body) {
+
 }

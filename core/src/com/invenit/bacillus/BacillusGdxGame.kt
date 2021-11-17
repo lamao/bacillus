@@ -51,7 +51,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfOrganics) {
-            field.spawn(Substance.Green, Substance.Nothing)
+            field.spawn(Substance.Green, Substance.Nothing, Substance.White, false)
         }
 
     }
@@ -71,9 +71,18 @@ class BacillusGdxGame : ApplicationAdapter() {
             field.doTic()
 
             if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
-                val body = Substance.values()[MathUtils.random(1, Substance.values().size - 1)]
-                val consume = Substance.values()[MathUtils.random(Substance.values().size - 1)]
-                field.spawn(body, consume)
+                var consume = Substance.getRandomConsume()
+                var produce = Substance.getRandomProduce()
+                while (consume == produce) {
+                    consume = Substance.getRandomConsume()
+                    produce = Substance.getRandomProduce()
+                }
+                field.spawn(
+                    Substance.getRandomBody(),
+                    consume,
+                    produce,
+                    MathUtils.randomBoolean()
+                )
             }
 
             ticsPassed++
@@ -160,7 +169,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.body == Substance.Blue }
+            this.filter { it.consume != Substance.Nothing }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -181,7 +190,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.body == Substance.Blue) {
+            if (Settings.Debug.displaySourcePosition && cell.consume != Substance.Nothing) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
@@ -210,6 +219,23 @@ class BacillusGdxGame : ApplicationAdapter() {
                 projectedPosition.x,
                 projectedPosition.y,
                 (Settings.CellSize / 4).toFloat()
+            )
+        }
+        shapeRenderer.end()
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+        for (cell in this) {
+            val displayPosition = cell.position.toDisplay()
+            val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
+
+            val alpha = 0.3f + 0.7f * (cell.energy.toFloat() / Settings.MaxHealth.toFloat())
+            shapeRenderer.color = cell.produce.color
+                .sub(TransparentMask)
+                .add(0f, 0f, 0f, sqrt(alpha))
+            shapeRenderer.circle(
+                projectedPosition.x,
+                projectedPosition.y,
+                (Settings.CellSize / 2).toFloat()
             )
         }
         shapeRenderer.end()

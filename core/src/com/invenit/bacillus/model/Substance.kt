@@ -1,6 +1,7 @@
 package com.invenit.bacillus.model
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.MathUtils
 
 /**
  *
@@ -11,8 +12,13 @@ enum class Substance(val color: Color) {
     Nothing(Color.BLACK),
     Blue(Color.BLUE),
     Green(Color.GREEN),
-    Orange(Color.ORANGE),
     Pink(Color.PINK),
     White(Color.WHITE),
-    Red(Color.RED)
+    Red(Color.RED);
+
+    companion object {
+        fun getRandomBody() = values()[MathUtils.random(1, values().size - 1)]
+        fun getRandomConsume() = values()[MathUtils.random(0, values().size - 1)]
+        fun getRandomProduce() = values()[MathUtils.random(1, values().size - 1)]
+    }
 }
