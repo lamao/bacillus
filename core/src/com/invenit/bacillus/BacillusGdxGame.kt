@@ -49,8 +49,11 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        for (i in 1..Settings.InitNumberOfOrganics) {
+        for (i in 1..Settings.InitNumberOfOrganics / 2) {
             field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
+        }
+        for (i in 1..Settings.InitNumberOfOrganics / 2) {
+            field.spawn(Substance.Blue, Substance.Green, Substance.Pink, true)
         }
 
     }

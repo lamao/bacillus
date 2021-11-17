@@ -27,11 +27,13 @@ class Field(val width: Int, val height: Int) {
 
         organics
             .filter { it.energy < 0 || it.size < 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
-            .forEach(this::kill)
+            .forEach { it.kill() }
+        minerals.filter { it.size <= 0 }
+            .forEach { it.sweep() }
 
         organics.addAll(
             organics
-                .filter { it.size >= Settings.ReproductionThreshold && it.energy >= Settings.ReproductionThreshold}
+                .filter { it.size >= Settings.ReproductionThreshold && it.energy >= Settings.ReproductionThreshold }
                 .mapNotNull { it.split() }
                 .toList()
         )
@@ -264,19 +266,24 @@ class Field(val width: Int, val height: Int) {
         grid[position.y][position.x] = something
     }
 
-    private fun kill(organic: Organic) {
-        organics.remove(organic)
-        if (organic.size > 0 ) {
+    private fun Organic.kill() {
+        organics.remove(this)
+        if (this.size > 0) {
             val corps = Mineral(
-                organic.position,
-                organic.size,
-                organic.body
+                this.position,
+                this.size,
+                this.body
             )
             minerals.add(corps)
-            setSomething(organic.position, corps)
+            setSomething(this.position, corps)
         } else {
-            setSomething(organic.position, null)
+            setSomething(this.position, null)
         }
+    }
+
+    private fun Mineral.sweep() {
+        minerals.remove(this)
+        setSomething(this.position, null)
     }
 
 }
