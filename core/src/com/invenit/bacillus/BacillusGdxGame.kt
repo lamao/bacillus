@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
@@ -49,11 +48,8 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        for (i in 1..Settings.InitNumberOfOrganics / 2) {
+        for (i in 1..Settings.InitNumberOfOrganics) {
             field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
-        }
-        for (i in 1..Settings.InitNumberOfOrganics / 2) {
-            field.spawn(Substance.Blue, Substance.Green, Substance.Pink, true)
         }
 
     }
@@ -92,8 +88,6 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         ScreenUtils.clear(0f, 0f, 0.1f, 1f)
 
-        Gdx.gl.glEnable(GL30.GL_BLEND)
-
         if (Settings.Debug.displayGrid) {
             drawGrid(field)
         }
@@ -103,20 +97,20 @@ class BacillusGdxGame : ApplicationAdapter() {
         } else {
             0f
         }
+//        Gdx.gl.glEnable(GL30.GL_BLEND)
         field.organics.draw(ticPercentage)
+        field.minerals.draw()
+//        Gdx.gl.glDisable(GL30.GL_BLEND)
 
 
+        val fpsMessage = "FPS:  ${Gdx.graphics.framesPerSecond}. " +
+                "Delay: %.2f secs. ".format(Settings.TicDelaySeconds) +
+                "Tics: $ticsPassed"
         batch.begin()
-        font.draw(batch, "FPS:  ${Gdx.graphics.framesPerSecond}", 10f, Settings.Height - 10f)
-        font.draw(batch, "Delay: %.2f secs".format(Settings.TicDelaySeconds), 10f, Settings.Height - 30f)
-        font.draw(batch, "Tics: $ticsPassed", 10f, Settings.Height - 50f)
-        font.draw(
-            batch,
-            "Population: ${field.organics.count()}",
-            10f,
-            Settings.Height - 70f
-        )
-
+        font.draw(batch, fpsMessage, 10f, Settings.Height - 10f)
+        font.draw(batch, "Items: ${field.organics.count() + field.minerals.count()}", 10f, Settings.Height - 30f)
+        font.draw(batch, "Organics: ${field.organics.count()}", 10f, Settings.Height - 50f)
+        font.draw(batch, "Minerals: ${field.minerals.count()}", 10f, Settings.Height - 70f)
         batch.end()
 
     }
@@ -224,19 +218,6 @@ class BacillusGdxGame : ApplicationAdapter() {
                 )
             }
         }
-
-        for (mineral in field.minerals) {
-            val displayPosition = mineral.position.toDisplay()
-            val radius = mineral.getRadius()
-            shapeRenderer.color = mineral.body.color
-
-            shapeRenderer.rect(
-                displayPosition.x - radius,
-                displayPosition.y - radius,
-                2 * radius,
-                2 * radius
-            )
-        }
         shapeRenderer.end()
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
@@ -259,6 +240,23 @@ class BacillusGdxGame : ApplicationAdapter() {
         }
         shapeRenderer.end()
 
+    }
+
+    private fun MutableList<Mineral>.draw() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        for (mineral in this) {
+            val displayPosition = mineral.position.toDisplay()
+            val radius = mineral.getRadius()
+            shapeRenderer.color = mineral.body.color
+
+            shapeRenderer.rect(
+                displayPosition.x - radius,
+                displayPosition.y - radius,
+                2 * radius,
+                2 * radius
+            )
+        }
+        shapeRenderer.end()
     }
 
     private fun Organic.getAlpha() =
