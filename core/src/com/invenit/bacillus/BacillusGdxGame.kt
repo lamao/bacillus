@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
@@ -97,10 +98,11 @@ class BacillusGdxGame : ApplicationAdapter() {
         } else {
             0f
         }
-//        Gdx.gl.glEnable(GL30.GL_BLEND)
+        Gdx.gl.glEnable(GL30.GL_BLEND)
+        Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA)
         field.organics.draw(ticPercentage)
         field.minerals.draw()
-//        Gdx.gl.glDisable(GL30.GL_BLEND)
+        Gdx.gl.glDisable(GL30.GL_BLEND)
 
 
         val fpsMessage = "FPS:  ${Gdx.graphics.framesPerSecond}. " +
@@ -198,7 +200,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
             val alpha = cell.getAlpha()
             val radius = cell.getRadius()
-            shapeRenderer.color = cell.body.color
+            shapeRenderer.color = Color(cell.body.color)
                 .sub(TransparentMask)
                 .add(0f, 0f, 0f, alpha)
             shapeRenderer.circle(
@@ -208,7 +210,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             )
 
             if (radius >= 2f) {
-                shapeRenderer.color = cell.consume.color
+                shapeRenderer.color = Color(cell.consume.color)
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))
                 shapeRenderer.circle(
@@ -228,7 +230,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val alpha = cell.getAlpha()
             val radius = cell.getRadius()
             if (radius >= 3f) {
-                shapeRenderer.color = cell.produce.color
+                shapeRenderer.color = Color(cell.produce.color)
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))
                 shapeRenderer.circle(
