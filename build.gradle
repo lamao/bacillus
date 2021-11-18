@@ -26,6 +26,7 @@ allprojects {
         ashleyVersion = '1.7.3'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.1.0'
+        junitVersion = '5.4.2'
     }
 
     repositories {
@@ -54,10 +55,21 @@ project(":desktop") {
 project(":core") {
     apply plugin: "kotlin"
 
+    test {
+        useJUnitPlatform()
+    }
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+        // Other dependencies.
+        testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     }
 }
