@@ -26,10 +26,13 @@ class Field(val width: Int, val height: Int) {
     fun doTic() {
 
         organics
-            .filter { it.energy < 0 || it.size < 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
+            .filter { it.energy <= 0 || it.size <= 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
             .forEach { it.kill() }
         minerals.filter { it.size <= 0 }
             .forEach { it.sweep() }
+
+        organics.filter { it.canMove }
+            .forEach { it.move() }
 
         organics.addAll(
             organics
@@ -38,19 +41,17 @@ class Field(val width: Int, val height: Int) {
                 .toList()
         )
 
-        organics.filter { it.canMove }
-            .forEach { it.move() }
+        organics.forEach { it.energy -= Settings.PermanentConsumption }
+        organics.forEach { it.age++ }
 
         organics.filter { it.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
         organics.forEach { it.consume(it.getSuitableProducedSubstanceAmount()) }
 
-        organics.forEach { it.energy -= Settings.PermanentConsumption }
 
         organics.filter { it.canMove }
             .forEach { it.lookUp() }
 
-        organics.forEach { it.age++ }
 
     }
 
