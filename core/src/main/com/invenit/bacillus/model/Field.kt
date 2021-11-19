@@ -36,7 +36,7 @@ class Field(val width: Int, val height: Int) {
 
         organics.addAll(
             organics
-                .filter { it.size >= Settings.ReproductionThreshold && it.energy >= Settings.ReproductionThreshold }
+                .filter { it.energy >= Settings.ReproductionThreshold }
                 .mapNotNull { it.split() }
                 .toList()
         )
