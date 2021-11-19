@@ -83,7 +83,7 @@ class Field(val width: Int, val height: Int) {
                 this.position.y + Settings.VisionRange,
                 height - 1
             )) {
-                if (grid[y][x]?.body == this.consume && (x != this.position.x || y != this.position.y)) {
+                if (get(x, y)?.body == this.consume && (x != this.position.x || y != this.position.y)) {
                     return Point(x - this.position.x, y - this.position.y)
                 }
             }
@@ -104,7 +104,7 @@ class Field(val width: Int, val height: Int) {
                 this.position.y + Settings.ConsumingRange,
                 height - 1
             )) {
-                val something = grid[y][x]
+                val something = get(x, y)
                 // TODO: Refactor
                 if (something is Organic && something.produce == this.consume) {
                     val distance = max(abs(x - this.position.x), abs(y - this.position.y))
@@ -135,7 +135,7 @@ class Field(val width: Int, val height: Int) {
     }
 
     fun add(something: Something) {
-        if (this[something.position] != null) {
+        if (!isFree(something.position)) {
             throw FieldException("Cell [${something.position.x},${something.position.y}] is occupied")
         }
 
@@ -144,7 +144,7 @@ class Field(val width: Int, val height: Int) {
         } else if (something is Mineral) {
             minerals.add(something)
         }
-        setSomething(something.position, something)
+        set(something.position, something)
 
     }
 
@@ -154,7 +154,7 @@ class Field(val width: Int, val height: Int) {
         } else if (something is Mineral) {
             minerals.remove(something)
         }
-        setSomething(something.position, null)
+        set(something.position, null)
     }
 
     private fun Organic.split(): Organic? {
@@ -175,7 +175,7 @@ class Field(val width: Int, val height: Int) {
 
         this.size -= offspingSize
         val offsping = cloneWithMutation(offspingPosition, offspingSize)
-        setSomething(offspingPosition, offsping)
+        set(offspingPosition, offsping)
         return offsping
     }
 
@@ -266,8 +266,8 @@ class Field(val width: Int, val height: Int) {
             isFree(newPosition) -> {
                 newPosition
             }
-            getSomething(newPosition)?.body == cell.consume -> {
-                val food = getSomething(newPosition)!!
+            get(newPosition)?.body == cell.consume -> {
+                val food = get(newPosition)!!
                 food.drain(Settings.BiteYield)
                 cell.consume(Settings.BiteYield)
 
@@ -278,18 +278,18 @@ class Field(val width: Int, val height: Int) {
             }
         }
 
-        setSomething(cell.position, null)
-        setSomething(newPosition, cell)
+        set(cell.position, null)
+        set(newPosition, cell)
         cell.position = newPosition
     }
 
-    private fun isFree(position: Point): Boolean = getSomething(position) == null
+    fun isFree(position: Point): Boolean = isFree(position.x, position.y)
+    fun isFree(x: Int, y: Int): Boolean = get(x, y) == null
 
-    operator fun get(x:Int, y: Int): Something? = grid[y][x]
     operator fun get(position: Point): Something? = get(position.x, position.y)
+    operator fun get(x: Int, y: Int): Something? = grid[y][x]
 
-    private fun getSomething(position: Point) = grid[position.y][position.x]
-    private fun setSomething(position: Point, something: Something?) {
+    operator fun set(position: Point, something: Something?) {
         grid[position.y][position.x] = something
     }
 

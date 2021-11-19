@@ -53,16 +53,6 @@ class BacillusGdxGame : ApplicationAdapter() {
             field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
         }
 
-        for (i in 1..(field.width * field.height / 10)) {
-            field.minerals.add(
-                Mineral(
-                    field.getRandomFreePosition(),
-                    Settings.DefaultSize + MathUtils.random(-Settings.DefaultSize / 4, Settings.DefaultSize / 4),
-                    Substance.getRandomProduce()
-                )
-            )
-        }
-
     }
 
     override fun render() {
@@ -152,7 +142,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         for (y in 0 until field.height) {
             for (x in 0 until field.width) {
-                if (field.grid[y][x] != null) {
+                if (field.isFree(x, y)) {
                     val displayPosition = Point(x, y).toDisplay()
 
                     shapeRenderer.line(
