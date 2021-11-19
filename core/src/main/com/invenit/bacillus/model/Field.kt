@@ -6,7 +6,6 @@ import com.invenit.bacillus.Settings
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
-import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
@@ -19,7 +18,7 @@ class Field(val width: Int, val height: Int) {
         val NoDirection: Point = Point(0, 0)
     }
 
-    val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
+    private val grid: Array<Array<Something?>> = Array(height) { arrayOfNulls<Something?>(width) }
 
     val organics: MutableList<Organic> = mutableListOf()
     val minerals: MutableList<Mineral> = mutableListOf()
@@ -44,15 +43,16 @@ class Field(val width: Int, val height: Int) {
 
         organics.forEach { it.energy -= Settings.PermanentConsumption }
         organics.forEach { it.age++ }
+        minerals.forEach { it.size -= Settings.MineralDegradation }
 
         organics.filter { it.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
-        organics.forEach { it.consume(it.getSuitableProducedSubstanceAmount()) }
+        organics.forEach { it.consumeMinerals() }
 
+        organics.forEach { it.produceMineral() }
 
         organics.filter { it.canMove }
             .forEach { it.lookUp() }
-
 
     }
 
@@ -92,28 +92,28 @@ class Field(val width: Int, val height: Int) {
         return NoDirection
     }
 
-    private fun Organic.getSuitableProducedSubstanceAmount(): Int {
+    private fun Organic.consumeMinerals() {
 
         var result = 0f
 
-        for (x in max(this.position.x - Settings.ConsumingRange, 0)..min(
-            this.position.x + Settings.ConsumingRange,
-            width - 1
-        )) {
-            for (y in max(this.position.y - Settings.ConsumingRange, 0)..min(
-                this.position.y + Settings.ConsumingRange,
-                height - 1
-            )) {
-                val something = get(x, y)
-                // TODO: Refactor
-                if (something is Organic && something.produce == this.consume) {
-                    val distance = max(abs(x - this.position.x), abs(y - this.position.y))
-                    result += 1f / 2f.pow(distance - 1)
+        this.position.iterateRadial(Settings.ConsumingRange) { x, y ->
+            val something = get(x, y)
+            if (something is Mineral && something.body == this.consume) {
+                val gain = min(something.size, Settings.MineralsYield)
+                val distance = max(abs(x - this.position.x), abs(y - this.position.y))
+
+                // TODO: More accurate calculations
+                result += Settings.correctedMineralsYield(gain.toFloat(), distance)
+                something.drain(gain)
+
+                if (this.energy + result.roundToInt() > Settings.MaxSize) {
+                    return@iterateRadial false
                 }
             }
+            return@iterateRadial true
         }
 
-        return result.roundToInt()
+        this.consume(result.roundToInt())
     }
 
 
@@ -307,6 +307,92 @@ class Field(val width: Int, val height: Int) {
                 this.body
             )
             add(corps)
+        }
+    }
+
+    // TODO: Rename to avoid intersection with native Organic.produce
+    private fun Organic.produceMineral() {
+        var produced = this.produced()
+        if (produced == 0) {
+            return
+        }
+
+        this.position.iterateRadial(Settings.ProductionRange) { x, y ->
+            val something = get(x, y)
+            if (something is Mineral && something.body == this.produce) {
+                val amountToAdd = min(produced, Settings.MaxSize - something.size)
+                something.size += amountToAdd
+                produced -= amountToAdd
+            }
+
+            return@iterateRadial produced > 0
+        }
+
+        if (produced > 0) {
+            this.position.iterateRadial(Settings.ProductionRange) { x, y ->
+                if (isFree(x, y)) {
+                    val amountToAdd = min(produced, Settings.MaxSize)
+                    add(
+                        Mineral(
+                            Point(x, y),
+                            amountToAdd,
+                            this.produce
+                        )
+                    )
+                    produced -= amountToAdd
+                }
+                return@iterateRadial produced > 0
+            }
+        }
+
+
+        if (produced > 0) {
+            this.energy -= produced
+        }
+    }
+
+    private fun Point.iterate(range: Int, function: (x: Int, y: Int) -> Boolean) {
+        for (x in max(this.x - range, 0)..min(this.x + range, width - 1)) {
+            for (y in max(this.y - range, 0)..min(this.y + range, height - 1)) {
+                if (!function(x, y)) {
+                    return
+                }
+            }
+        }
+    }
+
+    private fun Point.iterateRadial(range: Int, function: (x: Int, y: Int) -> Boolean) {
+        for (step in 1..range) {
+
+            val upperY = min(this.y + step, height - 1)
+            val bottomY = max(this.y - step, 0)
+            val leftX = max(this.x - step, 0)
+            val rightX = min(this.x + step, width - 1)
+            for (x in leftX..rightX) {
+                if (!function(x, upperY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY..upperY) {
+                if (!function(rightX, y)) {
+                    return
+                }
+            }
+
+
+            for (x in leftX..rightX) {
+                if (!function(x, bottomY)) {
+                    return
+                }
+            }
+
+
+            for (y in upperY..bottomY) {
+                if (!function(leftX, y)) {
+                    return
+                }
+            }
         }
     }
 

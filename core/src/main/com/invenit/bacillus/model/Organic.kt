@@ -18,6 +18,8 @@ data class Organic(
     var age: Int = 0
     var energy: Int = size
 
+    private var processed: Int = 0
+
     fun consume(gain: Int) {
         if (this.energy + gain <= this.size) {
             this.energy += gain
@@ -28,6 +30,7 @@ data class Organic(
             this.energy += energyGain
             this.size = Integer.min(this.size + sizeGain, Settings.MaxSize)
         }
+        processed += gain
     }
 
     override fun drain(points: Int) {
@@ -35,6 +38,12 @@ data class Organic(
         if (energy > size) {
             energy = size
         }
+    }
+
+    fun produced(): Int {
+        val result = processed * Settings.ProductionPerformance
+        processed = 0
+        return result.toInt()
     }
 
 
