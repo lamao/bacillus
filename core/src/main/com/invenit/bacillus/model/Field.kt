@@ -1,6 +1,7 @@
 package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
+import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
 import java.lang.Integer.max
 import java.lang.Integer.min
@@ -29,7 +30,7 @@ class Field(val width: Int, val height: Int) {
             .filter { it.energy <= 0 || it.size <= 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
             .forEach { it.kill() }
         minerals.filter { it.size <= 0 }
-            .forEach { it.sweep() }
+            .forEach { remove(it) }
 
         organics.filter { it.canMove }
             .forEach { it.move() }
@@ -128,10 +129,32 @@ class Field(val width: Int, val height: Int) {
             produce = produce,
             canMove = canMove
         )
-        organics.add(bacillus)
-        setSomething(position, bacillus)
+        add(bacillus)
 
         return bacillus
+    }
+
+    fun add(something: Something) {
+        if (this[something.position] != null) {
+            throw FieldException("Cell [${something.position.x},${something.position.y}] is occupied")
+        }
+
+        if (something is Organic) {
+            organics.add(something)
+        } else if (something is Mineral) {
+            minerals.add(something)
+        }
+        setSomething(something.position, something)
+
+    }
+
+    fun remove(something: Something) {
+        if (something is Organic) {
+            organics.remove(something)
+        } else if (something is Mineral) {
+            minerals.remove(something)
+        }
+        setSomething(something.position, null)
     }
 
     private fun Organic.split(): Organic? {
@@ -200,7 +223,7 @@ class Field(val width: Int, val height: Int) {
         )
     }
 
-    private fun getRandomFreePosition(): Point {
+    fun getRandomFreePosition(): Point {
         var position = getRandomPosition()
         while (!isFree(position)) {
             position = getRandomPosition()
@@ -262,29 +285,24 @@ class Field(val width: Int, val height: Int) {
 
     private fun isFree(position: Point): Boolean = getSomething(position) == null
 
+    operator fun get(x:Int, y: Int): Something? = grid[y][x]
+    operator fun get(position: Point): Something? = get(position.x, position.y)
+
     private fun getSomething(position: Point) = grid[position.y][position.x]
     private fun setSomething(position: Point, something: Something?) {
         grid[position.y][position.x] = something
     }
 
     private fun Organic.kill() {
-        organics.remove(this)
+        remove(this)
         if (this.size > 0) {
             val corps = Mineral(
                 this.position,
                 this.size,
                 this.body
             )
-            minerals.add(corps)
-            setSomething(this.position, corps)
-        } else {
-            setSomething(this.position, null)
+            add(corps)
         }
-    }
-
-    private fun Mineral.sweep() {
-        minerals.remove(this)
-        setSomething(this.position, null)
     }
 
 }

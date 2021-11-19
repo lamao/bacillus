@@ -53,6 +53,16 @@ class BacillusGdxGame : ApplicationAdapter() {
             field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
         }
 
+        for (i in 1..(field.width * field.height / 10)) {
+            field.minerals.add(
+                Mineral(
+                    field.getRandomFreePosition(),
+                    Settings.DefaultSize + MathUtils.random(-Settings.DefaultSize / 4, Settings.DefaultSize / 4),
+                    Substance.getRandomProduce()
+                )
+            )
+        }
+
     }
 
     override fun render() {

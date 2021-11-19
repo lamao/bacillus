@@ -6,15 +6,15 @@ import com.invenit.bacillus.Settings
  * Created by vyacheslav.mischeryakov
  * Created 15.11.2021
  */
-class Organic(
-    position: Point,
-    size: Int,
+data class Organic(
+    override var position: Point,
+    override var size: Int,
     var direction: Point,
-    body: Substance,
+    override val body: Substance,
     val consume: Substance,
     val produce: Substance,
     val canMove: Boolean
-) : Something(position, size, body) {
+) : Something {
     var age: Int = 0
     var energy: Int = size
 
