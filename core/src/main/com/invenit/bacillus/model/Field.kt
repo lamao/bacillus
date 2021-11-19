@@ -30,7 +30,7 @@ class Field(val width: Int, val height: Int) {
             .filter { it.energy <= 0 || it.size <= 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
             .forEach { it.kill() }
         minerals.filter { it.size <= 0 }
-            .forEach { remove(it) }
+            .forEach { remove(it.position) }
 
         organics.filter { it.canMove }
             .forEach { it.move() }
@@ -144,17 +144,22 @@ class Field(val width: Int, val height: Int) {
         } else if (something is Mineral) {
             minerals.add(something)
         }
-        set(something.position, something)
-
+        putOnGrid(something.position, something)
     }
 
-    fun remove(something: Something) {
-        if (something is Organic) {
-            organics.remove(something)
-        } else if (something is Mineral) {
-            minerals.remove(something)
+    fun remove(position: Point) {
+        val something = get(position)
+        if (something == null) {
+            return
+        } else {
+            if (something is Organic) {
+                organics.remove(something)
+            } else if (something is Mineral) {
+                minerals.remove(something)
+            }
+            putOnGrid(something.position, null)
         }
-        set(something.position, null)
+
     }
 
     private fun Organic.split(): Organic? {
@@ -175,7 +180,7 @@ class Field(val width: Int, val height: Int) {
 
         this.size -= offspingSize
         val offsping = cloneWithMutation(offspingPosition, offspingSize)
-        set(offspingPosition, offsping)
+        putOnGrid(offspingPosition, offsping)
         return offsping
     }
 
@@ -278,8 +283,8 @@ class Field(val width: Int, val height: Int) {
             }
         }
 
-        set(cell.position, null)
-        set(newPosition, cell)
+        putOnGrid(cell.position, null)
+        putOnGrid(newPosition, cell)
         cell.position = newPosition
     }
 
@@ -289,12 +294,12 @@ class Field(val width: Int, val height: Int) {
     operator fun get(position: Point): Something? = get(position.x, position.y)
     operator fun get(x: Int, y: Int): Something? = grid[y][x]
 
-    operator fun set(position: Point, something: Something?) {
+    private fun putOnGrid(position: Point, something: Something?) {
         grid[position.y][position.x] = something
     }
 
     private fun Organic.kill() {
-        remove(this)
+        remove(this.position)
         if (this.size > 0) {
             val corps = Mineral(
                 this.position,

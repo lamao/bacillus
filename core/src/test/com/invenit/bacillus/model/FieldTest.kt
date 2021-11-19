@@ -2,10 +2,7 @@ package com.invenit.bacillus.model
 
 import com.invenit.bacillus.FieldException
 import org.junit.jupiter.api.Assertions
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -21,7 +18,7 @@ class FieldTest {
     }
 
     @Test
-    fun testAddOrganics() {
+    fun testAdd() {
         val organic = Organic(
             Point(1, 1),
             10,
@@ -91,5 +88,47 @@ class FieldTest {
         }
 
         assertContains(actual.message, "occupied")
+    }
+
+    @Test
+    fun testRemove() {
+        field.add(
+            Mineral(
+                Point(1, 1),
+                10,
+                Substance.Green
+            )
+        )
+        field.add(
+            Organic(
+                Point(0, 0),
+                5,
+                Point(0, 0),
+                Substance.Green,
+                Substance.White,
+                Substance.Red,
+                false
+            )
+        )
+
+        field.remove(Point(3, 3))
+        assertEquals(1, field.organics.size)
+        assertEquals(1, field.minerals.size)
+        assertNotNull(field[0, 0])
+        assertNotNull(field[1, 1])
+
+        field.remove(Point(0, 0))
+        assertEquals(0, field.organics.size)
+        assertEquals(1, field.minerals.size)
+        assertNull(field[0, 0])
+        assertNotNull(field[1, 1])
+
+
+        field.remove(Point(1, 1))
+        assertEquals(0, field.organics.size)
+        assertEquals(0, field.minerals.size)
+        assertNull(field[0, 0])
+        assertNull(field[1, 1])
+
     }
 }
