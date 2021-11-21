@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.stage.ClearExhaustedItems
+import com.invenit.bacillus.stage.MoveStage
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
@@ -24,8 +25,9 @@ class Field(val width: Int, val height: Int) {
     val organics: MutableList<Organic> = mutableListOf()
     val minerals: MutableList<Mineral> = mutableListOf()
 
-    val stages = arrayOf(
-        ClearExhaustedItems()
+    private val stages = arrayOf(
+        ClearExhaustedItems(),
+        MoveStage()
     )
 
     fun doTic() {
@@ -34,9 +36,6 @@ class Field(val width: Int, val height: Int) {
         for (stage in stages) {
             stage.execute(this)
         }
-
-        organics.filter { it.canMove }
-            .forEach { it.move() }
 
         organics.addAll(
             organics
@@ -268,30 +267,6 @@ class Field(val width: Int, val height: Int) {
                 || position.y < 0 || position.y >= height
     }
 
-    private fun Organic.move() {
-        val cell = this
-        var newPosition = cell.position + cell.direction
-        newPosition = when {
-            isFree(newPosition) -> {
-                newPosition
-            }
-            get(newPosition)?.body == cell.consume -> {
-                val food = get(newPosition)!!
-                food.drain(Settings.BiteYield)
-                cell.consume(Settings.BiteYield)
-
-                cell.position
-            }
-            else -> {
-                cell.position
-            }
-        }
-
-        putOnGrid(cell.position, null)
-        putOnGrid(newPosition, cell)
-        cell.position = newPosition
-    }
-
     fun isFree(position: Point): Boolean = isFree(position.x, position.y)
     fun isFree(x: Int, y: Int): Boolean = get(x, y) == null
 
@@ -302,6 +277,18 @@ class Field(val width: Int, val height: Int) {
         grid[position.y][position.x] = something
     }
 
+    fun relocate(something: Something, target: Point) {
+        assert(get(something.position) == something) {
+            "Item at [${something.position.x},${something.position.y}] is not a $something"
+        }
+        assert(get(target) == null) {
+            "Can't relocate to [${target.x},${target.y}]. Location is occupied"
+        }
+
+        putOnGrid(something.position, null)
+        putOnGrid(target, something)
+        something.position = target
+    }
 
 
     // TODO: Rename to avoid intersection with native Organic.produce
