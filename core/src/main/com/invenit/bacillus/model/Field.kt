@@ -41,21 +41,19 @@ class Field(val width: Int, val height: Int) {
 
     }
 
-    fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
-        val position = getRandomFreePosition()
+    fun isOutside(position: Point): Boolean {
+        return position.x < 0 || position.x >= width
+                || position.y < 0 || position.y >= height
+    }
 
-        val bacillus = Organic(
-            position = position,
-            direction = if (canMove) getRandomFreeDirection(position) else NoDirection,
-            size = Mutator.getRandomSize(),
-            body = body,
-            consume = consume,
-            produce = produce,
-            canMove = canMove
-        )
-        add(bacillus)
+    fun isFree(position: Point): Boolean = isFree(position.x, position.y)
+    fun isFree(x: Int, y: Int): Boolean = get(x, y) == null
 
-        return bacillus
+    operator fun get(position: Point): Something? = get(position.x, position.y)
+    operator fun get(x: Int, y: Int): Something? = grid[y][x]
+
+    private fun putOnGrid(position: Point, something: Something?) {
+        grid[position.y][position.x] = something
     }
 
     fun add(something: Something) {
@@ -86,6 +84,21 @@ class Field(val width: Int, val height: Int) {
 
     }
 
+    fun relocate(something: Something, target: Point) {
+        assert(get(something.position) == something) {
+            "Item at [${something.position.x},${something.position.y}] is not a $something"
+        }
+        assert(get(target) == null) {
+            "Can't relocate to [${target.x},${target.y}]. Location is occupied"
+        }
+
+        putOnGrid(something.position, null)
+        putOnGrid(target, something)
+        something.position = target
+    }
+
+
+
     fun getRandomFreePosition(): Point {
         var position = getRandomPosition()
         while (!isFree(position)) {
@@ -114,35 +127,6 @@ class Field(val width: Int, val height: Int) {
 
         return direction
     }
-
-    fun isOutside(position: Point): Boolean {
-        return position.x < 0 || position.x >= width
-                || position.y < 0 || position.y >= height
-    }
-
-    fun isFree(position: Point): Boolean = isFree(position.x, position.y)
-    fun isFree(x: Int, y: Int): Boolean = get(x, y) == null
-
-    operator fun get(position: Point): Something? = get(position.x, position.y)
-    operator fun get(x: Int, y: Int): Something? = grid[y][x]
-
-    private fun putOnGrid(position: Point, something: Something?) {
-        grid[position.y][position.x] = something
-    }
-
-    fun relocate(something: Something, target: Point) {
-        assert(get(something.position) == something) {
-            "Item at [${something.position.x},${something.position.y}] is not a $something"
-        }
-        assert(get(target) == null) {
-            "Can't relocate to [${target.x},${target.y}]. Location is occupied"
-        }
-
-        putOnGrid(something.position, null)
-        putOnGrid(target, something)
-        something.position = target
-    }
-
 
     // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
     fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {

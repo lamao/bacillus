@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.util.Mutator
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -50,10 +51,28 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfOrganics) {
-            field.spawn(Substance.Green, Substance.Sun, Substance.White, false)
+            spawn(Substance.Green, Substance.Sun, Substance.White, false)
         }
 
     }
+
+    private fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
+        val position = field.getRandomFreePosition()
+
+        val bacillus = Organic(
+            position = position,
+            direction = if (canMove) field.getRandomFreeDirection(position) else Field.NoDirection,
+            size = Mutator.getRandomSize(),
+            body = body,
+            consume = consume,
+            produce = produce,
+            canMove = canMove
+        )
+        field.add(bacillus)
+
+        return bacillus
+    }
+
 
     override fun render() {
 
@@ -76,7 +95,7 @@ class BacillusGdxGame : ApplicationAdapter() {
                     consume = Substance.getRandomConsume()
                     produce = Substance.getRandomProduce()
                 }
-                field.spawn(
+                spawn(
                     Substance.getRandomBody(),
                     consume,
                     produce,
