@@ -180,7 +180,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.consume != Substance.Sun }
+            this.filter { it.canMove }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -201,7 +201,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.consume != Substance.Sun) {
+            if (Settings.Debug.displaySourcePosition && cell.canMove) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
