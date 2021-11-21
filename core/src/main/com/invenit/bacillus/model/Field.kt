@@ -5,6 +5,8 @@ import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.stage.ClearExhaustedItems
 import com.invenit.bacillus.stage.MoveStage
+import com.invenit.bacillus.stage.SplitStage
+import com.invenit.bacillus.util.Mutator
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
@@ -27,7 +29,8 @@ class Field(val width: Int, val height: Int) {
 
     private val stages = arrayOf(
         ClearExhaustedItems(),
-        MoveStage()
+        MoveStage(),
+        SplitStage()
     )
 
     fun doTic() {
@@ -36,13 +39,6 @@ class Field(val width: Int, val height: Int) {
         for (stage in stages) {
             stage.execute(this)
         }
-
-        organics.addAll(
-            organics
-                .filter { it.energy >= Settings.ReproductionThreshold }
-                .mapNotNull { it.split() }
-                .toList()
-        )
 
         organics.forEach { it.energy -= Settings.PermanentConsumption }
         organics.forEach { it.age++ }
@@ -126,7 +122,7 @@ class Field(val width: Int, val height: Int) {
         val bacillus = Organic(
             position = position,
             direction = if (canMove) getRandomFreeDirection(position) else NoDirection,
-            size = getRandomSize(),
+            size = Mutator.getRandomSize(),
             body = body,
             consume = consume,
             produce = produce,
@@ -165,72 +161,6 @@ class Field(val width: Int, val height: Int) {
 
     }
 
-    private fun Organic.split(): Organic? {
-        val offspringOffset = Point(
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
-        )
-
-        val offspingSize = getRandomSize()
-
-        this.energy -= offspingSize
-
-        val offspingPosition = this.position + offspringOffset
-        if (isOutside(offspingPosition) || !isFree(offspingPosition)) {
-            this.energy += (offspingSize * Settings.ReturnHealthWhenReproductionFails).roundToInt()
-            return null
-        }
-
-        this.size -= offspingSize
-        val offsping = cloneWithMutation(offspingPosition, offspingSize)
-        putOnGrid(offspingPosition, offsping)
-        return offsping
-    }
-
-    private fun Organic.cloneWithMutation(
-        offspingPosition: Point,
-        offspingSize: Int
-    ): Organic {
-
-
-        var body = this.body
-        var consume = this.consume
-        var produce = this.produce
-        var canMove = this.canMove
-        if (MathUtils.random() < Settings.MutationRate) {
-            // TODO: Refactor
-            when (MathUtils.random(0, 3)) {
-                0 -> {
-                    body = Substance.getRandomBody()
-                }
-                1 -> {
-                    do {
-                        consume = Substance.getRandomConsume()
-                    } while (consume == produce)
-                }
-                2 -> {
-                    do {
-                        produce = Substance.getRandomProduce()
-                    } while (produce == consume)
-                }
-                3 -> {
-                    canMove = MathUtils.randomBoolean()
-                }
-            }
-
-        }
-
-        return Organic(
-            position = offspingPosition,
-            direction = if (canMove) getRandomFreeDirection(offspingPosition) else NoDirection,
-            size = offspingSize,
-            body = body,
-            consume = consume,
-            produce = produce,
-            canMove = canMove
-        )
-    }
-
     fun getRandomFreePosition(): Point {
         var position = getRandomPosition()
         while (!isFree(position)) {
@@ -259,10 +189,7 @@ class Field(val width: Int, val height: Int) {
         return direction
     }
 
-    private fun getRandomSize() =
-        Settings.DefaultSize + MathUtils.random(-Settings.DefaultSize / 4, Settings.DefaultSize / 4)
-
-    private fun isOutside(position: Point): Boolean {
+    fun isOutside(position: Point): Boolean {
         return position.x < 0 || position.x >= width
                 || position.y < 0 || position.y >= height
     }
