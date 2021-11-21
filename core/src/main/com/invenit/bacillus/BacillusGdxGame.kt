@@ -122,10 +122,10 @@ class BacillusGdxGame : ApplicationAdapter() {
                 "Tics: $ticsPassed"
         batch.begin()
         font.draw(batch, fpsMessage, 10f, Settings.Height - 10f)
-        font.draw(batch, "Items: ${field.organics.count() + field.minerals.count()}", 10f, Settings.Height - 30f)
+        font.draw(batch, "Total: ${field.organics.count() + field.minerals.count()}", 10f, Settings.Height - 30f)
         font.draw(batch, "Minerals: ${field.minerals.count()}", 10f, Settings.Height - 50f)
-        font.draw(batch, "Static: ${field.organics.count { !it.canMove }}", 10f, Settings.Height - 70f)
-        font.draw(batch, "Movers: ${field.organics.count { it.canMove }}", 10f, Settings.Height - 90f)
+        font.draw(batch, "Stationary: ${field.organics.count { !it.canMove }}", 10f, Settings.Height - 70f)
+        font.draw(batch, "Mobile: ${field.organics.count { it.canMove }}", 10f, Settings.Height - 90f)
         batch.end()
 
     }
