@@ -3,6 +3,7 @@ package com.invenit.bacillus.model
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
+import com.invenit.bacillus.stage.ClearExhaustedItems
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
@@ -23,13 +24,16 @@ class Field(val width: Int, val height: Int) {
     val organics: MutableList<Organic> = mutableListOf()
     val minerals: MutableList<Mineral> = mutableListOf()
 
+    val stages = arrayOf(
+        ClearExhaustedItems()
+    )
+
     fun doTic() {
 
-        organics
-            .filter { it.energy <= 0 || it.size <= 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
-            .forEach { it.kill() }
-        minerals.filter { it.size <= 0 }
-            .forEach { remove(it.position) }
+        // TODO: Move out of the Field
+        for (stage in stages) {
+            stage.execute(this)
+        }
 
         organics.filter { it.canMove }
             .forEach { it.move() }
@@ -298,17 +302,7 @@ class Field(val width: Int, val height: Int) {
         grid[position.y][position.x] = something
     }
 
-    private fun Organic.kill() {
-        remove(this.position)
-        if (this.size > 0) {
-            val corps = Mineral(
-                this.position,
-                this.size,
-                this.body
-            )
-            add(corps)
-        }
-    }
+
 
     // TODO: Rename to avoid intersection with native Organic.produce
     private fun Organic.produceMineral() {
