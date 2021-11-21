@@ -28,7 +28,8 @@ class Field(val width: Int, val height: Int) {
         MoveStage(),
         SplitStage(),
         AdjustCountersStage(),
-        ConsumeStage()
+        ConsumeStage(),
+        ProduceStage()
     )
 
     fun doTic() {
@@ -37,10 +38,6 @@ class Field(val width: Int, val height: Int) {
         for (stage in stages) {
             stage.execute(this)
         }
-
-
-
-        organics.forEach { it.produceMineral() }
 
         organics.filter { it.canMove }
             .forEach { it.lookUp() }
@@ -185,47 +182,6 @@ class Field(val width: Int, val height: Int) {
         something.position = target
     }
 
-
-    // TODO: Rename to avoid intersection with native Organic.produce
-    private fun Organic.produceMineral() {
-        var produced = this.produced()
-        if (produced == 0) {
-            return
-        }
-
-        iterateRadial(this.position, Settings.ProductionRange) { x, y ->
-            val something = get(x, y)
-            if (something is Mineral && something.body == this.produce) {
-                val amountToAdd = min(produced, Settings.MaxSize - something.size)
-                something.size += amountToAdd
-                produced -= amountToAdd
-            }
-
-            return@iterateRadial produced > 0
-        }
-
-        if (produced > 0) {
-            iterateRadial(this.position, Settings.ProductionRange) { x, y ->
-                if (isFree(x, y)) {
-                    val amountToAdd = min(produced, Settings.MaxSize)
-                    add(
-                        Mineral(
-                            Point(x, y),
-                            amountToAdd,
-                            this.produce
-                        )
-                    )
-                    produced -= amountToAdd
-                }
-                return@iterateRadial produced > 0
-            }
-        }
-
-
-        if (produced > 0) {
-            this.energy -= produced
-        }
-    }
 
     // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
     fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
