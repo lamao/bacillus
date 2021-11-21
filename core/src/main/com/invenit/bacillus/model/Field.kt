@@ -3,15 +3,10 @@ package com.invenit.bacillus.model
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
-import com.invenit.bacillus.stage.AdjustCountersStage
-import com.invenit.bacillus.stage.ClearExhaustedItems
-import com.invenit.bacillus.stage.MoveStage
-import com.invenit.bacillus.stage.SplitStage
+import com.invenit.bacillus.stage.*
 import com.invenit.bacillus.util.Mutator
 import java.lang.Integer.max
 import java.lang.Integer.min
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -32,7 +27,8 @@ class Field(val width: Int, val height: Int) {
         ClearExhaustedItems(),
         MoveStage(),
         SplitStage(),
-        AdjustCountersStage()
+        AdjustCountersStage(),
+        ConsumeStage()
     )
 
     fun doTic() {
@@ -42,9 +38,7 @@ class Field(val width: Int, val height: Int) {
             stage.execute(this)
         }
 
-        organics.filter { it.consume == Substance.Sun }
-            .forEach { it.consume(Settings.SunYield) }
-        organics.forEach { it.consumeMinerals() }
+
 
         organics.forEach { it.produceMineral() }
 
@@ -87,30 +81,6 @@ class Field(val width: Int, val height: Int) {
         }
 
         return NoDirection
-    }
-
-    private fun Organic.consumeMinerals() {
-
-        var result = 0f
-
-        this.position.iterateRadial(Settings.ConsumingRange) { x, y ->
-            val something = get(x, y)
-            if (something is Mineral && something.body == this.consume) {
-                val gain = min(something.size, Settings.MineralsYield)
-                val distance = max(abs(x - this.position.x), abs(y - this.position.y))
-
-                // TODO: More accurate calculations
-                result += Settings.correctedMineralsYield(gain.toFloat(), distance)
-                something.drain(gain)
-
-                if (this.energy + result.roundToInt() > Settings.MaxSize) {
-                    return@iterateRadial false
-                }
-            }
-            return@iterateRadial true
-        }
-
-        this.consume(result.roundToInt())
     }
 
 
@@ -223,7 +193,7 @@ class Field(val width: Int, val height: Int) {
             return
         }
 
-        this.position.iterateRadial(Settings.ProductionRange) { x, y ->
+        iterateRadial(this.position, Settings.ProductionRange) { x, y ->
             val something = get(x, y)
             if (something is Mineral && something.body == this.produce) {
                 val amountToAdd = min(produced, Settings.MaxSize - something.size)
@@ -235,7 +205,7 @@ class Field(val width: Int, val height: Int) {
         }
 
         if (produced > 0) {
-            this.position.iterateRadial(Settings.ProductionRange) { x, y ->
+            iterateRadial(this.position, Settings.ProductionRange) { x, y ->
                 if (isFree(x, y)) {
                     val amountToAdd = min(produced, Settings.MaxSize)
                     add(
@@ -257,45 +227,36 @@ class Field(val width: Int, val height: Int) {
         }
     }
 
-    private fun Point.iterate(range: Int, function: (x: Int, y: Int) -> Boolean) {
-        for (x in max(this.x - range, 0)..min(this.x + range, width - 1)) {
-            for (y in max(this.y - range, 0)..min(this.y + range, height - 1)) {
-                if (!function(x, y)) {
-                    return
-                }
-            }
-        }
-    }
-
-    private fun Point.iterateRadial(range: Int, function: (x: Int, y: Int) -> Boolean) {
+    // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
+    fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
-            val upperY = min(this.y + step, height - 1)
-            val bottomY = max(this.y - step, 0)
-            val leftX = max(this.x - step, 0)
-            val rightX = min(this.x + step, width - 1)
+            val upperY = min(anchor.y + step, height - 1)
+            val bottomY = max(anchor.y - step, 0)
+            val leftX = max(anchor.x - step, 0)
+            val rightX = min(anchor.x + step, width - 1)
             for (x in leftX..rightX) {
-                if (!function(x, upperY)) {
+                if (!action(x, upperY)) {
                     return
                 }
             }
 
             for (y in bottomY..upperY) {
-                if (!function(rightX, y)) {
+                if (!action(rightX, y)) {
                     return
                 }
             }
 
 
             for (x in leftX..rightX) {
-                if (!function(x, bottomY)) {
+                if (!action(x, bottomY)) {
                     return
                 }
             }
 
 
             for (y in upperY..bottomY) {
-                if (!function(leftX, y)) {
+                if (!action(leftX, y)) {
                     return
                 }
             }
