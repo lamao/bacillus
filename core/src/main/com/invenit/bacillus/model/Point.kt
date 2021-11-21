@@ -13,4 +13,18 @@ data class Point(val x: Int, val y: Int) {
 
 
     fun distance(x: Int, y: Int): Int = Integer.max(abs(x - this.x), abs(y - this.y))
+
+    fun direction(x: Int, y: Int): Point = Point(x - this.x, y - this.y).normalized()
+
+    private fun normalized(): Point = Point(normalized(x), normalized(y))
+
+    private fun normalized(value: Int): Int {
+        return if (value > 0) {
+            1
+        } else if (value < 0) {
+            -1
+        } else {
+            0
+        }
+    }
 }

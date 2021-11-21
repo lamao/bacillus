@@ -2,7 +2,6 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
-import com.invenit.bacillus.Settings
 import com.invenit.bacillus.stage.*
 import com.invenit.bacillus.util.Mutator
 import java.lang.Integer.max
@@ -29,7 +28,8 @@ class Field(val width: Int, val height: Int) {
         SplitStage(),
         AdjustCountersStage(),
         ConsumeStage(),
-        ProduceStage()
+        ProduceStage(),
+        LookUpStage()
     )
 
     fun doTic() {
@@ -39,47 +39,7 @@ class Field(val width: Int, val height: Int) {
             stage.execute(this)
         }
 
-        organics.filter { it.canMove }
-            .forEach { it.lookUp() }
-
     }
-
-    private fun Organic.lookUp() {
-
-        val directionToFood = this.getDirectionToFood()
-        this.direction = if (directionToFood == NoDirection) {
-            getRandomFreeDirection(this.position)
-        } else {
-            directionToFood
-        }
-
-        if (this.direction != NoDirection) {
-            this.energy -= Settings.MoveConsumption
-        }
-    }
-
-    private fun Organic.getDirectionToFood(): Point {
-        if (!this.canMove) {
-            return NoDirection
-        }
-
-        for (x in max(this.position.x - Settings.VisionRange, 0)..min(
-            this.position.x + Settings.VisionRange,
-            width - 1
-        )) {
-            for (y in max(this.position.y - Settings.VisionRange, 0)..min(
-                this.position.y + Settings.VisionRange,
-                height - 1
-            )) {
-                if (get(x, y)?.body == this.consume && (x != this.position.x || y != this.position.y)) {
-                    return Point(x - this.position.x, y - this.position.y)
-                }
-            }
-        }
-
-        return NoDirection
-    }
-
 
     fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
         val position = getRandomFreePosition()
@@ -140,7 +100,8 @@ class Field(val width: Int, val height: Int) {
         MathUtils.random(height - 1)
     )
 
-    private fun getRandomFreeDirection(position: Point): Point {
+    // TODO: Move out of this class
+    fun getRandomFreeDirection(position: Point): Point {
         val direction = Point(
             x = MathUtils.random(-1, 1),
             y = MathUtils.random(-1, 1)
@@ -148,7 +109,7 @@ class Field(val width: Int, val height: Int) {
 
         val newPosition = position + direction
         if (isOutside(newPosition)) {
-            return Point(0, 0)
+            return NoDirection
         }
 
         return direction
