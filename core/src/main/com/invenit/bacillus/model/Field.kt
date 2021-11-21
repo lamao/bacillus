@@ -3,6 +3,7 @@ package com.invenit.bacillus.model
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 import com.invenit.bacillus.Settings
+import com.invenit.bacillus.stage.AdjustCountersStage
 import com.invenit.bacillus.stage.ClearExhaustedItems
 import com.invenit.bacillus.stage.MoveStage
 import com.invenit.bacillus.stage.SplitStage
@@ -30,7 +31,8 @@ class Field(val width: Int, val height: Int) {
     private val stages = arrayOf(
         ClearExhaustedItems(),
         MoveStage(),
-        SplitStage()
+        SplitStage(),
+        AdjustCountersStage()
     )
 
     fun doTic() {
@@ -39,10 +41,6 @@ class Field(val width: Int, val height: Int) {
         for (stage in stages) {
             stage.execute(this)
         }
-
-        organics.forEach { it.energy -= Settings.PermanentConsumption }
-        organics.forEach { it.age++ }
-        minerals.forEach { it.size -= Settings.MineralDegradation }
 
         organics.filter { it.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
