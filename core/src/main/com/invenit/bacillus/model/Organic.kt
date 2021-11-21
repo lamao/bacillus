@@ -10,13 +10,13 @@ data class Organic(
     override var position: Point,
     override var size: Int,
     var direction: Point,
-    override val body: Substance,
-    val consume: Substance,
-    val produce: Substance,
-    val canMove: Boolean
+    val dna: DNA
 ) : Something {
     var age: Int = 0
     var energy: Int = size
+
+    override val body: Substance
+        get() = dna.body
 
     private var processed: Int = 0
 

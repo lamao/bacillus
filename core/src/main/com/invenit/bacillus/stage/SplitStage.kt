@@ -36,7 +36,13 @@ class SplitStage : Stage {
         }
 
         cell.size -= offspingSize
-        val offsping = Mutator.cloneWithMutation(cell, offspingPosition, offspingSize)
-        field.add(offsping)
+        field.add(
+            Organic(
+                position = offspingPosition,
+                direction = Field.NoDirection,
+                size = offspingSize,
+                dna = cell.dna.mutated()
+            )
+        )
     }
 }

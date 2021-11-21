@@ -12,7 +12,7 @@ import com.invenit.bacillus.model.Point
 class LookUpStage : Stage {
 
     override fun execute(field: Field) {
-        field.organics.filter { it.canMove }
+        field.organics.filter { it.dna.canMove }
             .forEach { lookUp(it, field) }
     }
 
@@ -35,7 +35,7 @@ class LookUpStage : Stage {
         var result = Field.NoDirection
 
         field.iterateRadial(cell.position, Settings.VisionRange) { x, y ->
-            if (field[x, y]?.body == cell.consume) {
+            if (field[x, y]?.body == cell.dna.consume) {
                 result = cell.position.direction(x, y)
                 return@iterateRadial false
             }

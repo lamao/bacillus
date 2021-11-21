@@ -23,7 +23,6 @@ class Environment {
         for (stage in stages) {
             stage.execute(field)
         }
-
     }
 
 }

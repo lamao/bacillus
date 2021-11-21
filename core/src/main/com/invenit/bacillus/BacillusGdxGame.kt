@@ -52,22 +52,19 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfOrganics) {
-            spawn(Substance.Green, Substance.Sun, Substance.White, false)
+            spawn(DNA(Substance.Green, Substance.Sun, Substance.White, false))
         }
 
     }
 
-    private fun spawn(body: Substance, consume: Substance, produce: Substance, canMove: Boolean): Organic {
+    private fun spawn(dna: DNA): Organic {
         val position = field.getRandomFreePosition()
 
         val bacillus = Organic(
             position = position,
-            direction = if (canMove) field.getRandomFreeDirection(position) else Field.NoDirection,
+            direction = if (dna.canMove) field.getRandomFreeDirection(position) else Field.NoDirection,
             size = Mutator.getRandomSize(),
-            body = body,
-            consume = consume,
-            produce = produce,
-            canMove = canMove
+            dna = dna
         )
         field.add(bacillus)
 
@@ -97,10 +94,12 @@ class BacillusGdxGame : ApplicationAdapter() {
                     produce = Substance.getRandomProduce()
                 }
                 spawn(
-                    Substance.getRandomBody(),
-                    consume,
-                    produce,
-                    MathUtils.randomBoolean()
+                    DNA(
+                        Substance.getRandomBody(),
+                        consume,
+                        produce,
+                        MathUtils.randomBoolean()
+                    )
                 )
             }
 
@@ -132,8 +131,8 @@ class BacillusGdxGame : ApplicationAdapter() {
         font.draw(batch, fpsMessage, 10f, Settings.Height - 10f)
         font.draw(batch, "Total: ${field.organics.count() + field.minerals.count()}", 10f, Settings.Height - 30f)
         font.draw(batch, "Minerals: ${field.minerals.count()}", 10f, Settings.Height - 50f)
-        font.draw(batch, "Stationary: ${field.organics.count { !it.canMove }}", 10f, Settings.Height - 70f)
-        font.draw(batch, "Mobile: ${field.organics.count { it.canMove }}", 10f, Settings.Height - 90f)
+        font.draw(batch, "Stationary: ${field.organics.count { !it.dna.canMove }}", 10f, Settings.Height - 70f)
+        font.draw(batch, "Mobile: ${field.organics.count { it.dna.canMove }}", 10f, Settings.Height - 90f)
         batch.end()
 
     }
@@ -188,7 +187,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.canMove }
+            this.filter { it.dna.canMove }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -209,7 +208,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.canMove) {
+            if (Settings.Debug.displaySourcePosition && cell.dna.canMove) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,
@@ -231,7 +230,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             )
 
             if (radius >= 2f) {
-                shapeRenderer.color = Color(cell.consume.color)
+                shapeRenderer.color = Color(cell.dna.consume.color)
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))
                 shapeRenderer.circle(
@@ -251,7 +250,7 @@ class BacillusGdxGame : ApplicationAdapter() {
             val alpha = cell.getAlpha()
             val radius = cell.getRadius()
             if (radius >= 3f) {
-                shapeRenderer.color = Color(cell.produce.color)
+                shapeRenderer.color = Color(cell.dna.produce.color)
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))
                 shapeRenderer.circle(

@@ -11,7 +11,7 @@ import com.invenit.bacillus.model.Organic
 class MoveStage : Stage {
     override fun execute(field: Field) {
         field.organics
-            .filter { it.canMove }
+            .filter { it.dna.canMove }
             .forEach { it.makeStep(field) }
     }
 
@@ -22,7 +22,7 @@ class MoveStage : Stage {
             field.isFree(newPosition) -> {
                 newPosition
             }
-            field[newPosition]?.body == cell.consume -> {
+            field[newPosition]?.body == cell.dna.consume -> {
                 val food = field[newPosition]!!
                 food.drain(Settings.BiteYield)
                 cell.consume(Settings.BiteYield)

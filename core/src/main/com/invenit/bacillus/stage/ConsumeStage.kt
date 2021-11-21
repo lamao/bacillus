@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 class ConsumeStage : Stage {
 
     override fun execute(field: Field) {
-        field.organics.filter { it.consume == Substance.Sun }
+        field.organics.filter { it.dna.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
         field.organics.forEach { consumeMinerals(it, field) }
     }
@@ -25,7 +25,7 @@ class ConsumeStage : Stage {
 
         field.iterateRadial(cell.position, Settings.ConsumingRange) { x, y ->
             val something = field[x, y]
-            if (something is Mineral && something.body == cell.consume) {
+            if (something is Mineral && something.body == cell.dna.consume) {
                 val rawGain = Integer.min(something.size, Settings.MineralsYield)
                 val distance = cell.position.distance(x, y)
 

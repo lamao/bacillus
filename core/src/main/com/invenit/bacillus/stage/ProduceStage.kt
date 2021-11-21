@@ -24,7 +24,7 @@ class ProduceStage : Stage {
 
         field.iterateRadial(cell.position, Settings.ProductionRange) { x, y ->
             val something = field[x, y]
-            if (something is Mineral && something.body == cell.produce) {
+            if (something is Mineral && something.body == cell.dna.produce) {
                 val amountToAdd = Integer.min(produced, Settings.MaxSize - something.size)
                 something.size += amountToAdd
                 produced -= amountToAdd
@@ -41,7 +41,7 @@ class ProduceStage : Stage {
                         Mineral(
                             Point(x, y),
                             amountToAdd,
-                            cell.produce
+                            cell.dna.produce
                         )
                     )
                     produced -= amountToAdd
