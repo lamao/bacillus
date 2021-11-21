@@ -2,8 +2,6 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
-import com.invenit.bacillus.stage.*
-import com.invenit.bacillus.util.Mutator
 import java.lang.Integer.max
 import java.lang.Integer.min
 
@@ -21,25 +19,6 @@ class Field(val width: Int, val height: Int) {
 
     val organics: MutableList<Organic> = mutableListOf()
     val minerals: MutableList<Mineral> = mutableListOf()
-
-    private val stages = arrayOf(
-        ClearExhaustedItems(),
-        MoveStage(),
-        SplitStage(),
-        AdjustCountersStage(),
-        ConsumeStage(),
-        ProduceStage(),
-        LookUpStage()
-    )
-
-    fun doTic() {
-
-        // TODO: Move out of the Field
-        for (stage in stages) {
-            stage.execute(this)
-        }
-
-    }
 
     fun isOutside(position: Point): Boolean {
         return position.x < 0 || position.x >= width
@@ -96,7 +75,6 @@ class Field(val width: Int, val height: Int) {
         putOnGrid(target, something)
         something.position = target
     }
-
 
 
     fun getRandomFreePosition(): Point {

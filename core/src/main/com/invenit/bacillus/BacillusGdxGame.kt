@@ -44,6 +44,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     private lateinit var font: BitmapFont
 
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
+    private val environment = Environment()
 
     override fun create() {
         shapeRenderer = ShapeRenderer()
@@ -86,7 +87,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         if (currentTime - lastTicTime >= TicInterval) {
             lastTicTime = currentTime
 
-            field.doTic()
+            environment.doTic(field)
 
             if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
                 var consume = Substance.getRandomConsume()
