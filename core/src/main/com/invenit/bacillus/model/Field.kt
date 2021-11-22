@@ -74,35 +74,6 @@ class Field(val width: Int, val height: Int) {
     }
 
 
-    fun getRandomFreePosition(): Point {
-        var position = getRandomPosition()
-        while (!isFree(position)) {
-            position = getRandomPosition()
-        }
-
-        return position
-    }
-
-    private fun getRandomPosition() = Point(
-        MathUtils.random(width - 1),
-        MathUtils.random(height - 1)
-    )
-
-    // TODO: Move out of this class
-    fun getRandomFreeDirection(position: Point): Point {
-        val direction = Point(
-            x = MathUtils.random(-1, 1),
-            y = MathUtils.random(-1, 1)
-        )
-
-        val newPosition = position + direction
-        if (isOutside(newPosition)) {
-            return NoDirection
-        }
-
-        return direction
-    }
-
     // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
     fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {

@@ -58,7 +58,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     }
 
     private fun spawn(dna: DNA): Organic {
-        val position = field.getRandomFreePosition()
+        val position = getRandomFreePosition()
 
         val bacillus = Organic(
             position = position,
@@ -70,6 +70,20 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         return bacillus
     }
+
+    private fun getRandomFreePosition(): Point {
+        var position = getRandomPosition()
+        while (!field.isFree(position)) {
+            position = getRandomPosition()
+        }
+
+        return position
+    }
+
+    private fun getRandomPosition() = Point(
+        MathUtils.random(field.width - 1),
+        MathUtils.random(field.height - 1)
+    )
 
 
     override fun render() {

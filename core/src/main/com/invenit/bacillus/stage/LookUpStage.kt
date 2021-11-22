@@ -1,5 +1,6 @@
 package com.invenit.bacillus.stage
 
+import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
@@ -20,7 +21,7 @@ class LookUpStage : Stage {
 
         val directionToFood = getDirectionToFood(cell, field)
         cell.direction = if (directionToFood == Field.NoDirection) {
-            field.getRandomFreeDirection(cell.position)
+            getRandomDirection(cell.position, field)
         } else {
             directionToFood
         }
@@ -43,5 +44,19 @@ class LookUpStage : Stage {
         }
 
         return result
+    }
+
+    private fun getRandomDirection(position: Point, field: Field): Point {
+        val direction = Point(
+            x = MathUtils.random(-1, 1),
+            y = MathUtils.random(-1, 1)
+        )
+
+        val newPosition = position + direction
+        if (field.isOutside(newPosition)) {
+            return Field.NoDirection
+        }
+
+        return direction
     }
 }
