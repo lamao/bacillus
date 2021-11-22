@@ -25,7 +25,7 @@ class ConsumeStage : Stage {
 
         field.iterateRadial(cell.position, Settings.ConsumingRange) { x, y ->
             val something = field[x, y]
-            if (something is Mineral && something.body == cell.dna.consume) {
+            if (something?.body == cell.dna.consume) {
                 val rawGain = Integer.min(something.size, Settings.MineralsYield)
                 val distance = cell.position.distance(x, y)
 

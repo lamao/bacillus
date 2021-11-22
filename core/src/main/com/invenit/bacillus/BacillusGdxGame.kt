@@ -100,6 +100,27 @@ class BacillusGdxGame : ApplicationAdapter() {
 
             environment.doTic(field)
 
+            if (Gdx.input.isTouched) {
+                val position = Point(Gdx.input.x, Gdx.input.y).fromDisplay()
+                if (!field.isFree(position)) {
+                    field.remove(position)
+                }
+                println("Touched at ${Gdx.input.x}, ${Gdx.input.y} -> $position")
+                field.add(
+                    Organic(
+                        position,
+                        Settings.DefaultSize,
+                        Point(0, 0),
+                        DNA(
+                            Substance.getRandomBody(),
+                            Substance.getRandomConsume(),
+                            Substance.getRandomProduce(),
+                            false
+                        )
+                    )
+                )
+            }
+
             if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
                 var consume = Substance.getRandomConsume()
                 var produce = Substance.getRandomProduce()
@@ -175,7 +196,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         for (y in 0 until field.height) {
             for (x in 0 until field.width) {
-                if (field.isFree(x, y)) {
+                if (!field.isFree(x, y)) {
                     val displayPosition = Point(x, y).toDisplay()
 
                     shapeRenderer.line(
@@ -315,6 +336,11 @@ class BacillusGdxGame : ApplicationAdapter() {
     private fun Vector2.projectedPosition(direction: Point, percentage: Float): Vector2 = Vector2(
         this.x + percentage * direction.x * Settings.CellSize,
         this.y + percentage * direction.y * Settings.CellSize
+    )
+
+    private fun Point.fromDisplay() = Point(
+        (this.x) / Settings.CellSize,
+        (Settings.Height - this.y) / Settings.CellSize
     )
 
 }
