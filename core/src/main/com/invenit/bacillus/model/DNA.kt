@@ -14,6 +14,10 @@ data class DNA(
     val canMove: Boolean
 ) {
 
+    companion object {
+        const val NumberOfTraits = 4
+    }
+
     fun mutated(): DNA {
         var body = this.body
         var consume = this.consume
@@ -21,7 +25,7 @@ data class DNA(
         var canMove = this.canMove
         if (MathUtils.random() < Settings.MutationRate) {
             // TODO: Refactor
-            when (MathUtils.random(0, 3)) {
+            when (MathUtils.random(NumberOfTraits - 1)) {
                 0 -> {
                     body = Substance.getRandomBody()
                 }
