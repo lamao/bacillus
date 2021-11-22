@@ -2,8 +2,6 @@ package com.invenit.bacillus.model
 
 import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
-import java.lang.Integer.max
-import java.lang.Integer.min
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -20,10 +18,9 @@ class Field(val width: Int, val height: Int) {
     val organics: MutableList<Organic> = mutableListOf()
     val minerals: MutableList<Mineral> = mutableListOf()
 
-    fun isOutside(position: Point): Boolean {
-        return position.x < 0 || position.x >= width
-                || position.y < 0 || position.y >= height
-    }
+    fun isOutside(position: Point): Boolean = isOutside(position.x, position.y)
+    fun isOutside(x: Int, y: Int): Boolean = x < 0 || x >= width || y < 0 || y >= height
+    fun isInside(x: Int, y: Int): Boolean = !isOutside(x, y)
 
     fun isFree(position: Point): Boolean = isFree(position.x, position.y)
     fun isFree(x: Int, y: Int): Boolean = get(x, y) == null
@@ -110,32 +107,33 @@ class Field(val width: Int, val height: Int) {
     fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
-            val upperY = min(anchor.y + step, height - 1)
-            val bottomY = max(anchor.y - step, 0)
-            val leftX = max(anchor.x - step, 0)
-            val rightX = min(anchor.x + step, width - 1)
-            for (x in leftX..rightX) {
-                if (!action(x, upperY)) {
-                    return
-                }
-            }
-
-            for (y in bottomY..upperY) {
-                if (!action(rightX, y)) {
-                    return
-                }
-            }
-
+            val upperY = anchor.y + step
+            val bottomY = anchor.y - step
+            val leftX = anchor.x - step
+            val rightX = anchor.x + step
 
             for (x in leftX..rightX) {
-                if (!action(x, bottomY)) {
+                if (isInside(x, upperY) && !action(x, upperY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY until upperY) {
+                if (isInside(rightX, y) && !action(rightX, y)) {
                     return
                 }
             }
 
 
-            for (y in upperY..bottomY) {
-                if (!action(leftX, y)) {
+            for (x in leftX until rightX) {
+                if (isInside(x, bottomY) && !action(x, bottomY)) {
+                    return
+                }
+            }
+
+
+            for (y in bottomY + 1 until upperY) {
+                if (isInside(leftX, y) && !action(leftX, y)) {
                     return
                 }
             }

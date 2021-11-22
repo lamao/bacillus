@@ -8,7 +8,7 @@ import kotlin.test.*
  * Created by vyacheslav.mischeryakov
  * Created 19.11.2021
  */
-class FieldTest {
+class FieldCrudTest {
 
     private lateinit var field: Field
 
