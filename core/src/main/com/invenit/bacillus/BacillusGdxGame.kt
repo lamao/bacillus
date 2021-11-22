@@ -62,7 +62,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         val bacillus = Organic(
             position = position,
-            direction = if (dna.canMove) field.getRandomFreeDirection(position) else Field.NoDirection,
+            direction = Field.NoDirection,
             size = Mutator.getRandomSize(),
             dna = dna
         )
