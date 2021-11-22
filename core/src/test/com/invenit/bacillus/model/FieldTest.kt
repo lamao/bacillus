@@ -23,10 +23,12 @@ class FieldTest {
             Point(1, 1),
             10,
             Point(1, 0),
-            Substance.Green,
-            Substance.Sun,
-            Substance.White,
-            false
+            DNA(
+                Substance.Green,
+                Substance.Sun,
+                Substance.White,
+                false
+            )
         )
         field.add(organic)
 
@@ -35,10 +37,12 @@ class FieldTest {
             Point(1, 1),
             10,
             Point(1, 0),
-            Substance.Green,
-            Substance.Sun,
-            Substance.White,
-            false
+            DNA(
+                Substance.Green,
+                Substance.Sun,
+                Substance.White,
+                false
+            )
         )
 
         assertEquals(expected, field[1, 1])
@@ -104,10 +108,12 @@ class FieldTest {
                 Point(0, 0),
                 5,
                 Point(0, 0),
-                Substance.Green,
-                Substance.White,
-                Substance.Red,
-                false
+                DNA(
+                    Substance.Green,
+                    Substance.White,
+                    Substance.Red,
+                    false
+                )
             )
         )
 

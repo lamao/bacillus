@@ -46,10 +46,12 @@ internal class OrganicTest {
             Point(1, 1),
             size,
             Point(1, 1),
-            Substance.Green,
+            DNA(
+                Substance.Green,
             Substance.Red,
             Substance.White,
             true
+            )
         )
         organic.energy = energy
         return organic
