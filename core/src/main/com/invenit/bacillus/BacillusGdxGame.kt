@@ -182,7 +182,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         shapeRenderer.end()
     }
 
-    private fun MutableList<Organic>.draw(ticPercentage: Float) {
+    private fun Iterable<Organic>.draw(ticPercentage: Float) {
 
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
@@ -264,7 +264,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     }
 
-    private fun MutableList<Mineral>.draw() {
+    private fun Iterable<Mineral>.draw() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         for (mineral in this) {
             val displayPosition = mineral.position.toDisplay()
