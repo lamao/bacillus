@@ -105,7 +105,6 @@ class BacillusGdxGame : ApplicationAdapter() {
                 if (!field.isFree(position)) {
                     field.remove(position)
                 }
-                println("Touched at ${Gdx.input.x}, ${Gdx.input.y} -> $position")
                 field.add(
                     Organic(
                         position,

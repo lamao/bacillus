@@ -12,7 +12,7 @@ enum class Substance(val color: Color) {
     Sun(Color.BLACK),
     Blue(Color.BLUE),
     Green(Color.GREEN),
-    Pink(Color.PINK),
+    Yellow(Color.YELLOW),
     White(Color.WHITE),
     Red(Color.RED);
 

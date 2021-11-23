@@ -34,11 +34,13 @@ class LookUpStage : Stage {
     private fun getDirectionToFood(cell: Organic, field: Field): Point {
 
         var result = Field.NoDirection
+        var bestSize = 0
 
         field.iterateRadial(cell.position, Settings.VisionRange) { x, y ->
-            if (field[x, y]?.body == cell.dna.consume) {
+            val something = field[x, y]
+            if (something?.body == cell.dna.consume && something.size > bestSize) {
                 result = cell.position.direction(x, y)
-                return@iterateRadial false
+                bestSize = something.size
             }
             return@iterateRadial true
         }
