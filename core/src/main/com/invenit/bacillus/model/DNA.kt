@@ -11,40 +11,49 @@ data class DNA(
     val body: Substance,
     val consume: Substance,
     val produce: Substance,
+    val toxin: Substance,
     val canMove: Boolean
 ) {
 
-    companion object {
-        const val NumberOfTraits = 4
+    enum class Trait {
+        Body,
+        Consume,
+        Produce,
+        Toxin,
+        CanMove;
+
+        companion object {
+            fun count() = values().size
+        }
     }
 
     fun mutated(): DNA {
         var body = this.body
         var consume = this.consume
         var produce = this.produce
+        var poison = this.toxin
         var canMove = this.canMove
         if (MathUtils.random() < Settings.MutationRate) {
             // TODO: Refactor
-            when (MathUtils.random(NumberOfTraits - 1)) {
-                0 -> {
+            when (MathUtils.random(Trait.count() - 1)) {
+                Trait.Body.ordinal -> {
                     body = Substance.getRandomBody()
                 }
-                1 -> {
-                    do {
-                        consume = Substance.getRandomConsume()
-                    } while (consume == produce)
+                Trait.Consume.ordinal -> {
+                    consume = Substance.getRandomConsume()
                 }
-                2 -> {
-                    do {
-                        produce = Substance.getRandomProduce()
-                    } while (produce == consume)
+                Trait.Produce.ordinal -> {
+                    produce = Substance.getRandomProduce()
                 }
-                3 -> {
+                Trait.Toxin.ordinal -> {
+                    poison = Substance.getRandomToxin()
+                }
+                Trait.CanMove.ordinal -> {
                     canMove = MathUtils.randomBoolean()
                 }
             }
         }
 
-        return DNA(body, consume, produce, canMove)
+        return DNA(body, consume, produce, poison, canMove)
     }
 }

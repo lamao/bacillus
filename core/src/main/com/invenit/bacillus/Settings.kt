@@ -1,5 +1,7 @@
 package com.invenit.bacillus
 
+import kotlin.math.pow
+
 /**
  * Created by vyacheslav.mischeryakov
  * Created 15.11.2021
@@ -22,7 +24,10 @@ object Settings {
     const val SunYield = 20
     const val MineralsYield = 10
     fun correctedMineralsYield(amount: Float, distance: Int): Float =
-        amount /// 2f.pow(distance - 1)
+        amount
+
+    fun toxinDamageFunction(amount: Float, distance: Int): Float =
+        amount / 2f.pow(distance - 1)
 
     const val MoveConsumption = 10
     const val PermanentConsumption = 10
@@ -42,6 +47,7 @@ object Settings {
     const val VisionRange = 1
     const val ConsumingRange = 2
     const val ProductionRange = 1
+    const val ToxinRange = 2
 
     const val ProbabilityToSpawnOrganics = 0.0f
     const val MutationRate = 0.01f

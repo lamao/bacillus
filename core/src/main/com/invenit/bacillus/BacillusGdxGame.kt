@@ -52,7 +52,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         font = BitmapFont()
 
         for (i in 1..Settings.InitNumberOfOrganics) {
-            spawn(DNA(Substance.Green, Substance.Sun, Substance.White, false))
+            spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false))
         }
 
     }
@@ -114,6 +114,7 @@ class BacillusGdxGame : ApplicationAdapter() {
                             Substance.getRandomBody(),
                             Substance.getRandomConsume(),
                             Substance.getRandomProduce(),
+                            Substance.getRandomToxin(),
                             false
                         )
                     )
@@ -121,17 +122,12 @@ class BacillusGdxGame : ApplicationAdapter() {
             }
 
             if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
-                var consume = Substance.getRandomConsume()
-                var produce = Substance.getRandomProduce()
-                while (consume == produce) {
-                    consume = Substance.getRandomConsume()
-                    produce = Substance.getRandomProduce()
-                }
                 spawn(
                     DNA(
                         Substance.getRandomBody(),
-                        consume,
-                        produce,
+                        Substance.getRandomConsume(),
+                        Substance.getRandomProduce(),
+                        Substance.getRandomToxin(),
                         MathUtils.randomBoolean()
                     )
                 )
@@ -291,6 +287,35 @@ class BacillusGdxGame : ApplicationAdapter() {
                     projectedPosition.x,
                     projectedPosition.y,
                     radius
+                )
+
+                // toxin mark
+                shapeRenderer.color = Color(cell.dna.toxin.color)
+                    .sub(TransparentMask)
+                    .add(0f, 0f, 0f, sqrt(alpha))
+                shapeRenderer.line(
+                    displayPosition.x - radius,
+                    displayPosition.y + radius,
+                    displayPosition.x - radius / 2,
+                    displayPosition.y + radius / 2
+                )
+                shapeRenderer.line(
+                    displayPosition.x + radius,
+                    displayPosition.y + radius,
+                    displayPosition.x + radius / 2,
+                    displayPosition.y + radius / 2
+                )
+                shapeRenderer.line(
+                    displayPosition.x + radius,
+                    displayPosition.y - radius,
+                    displayPosition.x + radius / 2,
+                    displayPosition.y - radius / 2
+                )
+                shapeRenderer.line(
+                    displayPosition.x - radius,
+                    displayPosition.y - radius,
+                    displayPosition.x - radius / 2,
+                    displayPosition.y - radius / 2
                 )
             }
         }

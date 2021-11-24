@@ -20,5 +20,6 @@ enum class Substance(val color: Color) {
         fun getRandomBody() = values()[MathUtils.random(1, values().size - 1)]
         fun getRandomConsume() = values()[MathUtils.random(0, values().size - 1)]
         fun getRandomProduce() = values()[MathUtils.random(1, values().size - 1)]
+        fun getRandomToxin() = values()[MathUtils.random(1, values().size - 1)]
     }
 }

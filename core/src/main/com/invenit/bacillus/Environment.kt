@@ -14,6 +14,8 @@ class Environment {
         MoveStage(),
         SplitStage(),
         AdjustCountersStage(),
+
+        ToxinStage(),
         ConsumeStage(),
         ProduceStage(),
         LookUpStage()
