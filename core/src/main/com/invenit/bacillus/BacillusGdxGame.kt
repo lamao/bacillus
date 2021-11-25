@@ -108,6 +108,12 @@ class BacillusGdxGame : ApplicationAdapter() {
         camera.update()
 
         ScreenUtils.clear(0f, 0f, 0.1f, 1f)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer.color = Color.BLACK
+        shapeRenderer.rect(Settings.Width.toFloat(), 0f, Settings.UiWidth.toFloat(), Settings.Height.toFloat())
+        shapeRenderer.color = Color.GRAY
+        shapeRenderer.line(Settings.Width.toFloat(), 0f, Settings.Width.toFloat(), Settings.Height.toFloat())
+        shapeRenderer.end()
 
         if (Settings.Debug.displayGrid) {
             drawGrid(field)
@@ -293,28 +299,28 @@ class BacillusGdxGame : ApplicationAdapter() {
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))
                 shapeRenderer.line(
-                    displayPosition.x - radius,
-                    displayPosition.y + radius,
-                    displayPosition.x - radius / 2,
-                    displayPosition.y + radius / 2
+                    projectedPosition.x - radius,
+                    projectedPosition.y + radius,
+                    projectedPosition.x - radius / 2,
+                    projectedPosition.y + radius / 2
                 )
                 shapeRenderer.line(
-                    displayPosition.x + radius,
-                    displayPosition.y + radius,
-                    displayPosition.x + radius / 2,
-                    displayPosition.y + radius / 2
+                    projectedPosition.x + radius,
+                    projectedPosition.y + radius,
+                    projectedPosition.x + radius / 2,
+                    projectedPosition.y + radius / 2
                 )
                 shapeRenderer.line(
-                    displayPosition.x + radius,
-                    displayPosition.y - radius,
-                    displayPosition.x + radius / 2,
-                    displayPosition.y - radius / 2
+                    projectedPosition.x + radius,
+                    projectedPosition.y - radius,
+                    projectedPosition.x + radius / 2,
+                    projectedPosition.y - radius / 2
                 )
                 shapeRenderer.line(
-                    displayPosition.x - radius,
-                    displayPosition.y - radius,
-                    displayPosition.x - radius / 2,
-                    displayPosition.y - radius / 2
+                    projectedPosition.x - radius,
+                    projectedPosition.y - radius,
+                    projectedPosition.x - radius / 2,
+                    projectedPosition.y - radius / 2
                 )
             }
         }

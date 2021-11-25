@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
 
     val config = LwjglApplicationConfiguration()
     config.title = "Bacillus"
-    config.width = Settings.Width
+    config.width = Settings.TotalWidth
     config.height = Settings.Height
 
     config.samples = 4

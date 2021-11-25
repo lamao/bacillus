@@ -10,6 +10,8 @@ object Settings {
 
     const val Width = 800
     const val Height = 800
+    const val UiWidth = 300
+    const val TotalWidth = Width + UiWidth
 
     const val CellSize = 10
 
@@ -20,25 +22,27 @@ object Settings {
     val SmoothAnimation: Boolean
         get() = TicDelaySeconds > 0.2f
 
-    const val BiteYield = 200
-    const val SunYield = 20
-    const val MineralsYield = 10
+    var BiteYield = 200
+    var SunYield = 20
+    var MineralsYield = 10
     fun correctedMineralsYield(amount: Float, distance: Int): Float =
         amount
 
     fun toxinDamageFunction(amount: Float, distance: Int): Float =
         amount / 2f.pow(distance - 1)
 
-    const val MoveConsumption = 10
-    const val PermanentConsumption = 10
+    var MoveConsumption = 10
+    var PermanentConsumption = 10
 
-    const val ProductionPerformance = 0.1f
-    const val MineralDegradation = 3
+    var ProductionPerformance = 0.1f
+    var MineralDegradation = 3
 
-    const val DefaultSize = 750
-    const val ReproductionThreshold = 2000
-    const val MaxSize = ReproductionThreshold + BiteYield
-    const val MaxAge = 1500
+    var DefaultSize = 750
+    var ReproductionThreshold = 2000
+    val MaxSize: Int
+        get() = ReproductionThreshold + BiteYield
+
+    var MaxAge = 1500
 
     const val ReturnHealthWhenReproductionFails = 0.5f
 
