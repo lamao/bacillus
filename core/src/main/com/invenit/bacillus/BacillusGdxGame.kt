@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.ui.UserInputListener
 import com.invenit.bacillus.util.Mutator
 import kotlin.math.max
 import kotlin.math.min
@@ -55,6 +56,8 @@ class BacillusGdxGame : ApplicationAdapter() {
             spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false))
         }
 
+        Gdx.input.inputProcessor = UserInputListener(field)
+
     }
 
     private fun spawn(dna: DNA): Organic {
@@ -88,38 +91,11 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     override fun render() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD)) {
-            Settings.TicDelaySeconds = min(3f, Settings.TicDelaySeconds + 0.01f)
-        } else if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT)) {
-            Settings.TicDelaySeconds = max(0f, Settings.TicDelaySeconds - 0.01f)
-        }
-
         val currentTime = TimeUtils.nanoTime()
         if (currentTime - lastTicTime >= TicInterval) {
             lastTicTime = currentTime
 
             environment.doTic(field)
-
-            if (Gdx.input.isTouched) {
-                val position = Point(Gdx.input.x, Gdx.input.y).fromDisplay()
-                if (!field.isFree(position)) {
-                    field.remove(position)
-                }
-                field.add(
-                    Organic(
-                        position,
-                        Settings.DefaultSize,
-                        Point(0, 0),
-                        DNA(
-                            Substance.getRandomBody(),
-                            Substance.getRandomConsume(),
-                            Substance.getRandomProduce(),
-                            Substance.getRandomToxin(),
-                            false
-                        )
-                    )
-                )
-            }
 
             if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
                 spawn(
@@ -360,11 +336,6 @@ class BacillusGdxGame : ApplicationAdapter() {
     private fun Vector2.projectedPosition(direction: Point, percentage: Float): Vector2 = Vector2(
         this.x + percentage * direction.x * Settings.CellSize,
         this.y + percentage * direction.y * Settings.CellSize
-    )
-
-    private fun Point.fromDisplay() = Point(
-        (this.x) / Settings.CellSize,
-        (Settings.Height - this.y) / Settings.CellSize
     )
 
 }
