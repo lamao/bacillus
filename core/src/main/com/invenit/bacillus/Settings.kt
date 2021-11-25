@@ -8,8 +8,8 @@ import kotlin.math.pow
  */
 object Settings {
 
-    const val Width = 1000
-    const val Height = 1000
+    const val Width = 800
+    const val Height = 800
 
     const val CellSize = 10
 
@@ -50,7 +50,7 @@ object Settings {
     const val ToxinRange = 2
 
     const val ProbabilityToSpawnOrganics = 0.0f
-    const val MutationRate = 0.01f
+    var MutationRate = 0.01f
     const val UnexpectedDeathRate = 0f
 
     const val InitNumberOfOrganics = 20

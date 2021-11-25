@@ -3,16 +3,19 @@ package com.invenit.bacillus.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.math.Vector3
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * Created by vyacheslav.mischeryakov
  * Created 25.11.2021
  */
-class UserInputListener(val field: Field) : InputAdapter() {
+class UserInputListener(val field: Field, val camera: Camera) : InputAdapter() {
 
     private var ctrlPressed = false
     private var altPressed = false
@@ -55,7 +58,7 @@ class UserInputListener(val field: Field) : InputAdapter() {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val position = Point(Gdx.input.x, Gdx.input.y).fromDisplay()
+        val position = fromDisplay(screenX, screenY)
         return if (ctrlPressed) {
             addCell(position)
         } else if (altPressed) {
@@ -66,7 +69,7 @@ class UserInputListener(val field: Field) : InputAdapter() {
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        val position = Point(Gdx.input.x, Gdx.input.y).fromDisplay()
+        val position = fromDisplay(screenX, screenY)
         return if (ctrlPressed) {
             addCell(position)
         } else if (altPressed) {
@@ -84,10 +87,14 @@ class UserInputListener(val field: Field) : InputAdapter() {
         return true
     }
 
-    private fun Point.fromDisplay() = Point(
-        (this.x) / Settings.CellSize,
-        (Settings.Height - this.y) / Settings.CellSize
-    )
+    private fun fromDisplay(screenX: Int, screenY: Int): Point {
+        val touchPoint = Vector3(screenX.toFloat(), screenY.toFloat(), 0f)
+        camera.unproject(touchPoint)
+        return Point(
+            touchPoint.x.roundToInt() / Settings.CellSize,
+            touchPoint.y.roundToInt() / Settings.CellSize
+        )
+    }
 
     private fun replaceCell(position: Point): Boolean {
         if (!field.isFree(position)) {

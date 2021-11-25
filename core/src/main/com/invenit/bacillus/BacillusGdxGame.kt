@@ -2,9 +2,9 @@ package com.invenit.bacillus
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
@@ -12,11 +12,10 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
+import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.ui.UserInputListener
+import com.invenit.bacillus.ui.SlidersStage
 import com.invenit.bacillus.util.Mutator
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 
 
@@ -40,6 +39,8 @@ class BacillusGdxGame : ApplicationAdapter() {
     private var lastTicTime = 0L
     private var ticsPassed = 0L
 
+    private lateinit var camera: OrthographicCamera
+    private lateinit var viewport: ExtendViewport
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var batch: SpriteBatch
     private lateinit var font: BitmapFont
@@ -47,7 +48,13 @@ class BacillusGdxGame : ApplicationAdapter() {
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
     private val environment = Environment()
 
+    private lateinit var ui: SlidersStage
+
+
     override fun create() {
+        camera = OrthographicCamera()
+        camera.setToOrtho(false, Settings.Width.toFloat(), Settings.Height.toFloat())
+
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
         font = BitmapFont()
@@ -56,38 +63,20 @@ class BacillusGdxGame : ApplicationAdapter() {
             spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false))
         }
 
-        Gdx.input.inputProcessor = UserInputListener(field)
+        ui = SlidersStage()
+
+        Gdx.input.inputProcessor = ui
+//        Gdx.input.inputProcessor = UserInputListener(field, camera)
 
     }
 
-    private fun spawn(dna: DNA): Organic {
-        val position = getRandomFreePosition()
+    override fun dispose() {
+        shapeRenderer.dispose()
+        batch.dispose()
+        font.dispose()
 
-        val bacillus = Organic(
-            position = position,
-            direction = Field.NoDirection,
-            size = Mutator.getRandomSize(),
-            dna = dna
-        )
-        field.add(bacillus)
-
-        return bacillus
+        ui.dispose()
     }
-
-    private fun getRandomFreePosition(): Point {
-        var position = getRandomPosition()
-        while (!field.isFree(position)) {
-            position = getRandomPosition()
-        }
-
-        return position
-    }
-
-    private fun getRandomPosition() = Point(
-        MathUtils.random(field.width - 1),
-        MathUtils.random(field.height - 1)
-    )
-
 
     override fun render() {
 
@@ -112,6 +101,8 @@ class BacillusGdxGame : ApplicationAdapter() {
             ticsPassed++
         }
 
+        camera.update()
+
         ScreenUtils.clear(0f, 0f, 0.1f, 1f)
 
         if (Settings.Debug.displayGrid) {
@@ -130,18 +121,46 @@ class BacillusGdxGame : ApplicationAdapter() {
         Gdx.gl.glDisable(GL30.GL_BLEND)
 
 
-        val fpsMessage = "FPS:  ${Gdx.graphics.framesPerSecond}. " +
-                "Delay: %.2f secs. ".format(Settings.TicDelaySeconds) +
-                "Tics: $ticsPassed"
-        batch.begin()
-        font.draw(batch, fpsMessage, 10f, Settings.Height - 10f)
-        font.draw(batch, "Total: ${field.organics.count() + field.minerals.count()}", 10f, Settings.Height - 30f)
-        font.draw(batch, "Minerals: ${field.minerals.count()}", 10f, Settings.Height - 50f)
-        font.draw(batch, "Stationary: ${field.organics.count { !it.dna.canMove }}", 10f, Settings.Height - 70f)
-        font.draw(batch, "Mobile: ${field.organics.count { it.dna.canMove }}", 10f, Settings.Height - 90f)
-        batch.end()
+        // TODO: Refactor
+        ui.setGeneralInfo(Gdx.graphics.framesPerSecond, ticsPassed)
+        ui.setTotal(field.organics.count() + field.minerals.count())
+        ui.setMinerals(field.minerals.count())
+        ui.setStationary(field.organics.count { !it.dna.canMove })
+        ui.setMobile(field.organics.count { it.dna.canMove })
+
+        ui.act(Gdx.graphics.deltaTime)
+        ui.draw()
 
     }
+
+    private fun spawn(dna: DNA): Organic {
+        val position = getRandomFreePosition()
+
+        val bacillus = Organic(
+            position = position,
+            direction = Field.NoDirection,
+            size = Mutator.getRandomSize(),
+            dna = dna
+        )
+        field.add(bacillus)
+
+        return bacillus
+    }
+
+
+    private fun getRandomFreePosition(): Point {
+        var position = getRandomPosition()
+        while (!field.isFree(position)) {
+            position = getRandomPosition()
+        }
+
+        return position
+    }
+
+    private fun getRandomPosition() = Point(
+        MathUtils.random(field.width - 1),
+        MathUtils.random(field.height - 1)
+    )
 
     private fun drawGrid(field: Field) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
@@ -321,12 +340,6 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     private fun Something.getRadius() =
         0.25f * CellRadius + 0.75f * CellRadius * (this.size.toFloat() / Settings.MaxSize)
-
-    override fun dispose() {
-        shapeRenderer.dispose()
-        batch.dispose()
-        font.dispose()
-    }
 
     private fun Point.toDisplay(): Vector2 = Vector2(
         (this.x * Settings.CellSize + Settings.CellSize / 2).toFloat(),
