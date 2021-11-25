@@ -2,6 +2,7 @@ package com.invenit.bacillus
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.ui.SlidersStage
+import com.invenit.bacillus.ui.UserInputListener
 import com.invenit.bacillus.util.Mutator
 import kotlin.math.sqrt
 
@@ -65,8 +67,10 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         ui = SlidersStage()
 
-        Gdx.input.inputProcessor = ui
-//        Gdx.input.inputProcessor = UserInputListener(field, camera)
+        Gdx.input.inputProcessor = InputMultiplexer(
+            ui,
+            UserInputListener(field, camera)
+        )
 
     }
 
