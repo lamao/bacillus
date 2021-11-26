@@ -13,10 +13,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.ui.DebugStage
-import com.invenit.bacillus.ui.EnvironmentStage
-import com.invenit.bacillus.ui.SlidersStage
-import com.invenit.bacillus.ui.UserInputListener
+import com.invenit.bacillus.ui.*
 import com.invenit.bacillus.util.Mutator
 
 
@@ -51,6 +48,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     private lateinit var debugStage: DebugStage
     private lateinit var environmentStage: EnvironmentStage
     private lateinit var slidersStage: SlidersStage
+    private lateinit var cellDetailsStage: CellDetailsStage
 
 
     override fun create() {
@@ -68,10 +66,12 @@ class BacillusGdxGame : ApplicationAdapter() {
         debugStage = DebugStage(field)
         environmentStage = EnvironmentStage(field)
         slidersStage = SlidersStage(field)
+        cellDetailsStage = CellDetailsStage(field, Settings.Width + 200, Settings.Height)
 
         Gdx.input.inputProcessor = InputMultiplexer(
             slidersStage,
-            UserInputListener(field, camera)
+            UserInputListener(field, camera),
+            cellDetailsStage
         )
 
     }
@@ -111,6 +111,9 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         slidersStage.act(Gdx.graphics.deltaTime)
         slidersStage.draw()
+
+        cellDetailsStage.act(Gdx.graphics.deltaTime)
+        cellDetailsStage.draw()
 
     }
 
