@@ -60,7 +60,7 @@ object Settings {
     const val InitNumberOfOrganics = 20
 
     object Debug {
-        const val displayGrid = false
-        const val displaySourcePosition = false
+        var displayGrid = false
+        var displaySourcePosition = false
     }
 }

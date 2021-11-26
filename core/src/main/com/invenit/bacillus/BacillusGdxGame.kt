@@ -55,7 +55,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     override fun create() {
         camera = OrthographicCamera()
-        camera.setToOrtho(false, Settings.Width.toFloat(), Settings.Height.toFloat())
+        camera.setToOrtho(false, Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
 
         shapeRenderer = ShapeRenderer()
         batch = SpriteBatch()
@@ -293,8 +293,10 @@ class BacillusGdxGame : ApplicationAdapter() {
                     projectedPosition.y,
                     radius
                 )
+            }
 
-                // toxin mark
+            // toxin mark
+            if (radius >= 4f) {
                 shapeRenderer.color = Color(cell.dna.toxin.color)
                     .sub(TransparentMask)
                     .add(0f, 0f, 0f, sqrt(alpha))

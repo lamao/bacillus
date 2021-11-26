@@ -3,10 +3,7 @@ package com.invenit.bacillus.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Slider
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.Settings
@@ -58,34 +55,34 @@ class SlidersStage : Stage() {
         table.row()
         table.add(Label("", skin))
 
-        table.addSlider(0f, 1.5f, 0.01f, Settings.TicDelaySeconds,
+        table.addSlider(0f, 1f, 0.02f, Settings.TicDelaySeconds,
             { Settings.TicDelaySeconds = it },
             { "Tic Delay: %.2f s".format(Settings.TicDelaySeconds) }
         )
 
-        table.addSlider(0f, 0.5f, 0.005f, Settings.MutationRate,
+        table.addSlider(0f, 0.3f, 0.005f, Settings.MutationRate,
             { Settings.MutationRate = it },
             { "Mutation Rate: %.3f".format(Settings.MutationRate) }
         )
 
-        table.addSlider(0f, 1000f, 10f, Settings.SunYield.toFloat(),
+        table.addSlider(0f, 200f, 10f, Settings.SunYield.toFloat(),
             { Settings.SunYield = it.toInt() },
             { "Sun Yield: %,d".format(Settings.SunYield) }
         )
-        table.addSlider(0f, 1000f, 10f, Settings.BiteYield.toFloat(),
+        table.addSlider(0f, 500f, 20f, Settings.BiteYield.toFloat(),
             { Settings.BiteYield = it.toInt() },
             { "Bite Yield: %,d".format(Settings.BiteYield) }
         )
-        table.addSlider(0f, 1000f, 10f, Settings.MineralsYield.toFloat(),
-            { Settings.MineralsYield = it.toInt() },
+        table.addSlider(0f, 200f, 10f, Settings.MineralsYield.toFloat(),
+            { Settings.MineralsYield = it.toInt();println(Settings.MineralsYield) },
             { "Minerals Yield: %,d".format(Settings.MineralsYield) }
         )
 
-        table.addSlider(0f, 100f, 1f, Settings.MoveConsumption.toFloat(),
+        table.addSlider(0f, 100f, 5f, Settings.MoveConsumption.toFloat(),
             { Settings.MoveConsumption = it.toInt() },
             { "Move Consumption: %,d".format(Settings.MoveConsumption) }
         )
-        table.addSlider(0f, 100f, 1f, Settings.PermanentConsumption.toFloat(),
+        table.addSlider(0f, 100f, 5f, Settings.PermanentConsumption.toFloat(),
             { Settings.PermanentConsumption = it.toInt() },
             { "Permanent Consumption: %,d".format(Settings.PermanentConsumption) }
         )
@@ -95,25 +92,54 @@ class SlidersStage : Stage() {
             { "Production Performance: %.2f".format(Settings.ProductionPerformance) }
         )
 
-        table.addSlider(0f, 50f, 1f, Settings.MineralDegradation.toFloat(),
+        table.addSlider(0f, 30f, 1f, Settings.MineralDegradation.toFloat(),
             { Settings.MineralDegradation = it.toInt() },
             { "Mineral Degradation: %,d".format(Settings.MineralDegradation) }
         )
 
-        table.addSlider(100f, 5000f, 10f, Settings.DefaultSize.toFloat(),
+        table.addSlider(100f, 2000f, 50f, Settings.DefaultSize.toFloat(),
             { Settings.DefaultSize = it.toInt() },
             { "Default Size: %,d".format(Settings.DefaultSize) }
         )
-        table.addSlider(1000f, 10000f, 10f, Settings.ReproductionThreshold.toFloat(),
+        table.addSlider(500f, 5000f, 100f, Settings.ReproductionThreshold.toFloat(),
             { Settings.ReproductionThreshold = it.toInt() },
             { "Reproduction Threshold: %,d".format(Settings.ReproductionThreshold) }
         )
-        table.addSlider(100f, 5000f, 100f, Settings.MaxAge.toFloat(),
+        table.addSlider(500f, 5000f, 100f, Settings.MaxAge.toFloat(),
             { Settings.MaxAge = it.toInt() },
             { "MaxAge: %,d".format(Settings.MaxAge) }
         )
 
+        table.row()
+        table.add(Label("", skin))
+
+        table.addCheckBox(Settings.Debug.displayGrid, " Display grid") {
+            Settings.Debug.displayGrid = it
+        }
+
+        table.addCheckBox(Settings.Debug.displaySourcePosition, " Display source position") {
+            Settings.Debug.displaySourcePosition = it
+        }
+
         table.layout()
+    }
+
+    private fun Table.addCheckBox(
+        default: Boolean,
+        labelText: String,
+        handler: (Boolean) -> Unit
+    ) {
+        this.row().align(Align.left)
+
+        val checkBox = CheckBox(labelText, this@SlidersStage.skin)
+        checkBox.isChecked = default
+        checkBox.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                handler(checkBox.isChecked)
+            }
+
+        })
+        this.add(checkBox)
     }
 
     private fun Table.addSlider(

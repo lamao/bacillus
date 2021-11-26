@@ -1,14 +1,11 @@
 package com.invenit.bacillus.ui
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -22,14 +19,6 @@ class UserInputListener(val field: Field, val camera: Camera) : InputAdapter() {
 
     override fun keyDown(keycode: Int): Boolean {
         return when (keycode) {
-            Input.Keys.NUMPAD_ADD -> {
-                Settings.TicDelaySeconds = min(3f, Settings.TicDelaySeconds + 0.01f)
-                true
-            }
-            Input.Keys.NUMPAD_SUBTRACT -> {
-                Settings.TicDelaySeconds = max(0f, Settings.TicDelaySeconds - 0.01f)
-                true
-            }
             Input.Keys.CONTROL_LEFT -> {
                 ctrlPressed = true
                 true
@@ -58,19 +47,18 @@ class UserInputListener(val field: Field, val camera: Camera) : InputAdapter() {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val position = fromDisplay(screenX, screenY)
-        return if (ctrlPressed) {
-            addCell(position)
-        } else if (altPressed) {
-            replaceCell(position)
-        } else {
-            false
-        }
+        return onMouseClick(screenX, screenY)
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return onMouseClick(screenX, screenY)
+    }
+
+    private fun onMouseClick(screenX: Int, screenY: Int): Boolean {
         val position = fromDisplay(screenX, screenY)
-        return if (ctrlPressed) {
+        return if (field.isOutside(position)) {
+            true
+        } else if (ctrlPressed) {
             addCell(position)
         } else if (altPressed) {
             replaceCell(position)
