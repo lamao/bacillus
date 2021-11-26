@@ -1,6 +1,7 @@
 package com.invenit.bacillus.model
 
 import com.invenit.bacillus.Settings
+import kotlin.math.roundToInt
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -21,16 +22,19 @@ data class Organic(
     private var processed: Int = 0
 
     fun consume(gain: Int) {
-        if (this.energy + gain <= this.size) {
-            this.energy += gain
+        // TODO: Fix to more accurate numbers
+        val actualGain = (gain * (1 - Settings.ProductionPerformance)).roundToInt()
+
+        if (this.energy + actualGain <= this.size) {
+            this.energy += actualGain
         } else {
             val energyGain = this.size - this.energy
-            val sizeGain = gain - energyGain
+            val sizeGain = actualGain - energyGain
 
             this.energy += energyGain
             this.size = Integer.min(this.size + sizeGain, Settings.MaxSize)
         }
-        processed += gain
+        processed += actualGain
     }
 
     override fun drain(points: Int) {

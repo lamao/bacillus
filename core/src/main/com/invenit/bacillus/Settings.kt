@@ -23,7 +23,7 @@ object Settings {
         get() = TicDelaySeconds > 0.2f
 
     var BiteYield = 200
-    var SunYield = 20
+    var SunYield = 25
     var MineralsYield = 10
     fun correctedMineralsYield(amount: Float, distance: Int): Float =
         amount

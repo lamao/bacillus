@@ -66,7 +66,7 @@ class SlidersStage(val field: Field) : Stage() {
             { "Mutation Rate: %.3f".format(Settings.MutationRate) }
         )
 
-        table.addSlider(0f, 200f, 10f, Settings.SunYield.toFloat(),
+        table.addSlider(0f, 200f, 5f, Settings.SunYield.toFloat(),
             { Settings.SunYield = it.toInt() },
             { "Sun Yield: %,d".format(Settings.SunYield) }
         )
@@ -74,7 +74,7 @@ class SlidersStage(val field: Field) : Stage() {
             { Settings.BiteYield = it.toInt() },
             { "Bite Yield: %,d".format(Settings.BiteYield) }
         )
-        table.addSlider(0f, 200f, 10f, Settings.MineralsYield.toFloat(),
+        table.addSlider(0f, 200f, 5f, Settings.MineralsYield.toFloat(),
             { Settings.MineralsYield = it.toInt() },
             { "Minerals Yield: %,d".format(Settings.MineralsYield) }
         )
