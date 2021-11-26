@@ -7,13 +7,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.Settings
+import com.invenit.bacillus.model.Field
 
 
 /**
  * Created by vyacheslav.mischeryakov
  * Created 25.11.2021
  */
-class SlidersStage : Stage() {
+class SlidersStage(val field: Field) : Stage() {
 
     private val generalInfo: Label
     private val totalLabel: Label
@@ -74,7 +75,7 @@ class SlidersStage : Stage() {
             { "Bite Yield: %,d".format(Settings.BiteYield) }
         )
         table.addSlider(0f, 200f, 10f, Settings.MineralsYield.toFloat(),
-            { Settings.MineralsYield = it.toInt();println(Settings.MineralsYield) },
+            { Settings.MineralsYield = it.toInt() },
             { "Minerals Yield: %,d".format(Settings.MineralsYield) }
         )
 
@@ -165,23 +166,32 @@ class SlidersStage : Stage() {
         this.add(slider)
     }
 
+    override fun act(delta: Float) {
+        super.act(delta)
+
+        setTotal(field.organics.count() + field.minerals.count())
+        setMinerals(field.minerals.count())
+        setStationary(field.organics.count { !it.dna.canMove })
+        setMobile(field.organics.count { it.dna.canMove })
+    }
+
     fun setGeneralInfo(fps: Int, ticsPassed: Long) {
         generalInfo.setText("FPS:  $fps. Tics: %,d".format(ticsPassed))
     }
 
-    fun setTotal(total: Int) {
+    private fun setTotal(total: Int) {
         totalLabel.setText("Total: $total")
     }
 
-    fun setMinerals(minerals: Int) {
+    private fun setMinerals(minerals: Int) {
         mineralsLabel.setText("Minerals: $minerals")
     }
 
-    fun setStationary(value: Int) {
+    private fun setStationary(value: Int) {
         stationaryLabel.setText("Stationary: $value")
     }
 
-    fun setMobile(value: Int) {
+    private fun setMobile(value: Int) {
         mobileLabel.setText("Mobile: $value")
     }
 
