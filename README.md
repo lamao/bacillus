@@ -1,5 +1,9 @@
 # bacillus
 
+### Instructions
+
+To run application use command `gradlew desktop:run`
+
 ### Ideas
 
 - Size and energy. Size is defines max energy, attack power, production capacity, 
