@@ -48,8 +48,9 @@ internal class OrganicTest {
             Point(1, 1),
             DNA(
                 Substance.Green,
-            Substance.Red,
-            Substance.White,
+                Substance.Red,
+                Substance.White,
+                Substance.Red,
             true
             )
         )

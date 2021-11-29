@@ -16,7 +16,7 @@ class DNATest {
 
     @BeforeTest
     fun before() {
-        dna = DNA(Substance.Green, Substance.Sun, Substance.White, false)
+        dna = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false)
     }
 
     @Test
@@ -25,7 +25,6 @@ class DNATest {
 
         for (i in 1..NumberOfIterations) {
             val mutatedDna = dna.mutated()
-            assertNotEquals(mutatedDna.consume, mutatedDna.produce, "Consume should be never equals to produce")
             assertNotEquals(Substance.Sun, mutatedDna.produce, "Can't produce Sun")
             assertNotEquals(Substance.Sun, mutatedDna.body, "Can't consist of Sun")
 

@@ -27,6 +27,7 @@ class FieldCrudTest {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
+                Substance.Red,
                 false
             )
         )
@@ -41,6 +42,7 @@ class FieldCrudTest {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
+                Substance.Red,
                 false
             )
         )
@@ -111,6 +113,7 @@ class FieldCrudTest {
                 DNA(
                     Substance.Green,
                     Substance.White,
+                    Substance.Red,
                     Substance.Red,
                     false
                 )
