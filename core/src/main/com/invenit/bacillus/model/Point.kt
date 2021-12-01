@@ -8,6 +8,10 @@ import kotlin.math.abs
  */
 data class Point(val x: Int, val y: Int) {
 
+    companion object {
+        val Zero = Point(0, 0)
+    }
+
     operator fun plus(point: Point): Point = Point(x + point.x, y + point.y)
     operator fun minus(point: Point): Point = Point(x - point.x, y - point.y)
 

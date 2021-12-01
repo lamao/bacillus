@@ -19,7 +19,7 @@ data class Organic(
     override val body: Substance
         get() = dna.body
 
-    private var processed: Int = 0
+    var accumulatedWaste: Int = 0
 
     fun consume(gain: Int) {
         // TODO: Fix to more accurate numbers
@@ -34,21 +34,15 @@ data class Organic(
             this.energy += energyGain
             this.size = Integer.min(this.size + sizeGain, Settings.MaxSize)
         }
-        processed += actualGain
+        accumulatedWaste += (gain - actualGain)
     }
 
-    override fun drain(points: Int) {
-        super.drain(points)
+    override fun drain(points: Int) : Int {
+        val actualDrain = super.drain(points)
         if (energy > size) {
             energy = size
         }
+        return actualDrain
     }
-
-    fun produced(): Int {
-        val result = processed * Settings.ProductionPerformance
-        processed = 0
-        return result.toInt()
-    }
-
 
 }
