@@ -16,9 +16,18 @@ internal class MineralTest {
     )
 
     @Test
-    fun testDrain() {
-        mineral.drain(10)
+    fun testDrainSmallValue() {
+        val actualDrain = mineral.drain(10)
 
+        assertEquals(10, actualDrain)
         assertEquals(90, mineral.size)
+    }
+
+    @Test
+    fun testDrainGreaterThanBody() {
+        val actualDrain = mineral.drain(1000)
+
+        assertEquals(100, actualDrain)
+        assertEquals(0, mineral.size)
     }
 }

@@ -10,7 +10,14 @@ interface Something {
     var size: Int
     val body: Substance
 
-    fun drain(points: Int) {
-        size -= points
+    fun drain(points: Int): Int {
+        return if (size >= points) {
+            size -= points
+            points
+        } else {
+            val actualDrain = size
+            size = 0
+            actualDrain
+        }
     }
 }

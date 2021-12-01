@@ -10,7 +10,7 @@ import com.invenit.bacillus.stage.*
 class Environment {
 
     private val stages = arrayOf(
-        ClearExhaustedItems(),
+        ClearExhaustedItemsStage(),
         MoveStage(),
         SplitStage(),
         AdjustCountersStage(),

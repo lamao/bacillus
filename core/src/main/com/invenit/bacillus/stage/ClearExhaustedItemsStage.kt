@@ -9,7 +9,7 @@ import com.invenit.bacillus.model.Mineral
  * Created by vyacheslav.mischeryakov
  * Created 21.11.2021
  */
-class ClearExhaustedItems : Stage {
+class ClearExhaustedItemsStage : Stage {
     override fun execute(field: Field) {
         clearOrganics(field)
         clearMinerals(field)
