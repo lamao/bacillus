@@ -1,10 +1,10 @@
 package com.invenit.bacillus.stage
 
-import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.service.RandomService
 import com.invenit.bacillus.util.Mutator
 import kotlin.math.roundToInt
 
@@ -12,7 +12,11 @@ import kotlin.math.roundToInt
  * Created by vyacheslav.mischeryakov
  * Created 21.11.2021
  */
-class SplitStage : Stage {
+class SplitStage(
+    private val random: RandomService
+) : Stage {
+
+
     override fun execute(field: Field) {
         field.organics
             .filter { it.energy >= Settings.ReproductionThreshold }
@@ -21,8 +25,8 @@ class SplitStage : Stage {
 
     private fun split(cell: Organic, field: Field) {
         val offspringOffset = Point(
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange),
-            MathUtils.random(-Settings.ReproductionRange, Settings.ReproductionRange)
+            random.random(-Settings.ReproductionRange, Settings.ReproductionRange),
+            random.random(-Settings.ReproductionRange, Settings.ReproductionRange)
         )
 
         val offspingSize = Mutator.getRandomSize()
