@@ -143,7 +143,7 @@ class TestMoveStage {
     }
 
     private fun organic(position: Point, direction: Point, canMove: Boolean): Organic {
-        val result = Organic(
+        return Organic(
             position,
             Settings.BiteYield / 2,
             direction,
@@ -155,6 +155,5 @@ class TestMoveStage {
                 canMove
             )
         )
-        return result
     }
 }
