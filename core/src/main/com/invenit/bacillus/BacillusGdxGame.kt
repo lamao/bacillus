@@ -9,12 +9,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.ui.*
-import com.invenit.bacillus.util.Mutator
 
 
 /**
@@ -29,12 +27,10 @@ class BacillusGdxGame : ApplicationAdapter() {
             get() = OneSecond.toFloat() * Settings.TicDelaySeconds
 
         val TransparentMask = Color(0f, 0f, 0f, 1f)
-        val ReproductionMask = Color(0.5f, 0.0f, 0f, 0f)
 
         val CellRadius = Settings.CellSize.toFloat() / 2
     }
 
-    private var lastTicTime = 0L
     private var ticsPassed = 0L
 
     private lateinit var camera: OrthographicCamera
@@ -44,6 +40,8 @@ class BacillusGdxGame : ApplicationAdapter() {
     private lateinit var font: BitmapFont
 
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
+    private val randomService = ServiceContext.randomService
+    private val mutationService = ServiceContext.mutationService
 
     private lateinit var debugStage: DebugStage
     private lateinit var environmentStage: EnvironmentStage
@@ -70,7 +68,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         Gdx.input.inputProcessor = InputMultiplexer(
             slidersStage,
-            UserInputListener(field, camera),
+            UserInputListener(field, camera, mutationService),
             cellDetailsStage
         )
 
@@ -123,7 +121,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         val bacillus = Organic(
             position = position,
             direction = Field.NoDirection,
-            size = Mutator.getRandomSize(),
+            size = mutationService.mutatedSize(Settings.DefaultSize),
             dna = dna
         )
         field.add(bacillus)

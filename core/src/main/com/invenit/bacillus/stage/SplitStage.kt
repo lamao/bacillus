@@ -4,8 +4,8 @@ import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.service.MutationService
 import com.invenit.bacillus.service.RandomService
-import com.invenit.bacillus.util.Mutator
 import kotlin.math.roundToInt
 
 /**
@@ -13,7 +13,8 @@ import kotlin.math.roundToInt
  * Created 21.11.2021
  */
 class SplitStage(
-    private val random: RandomService
+    private val random: RandomService,
+    private val mutationService: MutationService
 ) : Stage {
 
 
@@ -29,7 +30,7 @@ class SplitStage(
             random.random(-Settings.ReproductionRange, Settings.ReproductionRange)
         )
 
-        val offspingSize = Mutator.getRandomSize()
+        val offspingSize = mutationService.mutatedSize(Settings.DefaultSize)
 
         cell.energy -= offspingSize
 
@@ -45,7 +46,7 @@ class SplitStage(
                 position = offspingPosition,
                 direction = Field.NoDirection,
                 size = offspingSize,
-                dna = cell.dna.mutated()
+                dna = mutationService.mutatedDna(cell.dna)
             )
         )
     }

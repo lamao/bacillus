@@ -6,13 +6,18 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.service.MutationService
 import kotlin.math.roundToInt
 
 /**
  * Created by vyacheslav.mischeryakov
  * Created 25.11.2021
  */
-class UserInputListener(val field: Field, val camera: Camera) : InputAdapter() {
+class UserInputListener(
+    val field: Field,
+    val camera: Camera,
+    private val mutationService: MutationService
+    ) : InputAdapter() {
 
     private var ctrlPressed = false
     private var altPressed = false
@@ -97,10 +102,10 @@ class UserInputListener(val field: Field, val camera: Camera) : InputAdapter() {
         Settings.DefaultSize,
         Point(0, 0),
         DNA(
-            Substance.getRandomBody(),
-            Substance.getRandomConsume(),
-            Substance.getRandomProduce(),
-            Substance.getRandomToxin(),
+            mutationService.randomBody(),
+            mutationService.randomConsume(),
+            mutationService.randomProduce(),
+            mutationService.randomToxin(),
             false
         )
     )

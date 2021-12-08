@@ -1,18 +1,19 @@
 package com.invenit.bacillus.stage
 
+import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.service.MutationService
 import com.invenit.bacillus.service.RandomService
-import com.invenit.bacillus.service.RandomServiceImpl
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import org.mockito.MockitoAnnotations
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Created by vyacheslav.mischeryakov
@@ -21,14 +22,17 @@ import kotlin.test.assertNotNull
 @ExtendWith(MockitoExtension::class)
 class TestSplitStage {
 
-    private lateinit var stage : SplitStage
+    private lateinit var stage: SplitStage
 
     @Mock
-    private lateinit var mockRandomService : RandomService
+    private lateinit var mockRandomService: RandomService
+
+    @Mock
+    private lateinit var mockMutationService: MutationService
 
     @BeforeTest
     fun before() {
-        stage = SplitStage(mockRandomService)
+        stage = SplitStage(mockRandomService, mockMutationService)
 
     }
 
@@ -36,14 +40,45 @@ class TestSplitStage {
     fun testSuccessfulSplit() {
         val field = Field(10, 10)
         field.add(organic(1, 1, 5000, 5000))
+        field.add(organic(0, 0, 100, 100))
 
-        Mockito.`when`(mockRandomService.random(-1, 1)).thenReturn(1, 1)
+        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 1)
+        `when`(mockMutationService.mutatedSize(Settings.DefaultSize)).thenReturn(Settings.DefaultSize)
+        `when`(mockMutationService.mutatedDna(any())).thenReturn(
+            DNA(
+                Substance.Yellow,
+                Substance.Sun,
+                Substance.Blue,
+                Substance.Red,
+                true
+            )
+        )
         stage.execute(field)
 
         val offspring = field[2, 2]
         assertNotNull(offspring)
 
-        TODO("Complete")
+        val expectedOffSpring = Organic(
+            position = Point(2, 2),
+            direction = Field.NoDirection,
+            size = 750,
+            dna = DNA(
+                Substance.Yellow,
+                Substance.Sun,
+                Substance.Blue,
+                Substance.Red,
+                true
+            )
+        )
+
+        assertEquals(expectedOffSpring, offspring)
+
+        val parent = field[1, 1]
+        assertNotNull(parent)
+        assertTrue(parent is Organic)
+        assertEquals(4250, parent.energy)
+        assertEquals(4250, parent.size)
+
     }
 
     private fun organic(x: Int, y: Int, energy: Int, size: Int): Organic {

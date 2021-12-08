@@ -12,7 +12,7 @@ class Environment {
     private val stages = arrayOf(
         ClearExhaustedItemsStage(),
         MoveStage(),
-        SplitStage(ServiceContext.randomService),
+        SplitStage(ServiceContext.randomService, ServiceContext.mutationService),
         AdjustCountersStage(),
 
         ToxinStage(),

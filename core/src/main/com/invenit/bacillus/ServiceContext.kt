@@ -1,5 +1,6 @@
 package com.invenit.bacillus
 
+import com.invenit.bacillus.service.MutationServiceImpl
 import com.invenit.bacillus.service.RandomServiceImpl
 
 /**
@@ -9,4 +10,6 @@ import com.invenit.bacillus.service.RandomServiceImpl
 object ServiceContext {
 
     val randomService = RandomServiceImpl()
+
+    val mutationService = MutationServiceImpl(randomService)
 }

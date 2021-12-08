@@ -12,7 +12,6 @@ import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Environment
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.util.Mutator
 import kotlin.math.sqrt
 
 /**

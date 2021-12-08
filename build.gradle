@@ -28,6 +28,7 @@ allprojects {
         gdxControllersVersion = '2.1.0'
         junitVersion = '5.4.2'
         mockitoVersion = '4.1.0'
+        mockitoKotlinVersin = '4.0.0'
     }
 
     repositories {
@@ -73,5 +74,6 @@ project(":core") {
 
         testImplementation "org.mockito:mockito-core:$mockitoVersion"
         testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
+        testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersin"
     }
 }
