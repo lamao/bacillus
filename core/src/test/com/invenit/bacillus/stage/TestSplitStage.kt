@@ -81,6 +81,45 @@ class TestSplitStage {
 
     }
 
+    @Test
+    fun testFailedSplitBecauseOffspingLocationIsOccupied() {
+        val field = Field(10, 10)
+        field.add(organic(1, 1, 5000, 5000))
+        field.add(organic(2, 2, 100, 100))
+
+        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 1)
+        `when`(mockMutationService.mutatedSize(Settings.DefaultSize)).thenReturn(750)
+        stage.execute(field)
+
+        val somethingInDesiredLocation = field[2, 2]
+        assertNotNull(somethingInDesiredLocation)
+        assertEquals(100, somethingInDesiredLocation.size)
+
+        val parent = field[1, 1]
+        assertNotNull(parent)
+        assertTrue(parent is Organic)
+        assertEquals(4625, parent.energy)
+        assertEquals(5000, parent.size)
+
+    }
+
+    @Test
+    fun testFailedSplitBecauseOffspringLocationIsOutside() {
+        val field = Field(10, 10)
+        field.add(organic(0, 0, 5000, 5000))
+
+        `when`(mockRandomService.random(-1, 1)).thenReturn(-1, -1)
+        `when`(mockMutationService.mutatedSize(Settings.DefaultSize)).thenReturn(750)
+        stage.execute(field)
+
+        val parent = field[0, 0]
+        assertNotNull(parent)
+        assertTrue(parent is Organic)
+        assertEquals(4625, parent.energy)
+        assertEquals(5000, parent.size)
+
+    }
+
     private fun organic(x: Int, y: Int, energy: Int, size: Int): Organic {
         val result = Organic(
             Point(x, y),
