@@ -82,7 +82,7 @@ class TestSplitStage {
     }
 
     @Test
-    fun testFailedSplitBecauseOffspingLocationIsOccupied() {
+    fun testFailedSplitBecauseOffspringLocationIsOccupied() {
         val field = Field(10, 10)
         field.add(organic(1, 1, 5000, 5000))
         field.add(organic(2, 2, 100, 100))
