@@ -35,6 +35,7 @@ class TestConsumeStage {
         assertTrue(cell is Organic)
         assertEquals(1000, cell.energy)
         assertEquals(1023, cell.size)
+        assertEquals(2, cell.accumulatedWaste)
     }
 
     private fun organic(x: Int, y: Int) = Organic(
