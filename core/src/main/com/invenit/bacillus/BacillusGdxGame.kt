@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.ScreenUtils
-import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.ui.*
 
@@ -34,13 +33,11 @@ class BacillusGdxGame : ApplicationAdapter() {
     private var ticsPassed = 0L
 
     private lateinit var camera: OrthographicCamera
-    private lateinit var viewport: ExtendViewport
     private lateinit var shapeRenderer: ShapeRenderer
     private lateinit var batch: SpriteBatch
     private lateinit var font: BitmapFont
 
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
-    private val randomService = ServiceContext.randomService
     private val mutationService = ServiceContext.mutationService
 
     private lateinit var debugStage: DebugStage
@@ -82,6 +79,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         debugStage.dispose()
         environmentStage.dispose()
         slidersStage.dispose()
+        cellDetailsStage.dispose()
     }
 
     override fun render() {
