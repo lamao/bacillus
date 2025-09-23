@@ -17,33 +17,15 @@ class MutationServiceImpl(
         size + MathUtils.random(-size / 4, size / 4)
 
     override fun mutatedDna(dna: DNA): DNA {
-        var body = dna.body
-        var consume = dna.consume
-        var produce = dna.produce
-        var poison = dna.toxin
-        var canMove = dna.canMove
-        if (randomService.random() < Settings.MutationRate) {
-            // TODO: Refactor
-            when (randomService.random(0, DNA.Trait.count() - 1)) {
-                DNA.Trait.Body.ordinal -> {
-                    body = randomBody()
-                }
-                DNA.Trait.Consume.ordinal -> {
-                    consume = randomConsume()
-                }
-                DNA.Trait.Produce.ordinal -> {
-                    produce = randomProduce()
-                }
-                DNA.Trait.Toxin.ordinal -> {
-                    poison = randomToxin()
-                }
-                DNA.Trait.CanMove.ordinal -> {
-                    canMove = randomService.randomBoolean()
-                }
-            }
-        }
+        if (randomService.random() >= Settings.MutationRate) return dna
 
-        return DNA(body, consume, produce, poison, canMove)
+        return when (DNA.Trait.values()[randomService.random(0, DNA.Trait.count() - 1)]) {
+            DNA.Trait.Body -> dna.copy(body = randomBody())
+            DNA.Trait.Consume -> dna.copy(consume = randomConsume())
+            DNA.Trait.Produce -> dna.copy(produce = randomProduce())
+            DNA.Trait.Toxin -> dna.copy(toxin = randomToxin())
+            DNA.Trait.CanMove -> dna.copy(canMove = randomService.randomBoolean())
+        }
     }
 
     override fun randomBody() = Substance.values()[randomService.random(1, Substance.values().size - 1)]
