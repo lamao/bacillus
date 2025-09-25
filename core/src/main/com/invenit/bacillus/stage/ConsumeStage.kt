@@ -2,7 +2,6 @@ package com.invenit.bacillus.stage
 
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
-import com.invenit.bacillus.model.Mineral
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Substance
 import kotlin.math.roundToInt

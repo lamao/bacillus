@@ -1,7 +1,6 @@
 package com.invenit.bacillus.model
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.MathUtils
 
 /**
  *

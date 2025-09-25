@@ -1,6 +1,5 @@
 package com.invenit.bacillus.stage
 
-import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
@@ -38,6 +37,7 @@ class TestConsumeStage {
         assertEquals(2, cell.accumulatedWaste)
     }
 
+    @Suppress("SameParameterValue")
     private fun organic(x: Int, y: Int) = Organic(
         Point(x, y),
         1000,

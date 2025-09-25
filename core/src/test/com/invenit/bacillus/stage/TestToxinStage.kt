@@ -61,6 +61,7 @@ class TestToxinStage {
 
     }
 
+    @Suppress("SameParameterValue")
     private fun organic(x: Int, y: Int, size: Int, toxin: Substance) = Organic(
         Point(x, y),
         size,

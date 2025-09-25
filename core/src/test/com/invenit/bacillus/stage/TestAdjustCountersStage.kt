@@ -54,6 +54,7 @@ class TestAdjustCountersStage {
     )
 
 
+    @Suppress("SameParameterValue")
     private fun organic(x: Int, y: Int, energy: Int, age: Int): Organic {
         val result = Organic(
             Point(x, y),

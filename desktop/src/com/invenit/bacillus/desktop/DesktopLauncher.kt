@@ -11,7 +11,7 @@ import java.util.*
  * Created 15.11.2021
  */
 
-fun main(args: Array<String>) {
+fun main() {
 
     Locale.setDefault(Locale.US)
 

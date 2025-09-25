@@ -1,6 +1,5 @@
 package com.invenit.bacillus.model
 
-import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 
 /**
