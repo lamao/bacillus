@@ -4,7 +4,7 @@ import com.invenit.bacillus.service.MutationServiceImpl
 import com.invenit.bacillus.service.RandomServiceImpl
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 02.12.2021
  */
 object ServiceContext {

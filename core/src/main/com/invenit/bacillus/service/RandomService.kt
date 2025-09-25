@@ -1,7 +1,7 @@
 package com.invenit.bacillus.service
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 02.12.2021
  */
 interface RandomService {

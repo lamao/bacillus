@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 /**
  *
- * @author vyacheslav.mischeryakov
+ * @author viacheslav.mishcheriakov
  * Created: 30.11.21
  */
 class TestClearExhaustedItemsStage {

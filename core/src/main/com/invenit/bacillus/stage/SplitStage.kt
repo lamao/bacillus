@@ -9,7 +9,7 @@ import com.invenit.bacillus.service.RandomService
 import kotlin.math.roundToInt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
 class SplitStage(

@@ -15,7 +15,7 @@ import com.invenit.bacillus.ui.*
 
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 15.11.2021
  */
 class BacillusGdxGame : ApplicationAdapter() {
@@ -27,7 +27,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         val TransparentMask = Color(0f, 0f, 0f, 1f)
 
-        val CellRadius = Settings.CellSize.toFloat() / 2
+        const val CellRadius = Settings.CellSize.toFloat() / 2
     }
 
     private var ticsPassed = 0L
@@ -54,7 +54,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        for (i in 1..Settings.InitNumberOfOrganics) {
+        (1..Settings.InitNumberOfOrganics).forEach { _ ->
             spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false))
         }
 

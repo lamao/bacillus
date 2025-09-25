@@ -10,7 +10,7 @@ import com.invenit.bacillus.service.MutationService
 import kotlin.math.roundToInt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 25.11.2021
  */
 class UserInputListener(

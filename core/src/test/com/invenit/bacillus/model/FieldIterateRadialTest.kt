@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 22.11.2021
  */
 class FieldIterateRadialTest {

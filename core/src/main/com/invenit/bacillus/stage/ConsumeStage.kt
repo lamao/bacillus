@@ -8,7 +8,7 @@ import com.invenit.bacillus.model.Substance
 import kotlin.math.roundToInt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
 class ConsumeStage : Stage {

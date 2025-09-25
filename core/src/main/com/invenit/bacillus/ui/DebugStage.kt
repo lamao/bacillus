@@ -9,7 +9,7 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Point
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 26.11.2021
  */
 class DebugStage(val field: Field) : Stage() {

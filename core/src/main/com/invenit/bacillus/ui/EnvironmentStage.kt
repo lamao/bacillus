@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.TimeUtils
@@ -15,7 +14,7 @@ import com.invenit.bacillus.model.*
 import kotlin.math.sqrt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 25.11.2021
  */
 class EnvironmentStage(val field: Field) : Stage() {

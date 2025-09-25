@@ -3,7 +3,7 @@ package com.invenit.bacillus.service
 import com.badlogic.gdx.math.MathUtils
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 02.12.2021
  */
 class RandomServiceImpl : RandomService {

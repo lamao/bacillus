@@ -3,7 +3,7 @@ package com.invenit.bacillus.model
 import kotlin.math.abs
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 15.11.2021
  */
 data class Point(val x: Int, val y: Int) {

@@ -7,7 +7,7 @@ import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
 class ProduceStage : Stage {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.FieldException
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 15.11.2021
  */
 class Field(val width: Int, val height: Int) {

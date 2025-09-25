@@ -4,7 +4,7 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.stage.*
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
 class Environment {

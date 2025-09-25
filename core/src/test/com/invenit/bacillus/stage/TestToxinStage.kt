@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 09.12.2021
  */
 

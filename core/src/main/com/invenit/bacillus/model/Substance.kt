@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.MathUtils
 
 /**
  *
- * @author vyacheslav.mischeryakov
+ * @author viacheslav.mishcheriakov
  * Created: 16.11.21
  */
 enum class Substance(val color: Color) {

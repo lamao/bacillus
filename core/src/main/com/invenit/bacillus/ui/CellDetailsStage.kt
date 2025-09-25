@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 26.11.2021
  */
 class CellDetailsStage(val field: Field, val x: Int, val y: Int) : Stage() {

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions
 import kotlin.test.*
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 19.11.2021
  */
 class FieldCrudTest {

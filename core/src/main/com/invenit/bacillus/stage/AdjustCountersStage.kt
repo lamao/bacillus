@@ -4,7 +4,7 @@ import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
 class AdjustCountersStage : Stage {

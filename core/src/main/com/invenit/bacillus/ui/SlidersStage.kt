@@ -11,7 +11,7 @@ import com.invenit.bacillus.model.Field
 
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 25.11.2021
  */
 class SlidersStage(val field: Field) : Stage() {

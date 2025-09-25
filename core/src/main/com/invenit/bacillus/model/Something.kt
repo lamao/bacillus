@@ -2,7 +2,7 @@ package com.invenit.bacillus.model
 
 /**
  *
- * @author vyacheslav.mischeryakov
+ * @author viacheslav.mishcheriakov
  * Created: 16.11.21
  */
 interface Something {

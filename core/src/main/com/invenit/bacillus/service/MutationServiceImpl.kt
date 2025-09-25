@@ -6,7 +6,7 @@ import com.invenit.bacillus.model.DNA
 import com.invenit.bacillus.model.Substance
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 08.12.2021
  */
 class MutationServiceImpl(

@@ -7,7 +7,7 @@ import com.invenit.bacillus.Settings
 import java.util.*
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 15.11.2021
  */
 

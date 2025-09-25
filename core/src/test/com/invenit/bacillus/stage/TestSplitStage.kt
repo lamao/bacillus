@@ -16,7 +16,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 02.12.2021
  */
 @ExtendWith(MockitoExtension::class)

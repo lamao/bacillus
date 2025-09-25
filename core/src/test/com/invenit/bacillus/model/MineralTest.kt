@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 18.11.2021
  */
 internal class MineralTest {

@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 /**
  *
- * @author vyacheslav.mischeryakov
+ * @author viacheslav.mishcheriakov
  * Created: 13.12.21
  */
 @ExtendWith(MockitoExtension::class)

@@ -4,7 +4,7 @@ import com.invenit.bacillus.Settings
 import kotlin.math.roundToInt
 
 /**
- * Created by vyacheslav.mischeryakov
+ * Created by viacheslav.mishcheriakov
  * Created 15.11.2021
  */
 data class Organic(
