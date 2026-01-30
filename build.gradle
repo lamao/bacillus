@@ -21,6 +21,7 @@ allprojects {
     ext {
         appName = "bacillus"
         gdxVersion = '1.10.0'
+        lwjgl3Version = '3.3.3'
         roboVMVersion = '2.3.12'
         box2DLightsVersion = '1.5'
         ashleyVersion = '1.7.3'
@@ -29,6 +30,9 @@ allprojects {
         junitVersion = '5.4.2'
         mockitoVersion = '4.1.0'
         mockitoKotlinVersin = '4.0.0'
+
+        isMac = org.gradle.internal.os.OperatingSystem.current().isMacOsX()
+        isArm = System.getProperty('os.arch').startsWith('aarch64') || System.getProperty('os.arch').startsWith('arm')
     }
 
     repositories {
@@ -44,12 +48,20 @@ allprojects {
 project(":desktop") {
     apply plugin: "kotlin"
 
-
     dependencies {
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        if (isMac) {
+            def classifier = isArm ? "natives-macos-arm64" : "natives-macos"
+            api "org.lwjgl:lwjgl:$lwjgl3Version:$classifier"
+            api "org.lwjgl:lwjgl-glfw:$lwjgl3Version:$classifier"
+            api "org.lwjgl:lwjgl-jemalloc:$lwjgl3Version:$classifier"
+            api "org.lwjgl:lwjgl-opengl:$lwjgl3Version:$classifier"
+            api "org.lwjgl:lwjgl-openal:$lwjgl3Version:$classifier"
+        }
+
         api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     }
 }

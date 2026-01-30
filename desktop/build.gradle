@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.support.KotlinCompilerKt
-
 //sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../core/assets"]
@@ -7,25 +5,31 @@ sourceSets.main.resources.srcDirs = ["../core/assets"]
 project.ext.mainClassName = "com.invenit.bacillus.desktop.DesktopLauncherKt"
 project.ext.assetsDir = new File("../core/assets")
 
-task run(dependsOn: classes, type: JavaExec) {
+tasks.register('run', JavaExec) {
+    dependsOn classes
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     workingDir = project.assetsDir
-    ignoreExitValue = true
+    ignoreExitValue(true)
     jvmArgs += ["-Xms128m", "-Xmx1500m", "-Dcom.sun.management.jmxremote.port=3333", "-Dcom.sun.management.jmxremote.ssl=false", "-Dcom.sun.management.jmxremote.authenticate=false"]
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        // This is the magic line for Apple Silicon/macOS
+        jvmArgs += "-XstartOnFirstThread"
+    }
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
+tasks.register('debug', JavaExec) {
+    dependsOn classes
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     workingDir = project.assetsDir
-    ignoreExitValue = true
-    debug = true
+    ignoreExitValue(true)
+    debug(true)
 }
 
-task dist(type: Jar) {
+tasks.register('dist', Jar) {
     manifest {
         attributes 'Main-Class': project.mainClassName
     }

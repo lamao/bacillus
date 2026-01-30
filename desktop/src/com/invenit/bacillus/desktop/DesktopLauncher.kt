@@ -1,7 +1,7 @@
 package com.invenit.bacillus.desktop
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Settings
 import java.util.*
@@ -15,15 +15,13 @@ fun main() {
 
     Locale.setDefault(Locale.US)
 
-    val config = LwjglApplicationConfiguration()
-    config.title = "Bacillus"
-    config.width = Settings.TotalWidth
-    config.height = Settings.Height
-
-    config.samples = 4
+    val config = Lwjgl3ApplicationConfiguration()
+    config.setTitle("Bacillus")
+    config.setWindowedMode(Settings.TotalWidth, Settings.Height)
+    config.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4)
 
     val applicationAdapter = BacillusGdxGame()
-    LwjglApplication(applicationAdapter, config)
+    Lwjgl3Application(applicationAdapter, config)
 
 
 }
