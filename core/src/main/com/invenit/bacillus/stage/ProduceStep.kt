@@ -10,7 +10,7 @@ import com.invenit.bacillus.model.Point
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class ProduceStage : Stage {
+class ProduceStep : Step {
     override fun execute(field: Field) {
         field.organics.forEach { produceMineral(it, field) }
     }

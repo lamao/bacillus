@@ -13,11 +13,11 @@ import kotlin.test.Test
 @ExtendWith(MockitoExtension::class)
 class TestProduceStage {
 
-    private lateinit var stage: ProduceStage
+    private lateinit var stage: ProduceStep
 
     @BeforeTest
     fun before() {
-        stage = ProduceStage()
+        stage = ProduceStep()
     }
 
     @Test

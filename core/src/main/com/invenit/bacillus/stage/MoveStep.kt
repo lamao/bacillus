@@ -9,7 +9,7 @@ import com.invenit.bacillus.model.Point
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class MoveStage : Stage {
+class MoveStep : Step {
     override fun execute(field: Field) {
         field.organics
             .filter { it.dna.canMove }

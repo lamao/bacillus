@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
  */
 class TestAdjustCountersStage {
 
-    private val stage = AdjustCountersStage()
+    private val stage = AdjustCountersStep()
 
     @Test
     fun testOrganics() {

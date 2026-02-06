@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
  */
 class TestClearExhaustedItemsStage {
 
-    private val stage: ClearExhaustedItemsStage = ClearExhaustedItemsStage()
+    private val stage: ClearExhaustedItemsStep = ClearExhaustedItemsStep()
 
     private lateinit var field: Field
 

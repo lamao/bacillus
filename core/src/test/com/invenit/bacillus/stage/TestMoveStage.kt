@@ -14,7 +14,7 @@ import kotlin.test.assertNull
  */
 class TestMoveStage {
 
-    private val stage = MoveStage()
+    private val stage = MoveStep()
 
     private lateinit var field: Field
 

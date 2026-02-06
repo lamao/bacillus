@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class ConsumeStage : Stage {
+class ConsumeStep : Step {
 
     override fun execute(field: Field) {
         field.organics.filter { it.dna.consume == Substance.Sun }

@@ -16,11 +16,11 @@ import kotlin.test.assertTrue
 @ExtendWith(MockitoExtension::class)
 class TestConsumeStage {
 
-    private lateinit var stage: ConsumeStage
+    private lateinit var stage: ConsumeStep
 
     @BeforeTest
     fun before() {
-        stage = ConsumeStage()
+        stage = ConsumeStep()
     }
 
     @Test

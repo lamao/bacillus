@@ -10,15 +10,15 @@ import com.invenit.bacillus.stage.*
 class Environment {
 
     private val stages = arrayOf(
-        ClearExhaustedItemsStage(),
-        MoveStage(),
-        SplitStage(ServiceContext.randomService, ServiceContext.mutationService),
-        AdjustCountersStage(),
+        ClearExhaustedItemsStep(),
+        MoveStep(),
+        SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
+        AdjustCountersStep(),
 
-        ToxinStage(),
-        ConsumeStage(),
-        ProduceStage(),
-        LookUpStage()
+        ToxinStep(),
+        ConsumeStep(),
+        ProduceStep(),
+        LookUpStep()
     )
 
     fun doTic(field: Field) {

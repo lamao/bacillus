@@ -5,7 +5,7 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import kotlin.math.roundToInt
 
-class ToxinStage : Stage {
+class ToxinStep : Step {
 
     override fun execute(field: Field) {
         field.organics.forEach {

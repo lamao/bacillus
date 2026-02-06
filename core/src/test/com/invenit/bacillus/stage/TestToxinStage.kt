@@ -13,11 +13,11 @@ import kotlin.test.assertTrue
 
 class TestToxinStage {
 
-    private lateinit var stage: ToxinStage
+    private lateinit var stage: ToxinStep
 
     @BeforeTest
     fun before() {
-        stage = ToxinStage()
+        stage = ToxinStep()
     }
 
     @Test

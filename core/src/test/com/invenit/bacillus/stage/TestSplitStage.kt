@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockitoExtension::class)
 class TestSplitStage {
 
-    private lateinit var stage: SplitStage
+    private lateinit var stage: SplitStep
 
     @Mock
     private lateinit var mockRandomService: RandomService
@@ -32,7 +32,7 @@ class TestSplitStage {
 
     @BeforeTest
     fun before() {
-        stage = SplitStage(mockRandomService, mockMutationService)
+        stage = SplitStep(mockRandomService, mockMutationService)
 
     }
 

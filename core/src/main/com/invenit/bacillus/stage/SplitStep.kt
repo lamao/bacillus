@@ -12,10 +12,10 @@ import kotlin.math.roundToInt
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class SplitStage(
+class SplitStep(
     private val random: RandomService,
     private val mutationService: MutationService
-) : Stage {
+) : Step {
 
 
     override fun execute(field: Field) {

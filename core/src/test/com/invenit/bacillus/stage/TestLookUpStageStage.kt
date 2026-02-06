@@ -13,11 +13,11 @@ import kotlin.test.Test
 @ExtendWith(MockitoExtension::class)
 class TestLookUpStageStage {
 
-    private lateinit var stage: LookUpStage
+    private lateinit var stage: LookUpStep
 
     @BeforeTest
     fun before() {
-        stage = LookUpStage()
+        stage = LookUpStep()
     }
 
     @Test

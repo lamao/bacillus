@@ -6,7 +6,7 @@ import com.invenit.bacillus.model.Field
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-interface Stage {
+interface Step {
 
     fun execute(field: Field)
 }
