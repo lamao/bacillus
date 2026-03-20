@@ -15,7 +15,9 @@ class ConsumeStep : Step {
     override fun execute(field: Field) {
         field.organics.filter { it.dna.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
-        field.organics.forEach { consumeMinerals(it, field) }
+        field.organics
+            .filter { !it.dna.canMove }
+            .forEach { consumeMinerals(it, field) }
     }
 
     private fun consumeMinerals(cell: Organic, field: Field) {
