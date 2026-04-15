@@ -39,6 +39,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
     private val mutationService = ServiceContext.mutationService
+    private val creatureFactory = ServiceContext.creationFactory
 
     private lateinit var debugStage: DebugStage
     private lateinit var environmentStage: EnvironmentStage
@@ -63,9 +64,16 @@ class BacillusGdxGame : ApplicationAdapter() {
         slidersStage = SlidersStage(field)
         cellDetailsStage = CellDetailsStage(field, Settings.Width + 200, Settings.Height)
 
+        slidersStage.setConfigureButtonHandler {
+            Settings.pause = true
+            AddCreatureDialog(creatureFactory) {
+                Settings.pause = false
+            }.showConfiguration(cellDetailsStage)
+        }
+
         Gdx.input.inputProcessor = InputMultiplexer(
             slidersStage,
-            UserInputListener(field, camera, mutationService),
+            UserInputListener(field, camera, creatureFactory),
             cellDetailsStage
         )
 

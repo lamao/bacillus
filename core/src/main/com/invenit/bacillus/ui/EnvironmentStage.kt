@@ -30,23 +30,15 @@ class EnvironmentStage(val field: Field) : Stage() {
     override fun act(delta: Float) {
         super.act(delta)
 
+        if (Settings.pause) {
+            return
+        }
+
         val currentTime = TimeUtils.nanoTime()
         if (currentTime - lastTicTime >= BacillusGdxGame.TicInterval) {
             lastTicTime = currentTime
 
             environment.doTic(field)
-
-//            if (MathUtils.random(1f) < Settings.ProbabilityToSpawnOrganics) {
-//                spawn(
-//                    DNA(
-//                        Substance.getRandomBody(),
-//                        Substance.getRandomConsume(),
-//                        Substance.getRandomProduce(),
-//                        Substance.getRandomToxin(),
-//                        MathUtils.randomBoolean()
-//                    )
-//                )
-//            }
 
             ticsPassed++
         }

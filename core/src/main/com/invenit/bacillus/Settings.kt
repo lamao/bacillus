@@ -18,6 +18,7 @@ object Settings {
     const val GridWidth = Width / CellSize
     const val GridHeight = Height / CellSize
 
+    var pause = false
     var TicDelaySeconds = .02f
     val SmoothAnimation: Boolean
         get() = TicDelaySeconds > 0.2f

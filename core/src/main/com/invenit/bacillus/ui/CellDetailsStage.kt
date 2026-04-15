@@ -58,8 +58,6 @@ class CellDetailsStage(val field: Field, val x: Int, val y: Int) : Stage() {
     }
 
     private fun draw(cell: Organic) {
-
-
         val alpha = cell.getAlpha()
         val radius = cell.getRadius() * CellRadius
 
@@ -144,8 +142,6 @@ class CellDetailsStage(val field: Field, val x: Int, val y: Int) : Stage() {
         } else if (something is Organic) {
             cell = something
         }
-
-        println("$something")
 
         return super.touchUp(screenX, screenY, pointer, button)
     }

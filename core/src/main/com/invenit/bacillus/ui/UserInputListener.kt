@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector3
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.service.MutationService
+import com.invenit.bacillus.service.CreatureFactory
 import kotlin.math.roundToInt
 
 /**
@@ -16,8 +16,8 @@ import kotlin.math.roundToInt
 class UserInputListener(
     val field: Field,
     val camera: Camera,
-    private val mutationService: MutationService
-    ) : InputAdapter() {
+    private val creatureFactory: CreatureFactory
+) : InputAdapter() {
 
     private var ctrlPressed = false
     private var altPressed = false
@@ -60,6 +60,9 @@ class UserInputListener(
     }
 
     private fun onMouseClick(screenX: Int, screenY: Int): Boolean {
+        // If the stage containing this listener is not the only processor, 
+        // we might need to be careful, but InputMultiplexer handles order.
+        
         val position = fromDisplay(screenX, screenY)
         return if (field.isOutside(position)) {
             true
@@ -76,7 +79,7 @@ class UserInputListener(
         if (!field.isFree(position)) {
             return false
         }
-        field.add(createRandomCell(position))
+        field.add(creatureFactory.createOrganic(position))
         return true
     }
 
@@ -93,20 +96,7 @@ class UserInputListener(
         if (!field.isFree(position)) {
             field.remove(position)
         }
-        field.add(createRandomCell(position))
+        field.add(creatureFactory.createOrganic(position))
         return true
     }
-
-    private fun createRandomCell(position: Point) = Organic(
-        position,
-        Settings.DefaultSize,
-        Point(0, 0),
-        DNA(
-            mutationService.randomBody(),
-            mutationService.randomConsume(),
-            mutationService.randomProduce(),
-            mutationService.randomToxin(),
-            false
-        )
-    )
 }

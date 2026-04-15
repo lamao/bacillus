@@ -21,6 +21,7 @@ class SlidersStage(val field: Field) : Stage() {
     private val mineralsLabel: Label
     private val stationaryLabel: Label
     private val mobileLabel: Label
+    private val configureCreatureButton: Button
 
     private var skin: Skin = Skin(Gdx.files.internal("uiskin.json"))
 
@@ -122,7 +123,20 @@ class SlidersStage(val field: Field) : Stage() {
             Settings.Debug.displaySourcePosition = it
         }
 
+        table.row()
+        table.add(Label("", skin))
+        configureCreatureButton = table.addButton("Configure creature")
         table.layout()
+    }
+
+    private fun Table.addButton(
+        labelText: String
+    ) : Button {
+        this.row().align(Align.left)
+
+        val button = TextButton(labelText, this@SlidersStage.skin)
+        this.add(button)
+        return button
     }
 
     private fun Table.addCheckBox(
@@ -194,6 +208,15 @@ class SlidersStage(val field: Field) : Stage() {
     private fun setMobile(value: Int) {
         mobileLabel.setText("Mobile: $value")
     }
+
+    fun setConfigureButtonHandler(handler: () -> Unit) {
+        configureCreatureButton.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                handler()
+            }
+        })
+    }
+
 
     override fun dispose() {
         skin.dispose()

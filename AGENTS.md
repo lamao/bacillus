@@ -71,6 +71,12 @@ internal class SimpleVerificationTest {
 - **DNA**: Defines the behavior and traits of an `Organic` entity.
 - **Settings**: Centralized configuration for simulation parameters (yields, consumption rates, ranges).
 
+#### Typical workflow:
+1. Create a new git branch for each feature or bug fix.
+2. Implement new features or bug fixes.
+3. Test your changes.
+4. Submit a pull request.
+
 #### Debugging:
 - The UI includes several debug stages (`DebugStage`, `CellDetailsStage`, `SlidersStage`) which can be used to inspect and modify the simulation state at runtime.
 - Check `BacillusGdxGame.kt` to see how these stages are initialized and toggled.
