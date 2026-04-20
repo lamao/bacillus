@@ -30,7 +30,6 @@ class BacillusGdxGame : ApplicationAdapter() {
         const val CellRadius = Settings.CellSize.toFloat() / 2
     }
 
-    private var ticsPassed = 0L
 
     private lateinit var camera: OrthographicCamera
     private lateinit var shapeRenderer: ShapeRenderer
@@ -110,8 +109,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         environmentStage.draw()
 
-        // TODO: Refactor
-        slidersStage.setGeneralInfo(Gdx.graphics.framesPerSecond, ticsPassed)
+        slidersStage.setGeneralInfo(Gdx.graphics.framesPerSecond, environmentStage.ticsPassed)
 
         slidersStage.act(Gdx.graphics.deltaTime)
         slidersStage.draw()

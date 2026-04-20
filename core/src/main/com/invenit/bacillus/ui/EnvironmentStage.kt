@@ -20,7 +20,7 @@ import kotlin.math.sqrt
 class EnvironmentStage(val field: Field) : Stage() {
 
     private var lastTicTime = 0L
-    private var ticsPassed = 0L
+    var ticsPassed = 0L
     private var ticPercentage = 0f
 
     private val shapeRenderer = ShapeRenderer()
