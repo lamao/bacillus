@@ -49,10 +49,10 @@ class CellDetailsStage(val field: Field, val x: Int, val y: Int) : Stage() {
             Gdx.gl.glDisable(GL30.GL_BLEND)
 
             batch.begin()
-            font.draw(batch, "Energy: ${cell!!.energy}", x.toFloat(), y - 2 * CellRadius - 10f)
-            font.draw(batch, "Size: ${cell!!.size}", x.toFloat(), y - 2 * CellRadius - 30f)
-            font.draw(batch, "Age: ${cell!!.age}", x.toFloat(), y - 2 * CellRadius - 50f)
-            font.draw(batch, "Mobile: " + if (cell!!.dna.canMove) "true" else "false", x.toFloat(), y - 2 * CellRadius - 70f)
+            font.draw(batch, "Energy: ${cell!!.energy}", x + 2 * CellRadius + 10f, y - 10f)
+            font.draw(batch, "Size: ${cell!!.size}", x + 2 * CellRadius + 10f, y - 30f)
+            font.draw(batch, "Age: ${cell!!.age}", x + 2 * CellRadius + 10f, y - 50f)
+            font.draw(batch, "Mobile: " + if (cell!!.dna.canMove) "true" else "false", x + 2 * CellRadius + 10f, y - 70f)
             batch.end()
         }
     }

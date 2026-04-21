@@ -36,84 +36,96 @@ class SlidersStage(val field: Field) : Stage() {
 
         table.row().align(Align.left)
         generalInfo = Label("", skin)
-        table.add(generalInfo)
+        table.add(generalInfo).colspan(3)
 
         table.row().align(Align.left)
         totalLabel = Label("", skin)
-        table.add(totalLabel)
+        table.add(totalLabel).colspan(3)
 
         table.row().align(Align.left)
         mineralsLabel = Label("", skin)
-        table.add(mineralsLabel)
+        table.add(mineralsLabel).colspan(3)
 
         table.row().align(Align.left)
         stationaryLabel = Label("", skin)
-        table.add(stationaryLabel)
+        table.add(stationaryLabel).colspan(3)
 
         table.row().align(Align.left)
         mobileLabel = Label("", skin)
-        table.add(mobileLabel)
+        table.add(mobileLabel).colspan(3)
 
         table.row()
-        table.add(Label("", skin))
+        table.add(Label("", skin)).colspan(3)
 
         table.addSlider(0f, 1f, 0.02f, Settings.TicDelaySeconds,
             { Settings.TicDelaySeconds = it },
-            { "Tic Delay: %.2f s".format(Settings.TicDelaySeconds) }
+            "Tic Delay",
+            { "%.2f s".format(Settings.TicDelaySeconds) }
         )
 
         table.addSlider(0f, 0.3f, 0.005f, Settings.MutationRate,
             { Settings.MutationRate = it },
-            { "Mutation Rate: %.3f".format(Settings.MutationRate) }
+            "Mutation Rate",
+            { "%.3f".format(Settings.MutationRate) }
         )
 
         table.addSlider(0f, 200f, 5f, Settings.SunYield.toFloat(),
             { Settings.SunYield = it.toInt() },
-            { "Sun Yield: %,d".format(Settings.SunYield) }
+            "Sun Yield",
+            { "%,d".format(Settings.SunYield) }
         )
         table.addSlider(0f, 500f, 20f, Settings.BiteYield.toFloat(),
             { Settings.BiteYield = it.toInt() },
-            { "Bite Yield: %,d".format(Settings.BiteYield) }
+            "Bite Yield",
+            { "%,d".format(Settings.BiteYield) }
         )
         table.addSlider(0f, 200f, 5f, Settings.MineralsYield.toFloat(),
             { Settings.MineralsYield = it.toInt() },
-            { "Minerals Yield: %,d".format(Settings.MineralsYield) }
+            "Minerals Yield",
+            { "%,d".format(Settings.MineralsYield) }
         )
 
         table.addSlider(0f, 100f, 5f, Settings.MoveConsumption.toFloat(),
             { Settings.MoveConsumption = it.toInt() },
-            { "Move Consumption: %,d".format(Settings.MoveConsumption) }
+            "Move Consumption",
+            { "%,d".format(Settings.MoveConsumption) }
         )
         table.addSlider(0f, 100f, 5f, Settings.PermanentConsumption.toFloat(),
             { Settings.PermanentConsumption = it.toInt() },
-            { "Permanent Consumption: %,d".format(Settings.PermanentConsumption) }
+            "Permanent Consumption",
+            { "%,d".format(Settings.PermanentConsumption) }
         )
 
         table.addSlider(0f, 1f, 0.05f, Settings.ProductionPerformance,
             { Settings.ProductionPerformance = it },
-            { "Production Performance: %.2f".format(Settings.ProductionPerformance) }
+            "Production Performance",
+            { "%.2f".format(Settings.ProductionPerformance) }
         )
 
         table.addSlider(0f, 30f, 1f, Settings.MineralDegradation.toFloat(),
             { Settings.MineralDegradation = it.toInt() },
-            { "Mineral Degradation: %,d".format(Settings.MineralDegradation) }
+            "Mineral Degradation",
+            { "%,d".format(Settings.MineralDegradation) }
         )
 
         table.addSlider(100f, 2000f, 50f, Settings.DefaultSize.toFloat(),
             { Settings.DefaultSize = it.toInt() },
-            { "Default Size: %,d".format(Settings.DefaultSize) }
+            "Default Size",
+            { "%,d".format(Settings.DefaultSize) }
         )
         table.addSlider(500f, 5000f, 100f, Settings.ReproductionThreshold.toFloat(),
             { Settings.ReproductionThreshold = it.toInt() },
-            { "Reproduction Threshold: %,d".format(Settings.ReproductionThreshold) }
+            "Reproduction Threshold",
+            { "%,d".format(Settings.ReproductionThreshold) }
         )
         table.addSlider(500f, 5000f, 100f, Settings.MaxAge.toFloat(),
             { Settings.MaxAge = it.toInt() },
-            { "MaxAge: %,d".format(Settings.MaxAge) }
+            "MaxAge",
+            { "%,d".format(Settings.MaxAge) }
         )
 
         table.row()
-        table.add(Label("", skin))
+        table.add(Label("", skin)).colspan(3)
 
         table.addCheckBox(Settings.Debug.displayGrid, " Display grid") {
             Settings.Debug.displayGrid = it
@@ -124,7 +136,7 @@ class SlidersStage(val field: Field) : Stage() {
         }
 
         table.row()
-        table.add(Label("", skin))
+        table.add(Label("", skin)).colspan(3)
         configureCreatureButton = table.addButton("Configure creature")
         table.layout()
     }
@@ -135,7 +147,7 @@ class SlidersStage(val field: Field) : Stage() {
         this.row().align(Align.left)
 
         val button = TextButton(labelText, this@SlidersStage.skin)
-        this.add(button)
+        this.add(button).colspan(3)
         return button
     }
 
@@ -154,30 +166,32 @@ class SlidersStage(val field: Field) : Stage() {
             }
 
         })
-        this.add(checkBox)
+        this.add(checkBox).colspan(3)
     }
 
     private fun Table.addSlider(
         min: Float, max: Float, step: Float, default: Float,
         handler: (Float) -> Unit,
-        messageProvider: () -> String
+        labelText: String,
+        valueProvider: () -> String
     ) {
         this.row().align(Align.left)
-        val label = Label(messageProvider(), this@SlidersStage.skin)
-        this.add(label)
+        val label = Label(labelText, this@SlidersStage.skin)
+        this.add(label).padRight(10f).left()
 
-        this.row().align(Align.left)
         val slider = Slider(min, max, step, false, this@SlidersStage.skin)
         slider.value = default
+        val valueLabel = Label(valueProvider(), this@SlidersStage.skin)
         slider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (slider.isDragging) {
                     handler(slider.value)
-                    label.setText(messageProvider())
+                    valueLabel.setText(valueProvider())
                 }
             }
         })
-        this.add(slider)
+        this.add(slider).fillX().expandX().padRight(10f)
+        this.add(valueLabel).width(80f).left()
     }
 
     override fun act(delta: Float) {

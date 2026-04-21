@@ -61,7 +61,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         debugStage = DebugStage(field)
         environmentStage = EnvironmentStage(field)
         slidersStage = SlidersStage(field)
-        cellDetailsStage = CellDetailsStage(field, Settings.Width + 200, Settings.Height)
+        cellDetailsStage = CellDetailsStage(field, Settings.Width + 200, Settings.Height - 20)
 
         slidersStage.setConfigureButtonHandler {
             Settings.pause = true

@@ -10,7 +10,7 @@ object Settings {
 
     const val Width = 800
     const val Height = 800
-    const val UiWidth = 300
+    const val UiWidth = 500
     const val TotalWidth = Width + UiWidth
 
     const val CellSize = 10
