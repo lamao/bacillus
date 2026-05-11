@@ -2,12 +2,12 @@ package com.invenit.bacillus.ui
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
-import com.badlogic.gdx.graphics.Camera
-import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.viewport.Viewport
 import com.invenit.bacillus.Settings
-import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.Field
+import com.invenit.bacillus.model.Point
 import com.invenit.bacillus.service.CreatureFactory
-import kotlin.math.roundToInt
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
  */
 class UserInputListener(
     val field: Field,
-    val camera: Camera,
+    val viewport: Viewport,
     private val creatureFactory: CreatureFactory
 ) : InputAdapter() {
 
@@ -84,11 +84,11 @@ class UserInputListener(
     }
 
     private fun fromDisplay(screenX: Int, screenY: Int): Point {
-        val touchPoint = Vector3(screenX.toFloat(), screenY.toFloat(), 0f)
-        camera.unproject(touchPoint)
+        val touchPoint = Vector2(screenX.toFloat(), screenY.toFloat())
+        viewport.unproject(touchPoint)
         return Point(
-            touchPoint.x.roundToInt() / Settings.CellSize,
-            touchPoint.y.roundToInt() / Settings.CellSize
+            touchPoint.x.toInt() / Settings.CellSize,
+            touchPoint.y.toInt() / Settings.CellSize
         )
     }
 

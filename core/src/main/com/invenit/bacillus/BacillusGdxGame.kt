@@ -42,6 +42,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
     private lateinit var debugStage: DebugStage
     private lateinit var environmentStage: EnvironmentStage
+    private lateinit var statisticsStage: StatisticsStage
     private lateinit var slidersStage: SlidersStage
     private lateinit var cellDetailsStage: CellDetailsStage
 
@@ -60,8 +61,20 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         debugStage = DebugStage(field)
         environmentStage = EnvironmentStage(field)
+        statisticsStage = StatisticsStage(field)
+        statisticsStage.viewport.setWorldSize(Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
+        statisticsStage.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
         slidersStage = SlidersStage(field)
-        cellDetailsStage = CellDetailsStage(field, Settings.Width + 200, Settings.Height - 20)
+        slidersStage.viewport.setWorldSize(Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
+        slidersStage.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
+
+        cellDetailsStage = CellDetailsStage(
+            field,
+            Settings.Width + 200f + 20f,
+            Settings.Height - 20f
+        )
+        cellDetailsStage.viewport.setWorldSize(Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
+        cellDetailsStage.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
 
         slidersStage.setConfigureButtonHandler {
             Settings.pause = true
@@ -72,10 +85,20 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         Gdx.input.inputProcessor = InputMultiplexer(
             slidersStage,
-            UserInputListener(field, camera, creatureFactory),
-            cellDetailsStage
+            UserInputListener(field, environmentStage.viewport, creatureFactory),
+            cellDetailsStage,
+            statisticsStage
         )
 
+    }
+
+    override fun resize(width: Int, height: Int) {
+        camera.setToOrtho(false, Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
+        debugStage.viewport.update(width, height, true)
+        environmentStage.viewport.update(width, height, true)
+        statisticsStage.viewport.update(width, height, true)
+        slidersStage.viewport.update(width, height, true)
+        cellDetailsStage.viewport.update(width, height, true)
     }
 
     override fun dispose() {
@@ -85,6 +108,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         debugStage.dispose()
         environmentStage.dispose()
+        statisticsStage.dispose()
         slidersStage.dispose()
         cellDetailsStage.dispose()
     }
@@ -96,6 +120,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         camera.update()
 
         ScreenUtils.clear(0f, 0f, 0.1f, 1f)
+        shapeRenderer.projectionMatrix = camera.combined
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         shapeRenderer.color = Color.BLACK
         shapeRenderer.rect(Settings.Width.toFloat(), 0f, Settings.UiWidth.toFloat(), Settings.Height.toFloat())
@@ -109,7 +134,9 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         environmentStage.draw()
 
-        slidersStage.setGeneralInfo(Gdx.graphics.framesPerSecond, environmentStage.ticsPassed)
+        statisticsStage.setGeneralInfo(Gdx.graphics.framesPerSecond, environmentStage.ticsPassed)
+        statisticsStage.act(Gdx.graphics.deltaTime)
+        statisticsStage.draw()
 
         slidersStage.act(Gdx.graphics.deltaTime)
         slidersStage.draw()

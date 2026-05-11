@@ -16,11 +16,6 @@ import com.invenit.bacillus.model.Field
  */
 class SlidersStage(val field: Field) : Stage() {
 
-    private val generalInfo: Label
-    private val totalLabel: Label
-    private val mineralsLabel: Label
-    private val stationaryLabel: Label
-    private val mobileLabel: Label
     private val configureCreatureButton: Button
 
     private var skin: Skin = Skin(Gdx.files.internal("uiskin.json"))
@@ -28,31 +23,11 @@ class SlidersStage(val field: Field) : Stage() {
     init {
 
         val table = Table()
-        table.setSize(Settings.UiWidth.toFloat(), Gdx.graphics.height.toFloat())
+        table.setSize(Settings.UiWidth.toFloat() - 40f, Settings.Height.toFloat())
         table.setPosition(Settings.Width.toFloat() + 20f, 0f)
-        table.align(Align.topLeft)
+        table.align(Align.bottomLeft)
 
         addActor(table)
-
-        table.row().align(Align.left)
-        generalInfo = Label("", skin)
-        table.add(generalInfo).colspan(3)
-
-        table.row().align(Align.left)
-        totalLabel = Label("", skin)
-        table.add(totalLabel).colspan(3)
-
-        table.row().align(Align.left)
-        mineralsLabel = Label("", skin)
-        table.add(mineralsLabel).colspan(3)
-
-        table.row().align(Align.left)
-        stationaryLabel = Label("", skin)
-        table.add(stationaryLabel).colspan(3)
-
-        table.row().align(Align.left)
-        mobileLabel = Label("", skin)
-        table.add(mobileLabel).colspan(3)
 
         table.row()
         table.add(Label("", skin)).colspan(3)
@@ -196,31 +171,6 @@ class SlidersStage(val field: Field) : Stage() {
 
     override fun act(delta: Float) {
         super.act(delta)
-
-        setTotal(field.organics.count() + field.minerals.count())
-        setMinerals(field.minerals.count())
-        setStationary(field.organics.count { !it.dna.canMove })
-        setMobile(field.organics.count { it.dna.canMove })
-    }
-
-    fun setGeneralInfo(fps: Int, ticsPassed: Long) {
-        generalInfo.setText("FPS:  $fps. Tics: %,d".format(ticsPassed))
-    }
-
-    private fun setTotal(total: Int) {
-        totalLabel.setText("Total: $total")
-    }
-
-    private fun setMinerals(minerals: Int) {
-        mineralsLabel.setText("Minerals: $minerals")
-    }
-
-    private fun setStationary(value: Int) {
-        stationaryLabel.setText("Stationary: $value")
-    }
-
-    private fun setMobile(value: Int) {
-        mobileLabel.setText("Mobile: $value")
     }
 
     fun setConfigureButtonHandler(handler: () -> Unit) {
