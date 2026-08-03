@@ -11,14 +11,24 @@ class Environment {
 
     private val stages = arrayOf(
         ClearExhaustedItemsStep(),
-        MoveStep(),
+        CellLogicStep(
+            listOf(BiteLogic(), MoveLogic()),
+            CellDecisionApplierImpl()
+        ),
         SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
         AdjustCountersStep(),
 
         ToxinStep(),
         ConsumeStep(),
+        CellLogicStep(
+            listOf(PassiveConsumeLogic()),
+            CellDecisionApplierImpl()
+        ),
         ProduceStep(),
-        LookUpStep()
+        CellLogicStep(
+            listOf(LookUpLogic()),
+            CellDecisionApplierImpl()
+        )
     )
 
     fun doTic(field: Field) {

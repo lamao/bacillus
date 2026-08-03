@@ -14,33 +14,12 @@ class ConsumeStep : Step {
 
     override fun execute(field: Field) {
         field.organics.filter { it.dna.consume == Substance.Sun }
-            .forEach { it.consume(Settings.SunYield) }
-        field.organics
-            .filter { !it.dna.canMove }
-            .forEach { consumeMinerals(it, field) }
-    }
-
-    private fun consumeMinerals(cell: Organic, field: Field) {
-
-        var result = 0f
-
-        field.iterateRadial(cell.position, Settings.ConsumingRange) { x, y ->
-            val something = field[x, y]
-            if (something?.body == cell.dna.consume) {
-                val rawGain = Integer.min(something.size, Settings.MineralsYield)
-                val distance = cell.position.distance(x, y)
-
-                // TODO: More accurate calculations
-                result += Settings.correctedMineralsYield(rawGain.toFloat(), distance)
-                something.drain(rawGain)
-
-                if (cell.energy + result.roundToInt() > Settings.MaxSize) {
-                    return@iterateRadial false
-                }
+            .forEach {
+                val gain = Settings.SunYield
+                val performance = 1 - Settings.ProductionPerformance
+                val actualGain = (gain * performance).roundToInt()
+                it.consume(actualGain)
+                it.accumulatedWaste += (gain - actualGain)
             }
-            return@iterateRadial true
-        }
-
-        cell.consume(result.roundToInt())
     }
 }

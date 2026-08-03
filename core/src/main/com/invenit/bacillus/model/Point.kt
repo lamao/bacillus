@@ -20,7 +20,7 @@ data class Point(val x: Int, val y: Int) {
 
     fun direction(x: Int, y: Int): Point = Point(x - this.x, y - this.y).normalized()
 
-    private fun normalized(): Point = Point(normalized(x), normalized(y))
+    fun normalized(): Point = Point(normalized(x), normalized(y))
 
     private fun normalized(value: Int): Int {
         return if (value > 0) {
