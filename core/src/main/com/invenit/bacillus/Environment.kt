@@ -18,7 +18,7 @@ class Environment {
         ToxinStep(),
         ConsumeStep(),
         ProduceStep(),
-        LookUpStep()
+        LookUpStep(ServiceContext.randomService),
     )
 
     fun doTic(field: Field) {

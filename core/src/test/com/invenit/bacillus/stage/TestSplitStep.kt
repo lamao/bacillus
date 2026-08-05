@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
  * Created 02.12.2021
  */
 @ExtendWith(MockitoExtension::class)
-class TestSplitStage {
+class TestSplitStep {
 
     private lateinit var stage: SplitStep
 

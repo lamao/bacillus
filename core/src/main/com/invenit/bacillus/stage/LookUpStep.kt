@@ -1,16 +1,20 @@
 package com.invenit.bacillus.stage
 
-import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.service.RandomService
 
 /**
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class LookUpStep : Step {
+class LookUpStep(
+    private val random: RandomService,
+): Step {
+
+
 
     override fun execute(field: Field) {
         field.organics.filter { it.dna.canMove }
@@ -50,8 +54,8 @@ class LookUpStep : Step {
 
     private fun getRandomDirection(position: Point, field: Field): Point {
         val direction = Point(
-            x = MathUtils.random(-1, 1),
-            y = MathUtils.random(-1, 1)
+            x = random.random(-1, 1),
+            y = random.random(-1, 1)
         )
 
         val newPosition = position + direction
