@@ -16,9 +16,9 @@ import kotlin.test.assertEquals
  * Created: 30.11.21
  */
 @ExtendWith(MockitoExtension::class)
-class TestClearExhaustedItemsStep {
+class TestClearExhaustedEntitiesStep {
 
-    private lateinit var step: ClearExhaustedItemsStep
+    private lateinit var step: ClearExhaustedEntitiesStep
     @Mock
     private lateinit var random: RandomService
 
@@ -26,7 +26,7 @@ class TestClearExhaustedItemsStep {
 
     @BeforeTest
     fun before() {
-        step = ClearExhaustedItemsStep(random)
+        step = ClearExhaustedEntitiesStep(random)
         field = Field(10, 10)
     }
 

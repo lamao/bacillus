@@ -6,10 +6,12 @@ import com.invenit.bacillus.model.Mineral
 import com.invenit.bacillus.service.RandomService
 
 /**
+ * Perform garbage collection of entities that are no longer alive
+ *
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class ClearExhaustedItemsStep(
+class ClearExhaustedEntitiesStep(
     private val random: RandomService
 ) : Step {
     override fun execute(field: Field) {

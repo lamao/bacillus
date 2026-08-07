@@ -9,21 +9,26 @@ import com.invenit.bacillus.stage.*
  */
 class Environment {
 
-    private val stages = arrayOf(
-        ClearExhaustedItemsStep(ServiceContext.randomService),
+    private val steps = arrayOf(
+        // bacilli active steps
+        LookUpStep(ServiceContext.randomService),
+
         MoveStep(),
         SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
-        AdjustCountersStep(),
-
-        ToxinStep(),
         ConsumeStep(),
+
+        // bacilli passive steps
         ProduceStep(),
-        LookUpStep(ServiceContext.randomService),
+        ToxinStep(),
+
+        // environmental steps
+        ExhaustStep(),
+        ClearExhaustedEntitiesStep(ServiceContext.randomService),
     )
 
     fun doTic(field: Field) {
-        for (stage in stages) {
-            stage.execute(field)
+        for (step in steps) {
+            step.execute(field)
         }
     }
 

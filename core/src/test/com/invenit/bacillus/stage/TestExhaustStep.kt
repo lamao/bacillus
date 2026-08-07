@@ -9,9 +9,9 @@ import kotlin.test.assertEquals
  * Created by viacheslav.mishcheriakov
  * Created 29.11.2021
  */
-class TestAdjustCountersStep {
+class TestExhaustStep {
 
-    private val step = AdjustCountersStep()
+    private val step = ExhaustStep()
 
     @Test
     fun testOrganics() {

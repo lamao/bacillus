@@ -7,7 +7,7 @@ import com.invenit.bacillus.model.Field
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class AdjustCountersStep : Step {
+class ExhaustStep : Step {
     override fun execute(field: Field) {
         field.organics.forEach {
             it.energy -= Settings.PermanentConsumption
