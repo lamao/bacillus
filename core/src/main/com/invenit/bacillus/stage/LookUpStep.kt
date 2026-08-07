@@ -29,10 +29,6 @@ class LookUpStep(
         } else {
             directionToFood
         }
-
-        if (cell.direction != Field.NoDirection) {
-            cell.energy -= Settings.MoveConsumption
-        }
     }
 
     private fun getDirectionToFood(cell: Organic, field: Field): Point {

@@ -1,6 +1,5 @@
 package com.invenit.bacillus.stage
 
-import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.service.RandomService
 import org.junit.jupiter.api.extension.ExtendWith
@@ -56,7 +55,6 @@ class TestLookUpStep {
         step.execute(field)
 
         assertEquals(Point(1, -1), cell.direction)
-        assertEquals(100 - Settings.MoveConsumption, cell.energy)
     }
 
     @Test
@@ -70,7 +68,6 @@ class TestLookUpStep {
         step.execute(field)
 
         assertEquals(Point(1, 0), cell.direction)
-        assertEquals(100 - Settings.MoveConsumption, cell.energy)
     }
 
     @Test
@@ -88,7 +85,6 @@ class TestLookUpStep {
         step.execute(field)
 
         assertEquals(Point(1, 1), cell.direction)
-        assertEquals(100 - Settings.MoveConsumption, cell.energy)
     }
 
     private fun organic(position: Point): Organic {

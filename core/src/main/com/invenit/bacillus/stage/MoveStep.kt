@@ -3,7 +3,6 @@ package com.invenit.bacillus.stage
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
-import com.invenit.bacillus.model.Point
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -18,10 +17,11 @@ class MoveStep : Step {
 
     private fun Organic.makeStep(field: Field) {
         val cell = this
-        if (cell.direction == Point.Zero) {
+        if (cell.direction == Field.NoDirection) {
             return
         }
 
+        cell.energy -= Settings.MoveConsumption
         var newPosition = cell.position + cell.direction
         newPosition = when {
             field.isFree(newPosition) -> {

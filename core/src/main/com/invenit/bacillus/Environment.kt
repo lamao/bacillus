@@ -11,13 +11,13 @@ class Environment {
 
     private val steps = arrayOf(
         // bacilli active steps
+        // TODO: Correct moving animation
         LookUpStep(ServiceContext.randomService),
-
         MoveStep(),
         SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
-        ConsumeStep(),
 
         // bacilli passive steps
+        ConsumeStep(),
         ProduceStep(),
         ToxinStep(),
 
