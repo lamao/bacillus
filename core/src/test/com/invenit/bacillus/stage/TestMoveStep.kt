@@ -12,9 +12,9 @@ import kotlin.test.assertNull
  * @author viacheslav.mishcheriakov
  * Created: 30.11.21
  */
-class TestMoveStage {
+class TestMoveStep {
 
-    private val stage = MoveStep()
+    private val step = MoveStep()
 
     private lateinit var field: Field
 
@@ -30,7 +30,7 @@ class TestMoveStage {
         field.add(mobile)
         field.add(stationary)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(Point(0, 0), mobile.position)
         assertEquals(mobile, field[0, 0])
@@ -43,7 +43,7 @@ class TestMoveStage {
         val cell = organic(Point(1, 2), Point(1, 1), true)
         field.add(cell)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(Point(2, 3), cell.position)
         assertNull(field[1, 2])
@@ -72,7 +72,7 @@ class TestMoveStage {
         field.add(cell)
         field.add(food)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(Point(1, 2), cell.position)
         assertEquals(cell, field[1, 2])
@@ -105,7 +105,7 @@ class TestMoveStage {
         field.add(cell)
         field.add(food)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(Point(1, 2), cell.position)
         assertEquals(cell, field[1, 2])
@@ -133,7 +133,7 @@ class TestMoveStage {
         )
         field.add(cell)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(Point(1, 1), cell.position)
         assertEquals(cell, field[1, 1])

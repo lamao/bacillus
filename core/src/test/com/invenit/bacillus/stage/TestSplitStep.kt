@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockitoExtension::class)
 class TestSplitStep {
 
-    private lateinit var stage: SplitStep
+    private lateinit var step: SplitStep
 
     @Mock
     private lateinit var mockRandomService: RandomService
@@ -32,7 +32,7 @@ class TestSplitStep {
 
     @BeforeTest
     fun before() {
-        stage = SplitStep(mockRandomService, mockMutationService)
+        step = SplitStep(mockRandomService, mockMutationService)
 
     }
 
@@ -53,7 +53,7 @@ class TestSplitStep {
                 true
             )
         )
-        stage.execute(field)
+        step.execute(field)
 
         val offspring = field[2, 2]
         assertNotNull(offspring)
@@ -89,7 +89,7 @@ class TestSplitStep {
 
         `when`(mockRandomService.random(-1, 1)).thenReturn(1, 1)
         `when`(mockMutationService.mutatedSize(Settings.DefaultSize)).thenReturn(750)
-        stage.execute(field)
+        step.execute(field)
 
         val somethingInDesiredLocation = field[2, 2]
         assertNotNull(somethingInDesiredLocation)
@@ -110,7 +110,7 @@ class TestSplitStep {
 
         `when`(mockRandomService.random(-1, 1)).thenReturn(-1, -1)
         `when`(mockMutationService.mutatedSize(Settings.DefaultSize)).thenReturn(750)
-        stage.execute(field)
+        step.execute(field)
 
         val parent = field[0, 0]
         assertNotNull(parent)

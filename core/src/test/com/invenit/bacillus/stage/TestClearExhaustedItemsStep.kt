@@ -2,6 +2,10 @@ package com.invenit.bacillus.stage
 
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.service.RandomService
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,14 +15,18 @@ import kotlin.test.assertEquals
  * @author viacheslav.mishcheriakov
  * Created: 30.11.21
  */
-class TestClearExhaustedItemsStage {
+@ExtendWith(MockitoExtension::class)
+class TestClearExhaustedItemsStep {
 
-    private val stage: ClearExhaustedItemsStep = ClearExhaustedItemsStep()
+    private lateinit var step: ClearExhaustedItemsStep
+    @Mock
+    private lateinit var random: RandomService
 
     private lateinit var field: Field
 
     @BeforeTest
     fun before() {
+        step = ClearExhaustedItemsStep(random)
         field = Field(10, 10)
     }
 
@@ -31,7 +39,7 @@ class TestClearExhaustedItemsStage {
         field.add(organic(x = 4, y = 4, Substance.Red, energy = 10, size = 30, age = Settings.MaxAge))
         field.add(organic(x = 5, y = 5, Substance.Blue, energy = 0, size = 0, age = 5))
 
-        stage.execute(field)
+        step.execute(field)
 
         val expectedOrganics = setOf(
             organic(x = 2, y = 2, Substance.White, energy = 10, size = 100, age = 10)

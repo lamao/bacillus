@@ -11,13 +11,13 @@ import kotlin.test.assertTrue
  * Created 09.12.2021
  */
 
-class TestToxinStage {
+class TestToxinStep {
 
-    private lateinit var stage: ToxinStep
+    private lateinit var step: ToxinStep
 
     @BeforeTest
     fun before() {
-        stage = ToxinStep()
+        step = ToxinStep()
     }
 
     @Test
@@ -28,7 +28,7 @@ class TestToxinStage {
 
         field.add(organic(1, 1, 1000, Substance.Blue))
 
-        stage.execute(field)
+        step.execute(field)
 
         val cell = field[1, 1]
         assertTrue(cell is Organic)
@@ -48,7 +48,7 @@ class TestToxinStage {
 
         field.add(organic(1, 1, 1000, Substance.Blue))
 
-        stage.execute(field)
+        step.execute(field)
 
         val cell = field[1, 1]
         assertTrue(cell is Organic)

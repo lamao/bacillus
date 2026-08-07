@@ -1,15 +1,17 @@
 package com.invenit.bacillus.stage
 
-import com.badlogic.gdx.math.MathUtils
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Mineral
+import com.invenit.bacillus.service.RandomService
 
 /**
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
  */
-class ClearExhaustedItemsStep : Step {
+class ClearExhaustedItemsStep(
+    private val random: RandomService
+) : Step {
     override fun execute(field: Field) {
         clearOrganics(field)
         clearMinerals(field)
@@ -17,7 +19,7 @@ class ClearExhaustedItemsStep : Step {
 
     private fun clearOrganics(field: Field) {
         field.organics
-            .filter { it.energy <= 0 || it.age >= Settings.MaxAge || MathUtils.random() < Settings.UnexpectedDeathRate }
+            .filter { it.energy <= 0 || it.age >= Settings.MaxAge || random.random() < Settings.UnexpectedDeathRate }
             .forEach {
                 field.remove(it.position)
                 if (it.size > 0) {

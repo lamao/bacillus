@@ -9,9 +9,9 @@ import kotlin.test.assertEquals
  * Created by viacheslav.mishcheriakov
  * Created 29.11.2021
  */
-class TestAdjustCountersStage {
+class TestAdjustCountersStep {
 
-    private val stage = AdjustCountersStep()
+    private val step = AdjustCountersStep()
 
     @Test
     fun testOrganics() {
@@ -24,7 +24,7 @@ class TestAdjustCountersStage {
         field.add(organic1)
         field.add(organic2)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(100 - Settings.PermanentConsumption, organic1.energy)
         assertEquals(151, organic1.age)
@@ -41,7 +41,7 @@ class TestAdjustCountersStage {
         field.add(mineral1)
         field.add(mineral2)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(100 - Settings.MineralDegradation, mineral1.size)
         assertEquals(200 - Settings.MineralDegradation, mineral2.size)

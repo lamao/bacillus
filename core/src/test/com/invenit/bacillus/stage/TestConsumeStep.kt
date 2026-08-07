@@ -14,13 +14,13 @@ import kotlin.test.assertTrue
  * Created: 13.12.21
  */
 @ExtendWith(MockitoExtension::class)
-class TestConsumeStage {
+class TestConsumeStep {
 
-    private lateinit var stage: ConsumeStep
+    private lateinit var step: ConsumeStep
 
     @BeforeTest
     fun before() {
-        stage = ConsumeStep()
+        step = ConsumeStep()
     }
 
     @Test
@@ -39,7 +39,7 @@ class TestConsumeStage {
             )
         ))
 
-        stage.execute(field)
+        step.execute(field)
 
         val cell = field[1, 1]
         assertTrue(cell is Organic)
@@ -74,7 +74,7 @@ class TestConsumeStage {
         field.add(cell)
         field.add(food)
 
-        stage.execute(field)
+        step.execute(field)
 
         // energy is not 60 because of production performance which reduces consuming efficiency
         assertEquals( 59, cell.energy,"Energy should increase. Current: ${cell.energy}")
@@ -104,7 +104,7 @@ class TestConsumeStage {
         field.add(cell)
         field.add(food)
 
-        stage.execute(field)
+        step.execute(field)
 
         assertEquals(100, cell.energy, "Energy should not change for mobile cell")
         assertEquals(100, food.size, "Food size should not change for mobile cell")
