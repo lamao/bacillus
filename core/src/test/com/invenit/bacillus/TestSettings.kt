@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-internal class SettingsTest {
+internal class TestSettings {
 
     private val originalTicDelaySeconds = Settings.TicDelaySeconds
     private val originalReproductionThreshold = Settings.ReproductionThreshold
