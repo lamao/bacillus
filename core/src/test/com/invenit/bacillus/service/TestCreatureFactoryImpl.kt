@@ -32,45 +32,24 @@ internal class TestCreatureFactoryImpl {
     }
 
     @Test
-    fun testCreateOrganicUsesGivenPosition() {
+    fun testCreateOrganicUsesGivenPositionAndLastDNAAndSize() {
         val organic = factory.createOrganic(Point(3, 4))
 
-        assertEquals(Point(3, 4), organic.position)
-    }
-
-    @Test
-    fun testCreateOrganicUsesLastDNAAndSize() {
-        val organic = factory.createOrganic(Point(0, 0))
-
         assertEquals(
-            Organic(Point(0, 0), Settings.DefaultSize, Point.Zero, factory.lastDNA),
+            Organic(Point(3, 4), Settings.DefaultSize, Point.Zero, factory.lastDNA),
             organic
         )
     }
 
     @Test
-    fun testCreateOrganicHasNoDirection() {
-        val organic = factory.createOrganic(Point(1, 1))
-
-        assertEquals(Point.Zero, organic.direction)
-    }
-
-    @Test
-    fun testCreateOrganicPicksUpChangedLastDNA() {
+    fun testCreateOrganicPicksUpChangedLastDNAAndSize() {
         val newDNA = DNA(Substance.Blue, Substance.Yellow, Substance.Red, Substance.Green, true)
         factory.lastDNA = newDNA
-
-        val organic = factory.createOrganic(Point(0, 0))
-
-        assertEquals(newDNA, organic.dna)
-    }
-
-    @Test
-    fun testCreateOrganicPicksUpChangedLastSize() {
         factory.lastSize = 500
 
         val organic = factory.createOrganic(Point(0, 0))
 
+        assertEquals(newDNA, organic.dna)
         assertEquals(500, organic.size)
     }
 
