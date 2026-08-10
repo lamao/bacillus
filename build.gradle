@@ -10,12 +10,13 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.sonarsource.scanner.gradle:sonar-gradle-plugin:3.5.0.2730"
 
     }
 }
 
-apply plugin: "org.sonarqube"
+plugins {
+    id "org.sonarqube" version "3.5.0.2730"
+}
 
 sonarqube {
     properties {
