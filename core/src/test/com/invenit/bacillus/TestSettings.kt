@@ -1,10 +1,9 @@
 package com.invenit.bacillus
 
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.AfterTest
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 internal class TestSettings {
 
@@ -19,69 +18,53 @@ internal class TestSettings {
         Settings.BiteYield = originalBiteYield
     }
 
-    @Test
-    fun testToxinDamageFunctionAtDistanceOne() {
-        val damage = Settings.toxinDamageFunction(100f, 1)
+    @ParameterizedTest(name = "toxinDamageFunction({0}, {1}) = {2}")
+    @CsvSource(
+        "100, 1, 100",  // no falloff at distance 1
+        "100, 2, 50",   // halves per distance step
+        "100, 3, 25",
+        "0, 3, 0",      // zero amount
+    )
+    fun testToxinDamageFunction(amount: Float, distance: Int, expectedDamage: Float) {
+        val damage = Settings.toxinDamageFunction(amount, distance)
 
-        assertEquals(100f, damage)
+        assertEquals(expectedDamage, damage)
     }
 
-    @Test
-    fun testToxinDamageFunctionHalvesPerDistanceStep() {
-        val atTwo = Settings.toxinDamageFunction(100f, 2)
-        val atThree = Settings.toxinDamageFunction(100f, 3)
-
-        assertEquals(50f, atTwo)
-        assertEquals(25f, atThree)
+    @ParameterizedTest(name = "correctedMineralsYield({0}, {1}) = {0}")
+    @CsvSource(
+        "42, 1",
+        "42, 5",
+    )
+    fun testCorrectedMineralsYieldReturnsAmountUnchanged(amount: Float, distance: Int) {
+        assertEquals(amount, Settings.correctedMineralsYield(amount, distance))
     }
 
-    @Test
-    fun testToxinDamageFunctionWithZeroAmount() {
-        val damage = Settings.toxinDamageFunction(0f, 3)
+    @ParameterizedTest(name = "SmoothAnimation at TicDelaySeconds={0} is {1}")
+    @CsvSource(
+        "0.3, true",    // above threshold
+        "0.2, false",   // at threshold
+        "0.02, false",  // below threshold
+    )
+    fun testSmoothAnimation(ticDelaySeconds: Float, expected: Boolean) {
+        Settings.TicDelaySeconds = ticDelaySeconds
 
-        assertEquals(0f, damage)
+        assertEquals(expected, Settings.SmoothAnimation)
     }
 
-    @Test
-    fun testCorrectedMineralsYieldReturnsAmountUnchanged() {
-        assertEquals(42f, Settings.correctedMineralsYield(42f, 1))
-        assertEquals(42f, Settings.correctedMineralsYield(42f, 5))
-    }
+    @ParameterizedTest(name = "MaxSize with ReproductionThreshold={0}, BiteYield={1} = {2}")
+    @CsvSource(
+        "2000, 200, 2200",
+        "500, 50, 550",
+    )
+    fun testMaxSizeIsReproductionThresholdPlusBiteYield(
+        reproductionThreshold: Int,
+        biteYield: Int,
+        expectedMaxSize: Int,
+    ) {
+        Settings.ReproductionThreshold = reproductionThreshold
+        Settings.BiteYield = biteYield
 
-    @Test
-    fun testSmoothAnimationWhenDelayAboveThreshold() {
-        Settings.TicDelaySeconds = 0.3f
-
-        assertTrue(Settings.SmoothAnimation)
-    }
-
-    @Test
-    fun testSmoothAnimationWhenDelayAtThreshold() {
-        Settings.TicDelaySeconds = 0.2f
-
-        assertFalse(Settings.SmoothAnimation)
-    }
-
-    @Test
-    fun testSmoothAnimationWhenDelayBelowThreshold() {
-        Settings.TicDelaySeconds = 0.02f
-
-        assertFalse(Settings.SmoothAnimation)
-    }
-
-    @Test
-    fun testMaxSizeIsReproductionThresholdPlusBiteYield() {
-        Settings.ReproductionThreshold = 2000
-        Settings.BiteYield = 200
-
-        assertEquals(2200, Settings.MaxSize)
-    }
-
-    @Test
-    fun testMaxSizeTracksSettingChanges() {
-        Settings.ReproductionThreshold = 500
-        Settings.BiteYield = 50
-
-        assertEquals(550, Settings.MaxSize)
+        assertEquals(expectedMaxSize, Settings.MaxSize)
     }
 }
