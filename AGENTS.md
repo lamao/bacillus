@@ -40,7 +40,9 @@ The project uses **JUnit 5**, **Mockito**, and `kotlin-test` for unit testing. A
 
 #### Adding New Tests:
 New tests should be placed in `core/src/test/com/invenit/bacillus/`.
-Follow the existing naming convention: `Test<Feature>Stage.kt` or `<ClassName>Test.kt`.
+Name test classes with a `Test` prefix: `Test<ClassName>.kt` (e.g. `TestPoint.kt` for `Point`).
+Some older tests still use the `<ClassName>Test.kt` suffix form; don't rename those in passing, but all new test classes must use the prefix form.
+When multiple test methods exercise the same function/property with different inputs, group them into a single `@ParameterizedTest` with `@CsvSource` instead of one `@Test` method per case.
 
 **Example Test Structure**:
 ```kotlin
