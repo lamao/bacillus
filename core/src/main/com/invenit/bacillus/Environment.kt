@@ -10,18 +10,25 @@ import com.invenit.bacillus.stage.*
 class Environment {
 
     private val steps = arrayOf(
-        // bacilli active steps
+        // Conscious — logic a cell's decisions drive. For now these run
+        // unconditionally, still gated only by dna.canMove / energy thresholds.
+        // A future DecideStep (#1 §6) will gate them by a chosen action instead.
         // TODO: Correct moving animation
         LookUpStep(ServiceContext.randomService),
         MoveStep(),
         SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
 
-        // bacilli passive steps
+        // Digestion (background/passive) — tied to a cell, but not a decision it
+        // makes. Runs automatically every tick; see ConsumeStep for the swappable
+        // trigger condition.
         ConsumeStep(),
-        ProduceStep(),
-        ToxinStep(),
 
-        // environmental steps
+        // ProduceStep is conceptually Conscious (see above), but stays right after
+        // ConsumeStep so waste accumulated this tick is expelled this same tick.
+        ProduceStep(),
+
+        // Environmental — logic no cell can influence.
+        ToxinStep(),
         ExhaustStep(),
         ClearExhaustedEntitiesStep(ServiceContext.randomService),
     )

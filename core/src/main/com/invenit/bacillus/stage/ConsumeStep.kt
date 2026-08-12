@@ -16,9 +16,14 @@ class ConsumeStep : Step {
         field.organics.filter { it.dna.consume == Substance.Sun }
             .forEach { it.consume(Settings.SunYield) }
         field.organics
-            .filter { !it.dna.canMove }
+            .filter { isDigesting(it) }
             .forEach { consumeMinerals(it, field) }
     }
+
+    // Digestion runs for cells not currently moving. Today that's the static
+    // canMove flag; once DecideStep (#1 §6) exists, swap this for
+    // "the cell's chosen action isn't Move".
+    private fun isDigesting(cell: Organic): Boolean = !cell.dna.canMove
 
     private fun consumeMinerals(cell: Organic, field: Field) {
 
