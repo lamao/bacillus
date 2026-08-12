@@ -21,7 +21,7 @@ The project uses Gradle as its build system and consists of two main modules: `c
   ```
 
 #### Requirements:
-- JDK 11 or higher is recommended (the project uses Kotlin 1.6.0).
+- JDK 17 or higher is recommended (the project uses Kotlin 1.9.24 and Gradle 8.14.3, both verified against JDK 21).
 - For macOS ARM64 (Apple Silicon), the `build.gradle` automatically handles the necessary LWJGL natives.
 
 ### 2. Testing Information
@@ -62,7 +62,7 @@ internal class SimpleVerificationTest {
 ### 3. Development Information
 
 #### Code Style:
-- **Language**: Kotlin 1.6.0.
+- **Language**: Kotlin 1.9.24.
 - **Naming**: Use standard Kotlin/Java naming conventions (PascalCase for classes, camelCase for methods/variables).
 - **Concurrency**: The simulation logic is mostly single-threaded, driven by the LibGDX render loop or stages.
 - **Simulation Logic**: The simulation is divided into "Steps" (found in `com.invenit.bacillus.stage`). Each step handles a specific part of the simulation tick (e.g., `ConsumeStep`, `MoveStep`, `ProduceStep`).
