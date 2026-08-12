@@ -1,11 +1,11 @@
 buildscript {
-    ext.kotlinVersion = '1.6.0'
+    ext.kotlinVersion = '1.9.24'
 
     repositories {
         mavenLocal()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
         google()
     }
     dependencies {
@@ -40,8 +40,8 @@ allprojects {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/releases/" }
     }
 }
 
@@ -71,7 +71,7 @@ project(":core") {
     apply plugin: "jacoco"
 
     jacoco {
-        toolVersion = "0.8.7"
+        toolVersion = "0.8.12"
     }
 
     test {
@@ -82,8 +82,8 @@ project(":core") {
     jacocoTestReport {
         dependsOn test
         reports {
-            xml.enabled true
-            html.enabled true
+            xml.required.set(true)
+            html.required.set(true)
         }
     }
 
