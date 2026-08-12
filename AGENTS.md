@@ -79,6 +79,8 @@ internal class SimpleVerificationTest {
 3. Test your changes.
 4. Submit a pull request.
 
+Create PRs once task is completed and ready to review.
+
 #### Debugging:
 - The UI includes several debug stages (`DebugStage`, `CellDetailsStage`, `SlidersStage`) which can be used to inspect and modify the simulation state at runtime.
 - Check `BacillusGdxGame.kt` to see how these stages are initialized and toggled.
