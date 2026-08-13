@@ -1,5 +1,6 @@
 package com.invenit.bacillus
 
+import com.invenit.bacillus.model.matrix.DefaultDecisionMatrixFactory
 import com.invenit.bacillus.service.CreatureFactoryImpl
 import com.invenit.bacillus.service.MutationServiceImpl
 import com.invenit.bacillus.service.RandomServiceImpl
@@ -13,5 +14,6 @@ object ServiceContext {
     val randomService = RandomServiceImpl()
 
     val mutationService = MutationServiceImpl(randomService)
-    val creationFactory = CreatureFactoryImpl()
+    val decisionMatrixFactory = DefaultDecisionMatrixFactory()
+    val creationFactory = CreatureFactoryImpl(decisionMatrixFactory)
 }

@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.ScreenUtils
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.model.matrix.DecisionMatrixFactory
 import com.invenit.bacillus.ui.*
 
 
@@ -40,6 +39,7 @@ class BacillusGdxGame : ApplicationAdapter() {
     private val field = Field(Settings.GridWidth, Settings.GridHeight)
     private val mutationService = ServiceContext.mutationService
     private val creatureFactory = ServiceContext.creationFactory
+    private val decisionMatrixFactory = ServiceContext.decisionMatrixFactory
 
     private lateinit var debugStage: DebugStage
     private lateinit var environmentStage: EnvironmentStage
@@ -56,7 +56,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        val initialDecisionMatrix = DecisionMatrixFactory.initial()
+        val initialDecisionMatrix = decisionMatrixFactory.initial()
         (1..Settings.InitNumberOfOrganics).forEach { _ ->
             spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false, initialDecisionMatrix))
         }
@@ -80,7 +80,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         slidersStage.setConfigureButtonHandler {
             Settings.pause = true
-            AddCreatureDialog(creatureFactory) {
+            AddCreatureDialog(creatureFactory, decisionMatrixFactory) {
                 Settings.pause = false
             }.showConfiguration(cellDetailsStage)
         }
