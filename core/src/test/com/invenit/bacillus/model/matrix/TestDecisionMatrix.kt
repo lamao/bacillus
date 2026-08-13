@@ -1,4 +1,4 @@
-package com.invenit.bacillus.model
+package com.invenit.bacillus.model.matrix
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

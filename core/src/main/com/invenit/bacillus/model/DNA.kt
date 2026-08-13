@@ -1,5 +1,7 @@
 package com.invenit.bacillus.model
 
+import com.invenit.bacillus.model.matrix.DecisionMatrix
+
 /**
  * Created by viacheslav.mishcheriakov
  * Created 21.11.2021
@@ -24,7 +26,7 @@ data class DNA(
         CanMove;
 
         companion object {
-            fun count() = values().size
+            fun count() = Trait.entries.size
         }
     }
 }

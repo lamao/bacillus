@@ -1,4 +1,4 @@
-package com.invenit.bacillus.model
+package com.invenit.bacillus.model.matrix
 
 /**
  * Instruction DNA #7 — draft, unintegrated (see issue #1 §2, #7).
@@ -25,7 +25,7 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
     /**
      * Acts then tests: reads the [Instruction] at [index], and evaluates its
      * test against [sensorValue] (an already-sensed reading, since sensing a
-     * live [Organic] is #1 task 5's scope, not this draft's) to decide the
+     * live [com.invenit.bacillus.model.Organic] is #1 task 5's scope, not this draft's) to decide the
      * next index.
      */
     fun evaluate(index: Int, sensorValue: Double): StateResult {
@@ -37,13 +37,11 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
 
     private fun wrap(index: Int): Int = ((index % SIZE) + SIZE) % SIZE
 
-    data class StateResult(val action: Action, val nextIndex: Int)
-
     companion object {
         const val DIMENSION = 5
         const val SIZE = DIMENSION * DIMENSION
 
-        /** An inert placeholder matrix (rests forever) so [DNA] stays constructible before a real genome exists. */
+        /** An inert placeholder matrix (rests forever) so [com.invenit.bacillus.model.DNA] stays constructible before a real genome exists. */
         fun default(): DecisionMatrix = DecisionMatrix(
             List(SIZE) {
                 Instruction(

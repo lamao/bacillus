@@ -1,4 +1,4 @@
-package com.invenit.bacillus.model
+package com.invenit.bacillus.model.matrix
 
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

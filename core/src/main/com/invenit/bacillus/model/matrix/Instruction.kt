@@ -1,4 +1,4 @@
-package com.invenit.bacillus.model
+package com.invenit.bacillus.model.matrix
 
 /**
  * Instruction DNA #7 — draft, unintegrated (see issue #1 §2, §4, #7).
