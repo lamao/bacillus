@@ -2,6 +2,7 @@ package com.invenit.bacillus.service
 
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.DecisionMatrixFactory
 
 
 /**
@@ -9,8 +10,11 @@ import com.invenit.bacillus.model.*
  * Logic for creating and adding creatures to the field.
  * Keeps track of the last used parameters.
  */
-class CreatureFactoryImpl : CreatureFactory {
-    override var lastDNA: DNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false)
+class CreatureFactoryImpl(
+    decisionMatrixFactory: DecisionMatrixFactory
+) : CreatureFactory {
+    override var lastDNA: DNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false,
+        decisionMatrixFactory.initial())
     override var lastSize: Int = Settings.DefaultSize
 
     /**

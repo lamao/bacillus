@@ -5,25 +5,32 @@ import com.invenit.bacillus.model.DNA
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
 import com.invenit.bacillus.model.Substance
+import com.invenit.bacillus.model.matrix.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 
+@ExtendWith(MockitoExtension::class)
 internal class TestCreatureFactoryImpl {
 
     private lateinit var factory: CreatureFactory
+    @Mock
+    private lateinit var mockDecisionMatrixFactory: DecisionMatrixFactory
 
     @BeforeTest
     fun before() {
-        factory = CreatureFactoryImpl()
+        `when`(mockDecisionMatrixFactory.initial()).thenReturn(DecisionMatrix.default())
+        factory = CreatureFactoryImpl(mockDecisionMatrixFactory)
     }
 
     @Test
     fun testDefaultLastDNA() {
-        assertEquals(
-            DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false),
-            factory.lastDNA
-        )
+        val expectedDNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false, DecisionMatrix.default())
+        assertEquals(expectedDNA, factory.lastDNA)
     }
 
     @Test
@@ -43,7 +50,17 @@ internal class TestCreatureFactoryImpl {
 
     @Test
     fun testCreateOrganicPicksUpChangedLastDNAAndSize() {
-        val newDNA = DNA(Substance.Blue, Substance.Yellow, Substance.Red, Substance.Green, true)
+        val newMatrix = DecisionMatrix(List(DecisionMatrix.SIZE) {
+            Instruction(
+                action = Action(Action.Category.Move, Action.Mode.TowardConsume),
+                sensor = Sensor.EnergyRatio,
+                comparator = Comparator.LessThan,
+                threshold = 10.0,
+                jumpOffset = 1
+            )
+        })
+
+        val newDNA = DNA(Substance.Blue, Substance.Yellow, Substance.Red, Substance.Green, true, newMatrix)
         factory.lastDNA = newDNA
         factory.lastSize = 500
 
