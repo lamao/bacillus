@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.ScreenUtils
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.model.matrix.DecisionMatrix
+import com.invenit.bacillus.model.matrix.DecisionMatrixFactory
 import com.invenit.bacillus.ui.*
 
 
@@ -56,7 +56,7 @@ class BacillusGdxGame : ApplicationAdapter() {
         batch = SpriteBatch()
         font = BitmapFont()
 
-        val initialDecisionMatrix = DecisionMatrix.initial()
+        val initialDecisionMatrix = DecisionMatrixFactory.initial()
         (1..Settings.InitNumberOfOrganics).forEach { _ ->
             spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false, initialDecisionMatrix))
         }
