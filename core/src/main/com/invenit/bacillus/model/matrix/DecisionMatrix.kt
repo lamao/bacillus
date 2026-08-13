@@ -35,7 +35,7 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
         return StateResult(instruction.action, nextIndex)
     }
 
-    private fun wrap(index: Int): Int = ((index % SIZE) + SIZE) % SIZE
+    private fun wrap(index: Int): Int = Math.floorMod(index, SIZE)
 
     companion object {
         const val DIMENSION = 5

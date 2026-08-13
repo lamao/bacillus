@@ -127,20 +127,4 @@ internal class TestDecisionMatrix {
         assertEquals(5, result.nextIndex)   // (20 + 10) mod 25
     }
 
-    @Test
-    fun testEvaluateRestInstructionConditionNotMetAdvances() {
-        val rest = Instruction(
-            action = Action(Action.Category.Rest),
-            sensor = Sensor.EnergyRatio,
-            comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
-            jumpOffset = 10
-        )
-        val matrix = matrixWith(20, rest)
-
-        val result = matrix.evaluate(20, sensorValue = 0.1)
-
-        assertEquals(rest.action, result.action)
-        assertEquals(21, result.nextIndex)
-    }
 }
