@@ -9,7 +9,11 @@ data class DNA(
     val consume: Substance,
     val produce: Substance,
     val toxin: Substance,
-    val canMove: Boolean
+    val canMove: Boolean,
+    // Instruction DNA #7 — draft, unintegrated. Not part of DNA.Trait: not
+    // mutable yet (#1 §5 mutation operators land in a later task) and not
+    // read by any Step (#1 §6 wiring lands in a later task).
+    val decisionMatrix: DecisionMatrix = DecisionMatrix.default()
 ) {
 
     enum class Trait {
