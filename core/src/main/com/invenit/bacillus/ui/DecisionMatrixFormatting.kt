@@ -15,7 +15,7 @@ fun Instruction.toDisplayText(): String =
 
 private fun Action.toDisplayText(): String = when (category) {
     Action.Category.Rest -> "Rest"
-    Action.Category.Move -> "Mv:${mode!!.abbreviation}"
+    Action.Category.Move -> "Move:${mode!!.abbreviation}"
 }
 
 private val Action.Mode.abbreviation: String

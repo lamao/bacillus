@@ -19,7 +19,7 @@ internal class TestDecisionMatrixFormatting {
             jumpOffset = 4
         )
 
-        assertEquals("Mv:seek\nF<2.00\n+4", instruction.toDisplayText())
+        assertEquals("Move:seek\nF<2.00\n+4", instruction.toDisplayText())
     }
 
     @Test
