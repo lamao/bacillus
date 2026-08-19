@@ -11,6 +11,7 @@ import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Environment
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.Action
 import kotlin.math.sqrt
 
 /**
@@ -67,7 +68,7 @@ class EnvironmentStage(val field: Field) : Stage() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.dna.canMove }
+            this.filter { it.chosenAction.category == Action.Category.Move }
                 .forEach { cell ->
                     val displayPosition = cell.position.toDisplay()
                     val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
@@ -88,7 +89,7 @@ class EnvironmentStage(val field: Field) : Stage() {
             val displayPosition = cell.position.toDisplay()
             val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.dna.canMove) {
+            if (Settings.Debug.displaySourcePosition && cell.chosenAction.category == Action.Category.Move) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
                     displayPosition.x,

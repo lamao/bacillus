@@ -27,8 +27,7 @@ class TestFieldCrud {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
-                Substance.Red,
-                false
+                Substance.Red
             )
         )
         field.add(organic)
@@ -42,8 +41,7 @@ class TestFieldCrud {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
-                Substance.Red,
-                false
+                Substance.Red
             )
         )
 
@@ -114,8 +112,7 @@ class TestFieldCrud {
                     Substance.Green,
                     Substance.White,
                     Substance.Red,
-                    Substance.Red,
-                    false
+                    Substance.Red
                 )
             )
         )

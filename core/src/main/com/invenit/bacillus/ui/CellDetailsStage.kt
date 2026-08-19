@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.model.matrix.DecisionMatrix
 import com.invenit.bacillus.model.matrix.Sensor
 import kotlin.math.abs
@@ -170,7 +171,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             energyValueLabel.setText(cell!!.energy.toString())
             sizeValueLabel.setText(cell!!.size.toString())
             ageValueLabel.setText(cell!!.age.toString())
-            mobileValueLabel.setText(if (cell!!.dna.canMove) "true" else "false")
+            mobileValueLabel.setText(if (cell!!.chosenAction.category == Action.Category.Move) "true" else "false")
             updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false

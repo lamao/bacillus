@@ -1,6 +1,7 @@
 package com.invenit.bacillus.model
 
 import com.invenit.bacillus.Settings
+import com.invenit.bacillus.model.matrix.Action
 import kotlin.math.roundToInt
 
 /**
@@ -15,6 +16,11 @@ data class Organic(
 ) : Something {
     var age: Int = 0
     var energy: Int = size
+
+    // Decision Matrix instruction pointer (#1 §6) — runtime state, not part
+    // of the genome. Newborns start at state 0 (#1 §2 ground rules).
+    var currentState: Int = 0
+    var chosenAction: Action = Action(Action.Category.Rest)
 
     override val body: Substance
         get() = dna.body

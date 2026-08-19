@@ -33,8 +33,7 @@ class TestMutationServiceImpl {
             body = Substance.Blue,
             consume = Substance.Green,
             produce = Substance.Yellow,
-            toxin = Substance.White,
-            canMove = false
+            toxin = Substance.White
         )
 
         whenever(mockRandomService.random()).thenReturn(1.0f)
@@ -49,8 +48,7 @@ class TestMutationServiceImpl {
             body = Substance.Blue,
             consume = Substance.Sun,
             produce = Substance.Green,
-            toxin = Substance.White,
-            canMove = true
+            toxin = Substance.White
         )
 
         whenever(mockRandomService.random()).thenReturn(0.0f)
@@ -69,8 +67,7 @@ class TestMutationServiceImpl {
             body = Substance.Blue,
             consume = Substance.Blue,
             produce = Substance.Green,
-            toxin = Substance.White,
-            canMove = false
+            toxin = Substance.White
         )
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DNA.Trait.count() - 1)).thenReturn(1)
@@ -88,8 +85,7 @@ class TestMutationServiceImpl {
             body = Substance.Blue,
             consume = Substance.Green,
             produce = Substance.Blue,
-            toxin = Substance.White,
-            canMove = false
+            toxin = Substance.White
         )
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DNA.Trait.count() - 1)).thenReturn(2)
@@ -107,8 +103,7 @@ class TestMutationServiceImpl {
             body = Substance.Blue,
             consume = Substance.Green,
             produce = Substance.Yellow,
-            toxin = Substance.Blue,
-            canMove = false
+            toxin = Substance.Blue
         )
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DNA.Trait.count() - 1)).thenReturn(3)
@@ -118,23 +113,5 @@ class TestMutationServiceImpl {
         val mutated = mutationService.mutatedDna(original)
 
         assertEquals(original.copy(toxin = Substance.White), mutated)
-    }
-
-    @Test
-    fun testMutatedDna_CanMove() {
-        val original = DNA(
-            body = Substance.Blue,
-            consume = Substance.Green,
-            produce = Substance.Yellow,
-            toxin = Substance.White,
-            canMove = false
-        )
-        whenever(mockRandomService.random()).thenReturn(0.0f)
-        whenever(mockRandomService.random(0, DNA.Trait.count() - 1)).thenReturn(4)
-        whenever(mockRandomService.randomBoolean()).thenReturn(true)
-
-        val mutated = mutationService.mutatedDna(original)
-
-        assertEquals(original.copy(canMove = true), mutated)
     }
 }

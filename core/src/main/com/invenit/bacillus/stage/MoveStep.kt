@@ -3,6 +3,7 @@ package com.invenit.bacillus.stage
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
+import com.invenit.bacillus.model.matrix.Action
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -11,7 +12,7 @@ import com.invenit.bacillus.model.Organic
 class MoveStep : Step {
     override fun execute(field: Field) {
         field.organics
-            .filter { it.dna.canMove }
+            .filter { it.chosenAction.category == Action.Category.Move }
             .forEach { it.makeStep(field) }
     }
 

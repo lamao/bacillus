@@ -49,8 +49,7 @@ class TestSplitStep {
                 Substance.Yellow,
                 Substance.Sun,
                 Substance.Blue,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
         step.execute(field)
@@ -66,8 +65,7 @@ class TestSplitStep {
                 Substance.Yellow,
                 Substance.Sun,
                 Substance.Blue,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
 
@@ -129,8 +127,7 @@ class TestSplitStep {
                 Substance.Green,
                 Substance.Sun,
                 Substance.Blue,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
         result.energy = energy

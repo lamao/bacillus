@@ -1,6 +1,7 @@
 package com.invenit.bacillus.stage
 
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.Action
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.test.BeforeTest
@@ -34,8 +35,7 @@ class TestConsumeStep {
                 Substance.Green,
                 Substance.Sun,
                 Substance.Blue,
-                Substance.Red,
-                false
+                Substance.Red
             )
         ))
 
@@ -58,8 +58,7 @@ class TestConsumeStep {
                 Substance.Green,
                 Substance.Yellow,
                 Substance.White,
-                Substance.Red,
-                false
+                Substance.Red
             )
         )
         // Set energy lower than size to allow consumption to show up in energy gain
@@ -82,7 +81,7 @@ class TestConsumeStep {
     }
 
     @Test
-    fun testMobileDoesNotConsumeMinerals() {
+    fun testCellThatChoseMoveDoesNotConsumeMinerals() {
         val cell = Organic(
             Point(1, 1),
             100,
@@ -91,10 +90,10 @@ class TestConsumeStep {
                 Substance.Green,
                 Substance.Yellow,
                 Substance.White,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
+        cell.chosenAction = Action(Action.Category.Move, Action.Mode.TowardConsume)
         val food = Mineral(
             Point(1, 2),
             100,
@@ -106,7 +105,7 @@ class TestConsumeStep {
 
         step.execute(field)
 
-        assertEquals(100, cell.energy, "Energy should not change for mobile cell")
-        assertEquals(100, food.size, "Food size should not change for mobile cell")
+        assertEquals(100, cell.energy, "Energy should not change when the chosen action is Move")
+        assertEquals(100, food.size, "Food size should not change when the chosen action is Move")
     }
 }

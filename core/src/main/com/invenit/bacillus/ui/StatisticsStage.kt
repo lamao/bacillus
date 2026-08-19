@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
+import com.invenit.bacillus.model.matrix.Action
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -73,8 +74,8 @@ class StatisticsStage(val field: Field) : Stage() {
 
         setTotal(field.organics.count() + field.minerals.count())
         setMinerals(field.minerals.count())
-        setStationary(field.organics.count { !it.dna.canMove })
-        setMobile(field.organics.count { it.dna.canMove })
+        setStationary(field.organics.count { it.chosenAction.category != Action.Category.Move })
+        setMobile(field.organics.count { it.chosenAction.category == Action.Category.Move })
     }
 
     fun setGeneralInfo(fps: Int, ticsPassed: Long) {
