@@ -32,10 +32,11 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
 
     companion object {
         const val CELL_RADIUS = 50f
-        const val MATRIX_CELL_WIDTH = 48f
         const val ACTION_ROW_HEIGHT = 16f
         const val SENSOR_ROW_HEIGHT = 14f
         const val JUMP_ROW_HEIGHT = 14f
+        const val MATRIX_CELL_SIZE = ACTION_ROW_HEIGHT + SENSOR_ROW_HEIGHT + JUMP_ROW_HEIGHT
+
         const val MATRIX_GAP = 2f
         const val PANEL_GAP = 16f
 
@@ -106,10 +107,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
 
         addActor(table)
 
-        matrixTable.add(Label("Decision Matrix", skin))
-            .colspan(DecisionMatrix.DIMENSION)
-            .padBottom(6f)
-            .row()
         matrixCells = List(DecisionMatrix.SIZE) {
             val container = Table()
             container.background = neutralCellBackground
@@ -130,8 +127,10 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             val tooltip = TextTooltip("", skin)
             container.addListener(tooltip)
 
-            matrixTable.add(container).size(MATRIX_CELL_WIDTH, ACTION_ROW_HEIGHT + SENSOR_ROW_HEIGHT + JUMP_ROW_HEIGHT).pad(MATRIX_GAP)
-            if ((it + 1) % DecisionMatrix.DIMENSION == 0) matrixTable.row()
+            matrixTable.add(container).size(MATRIX_CELL_SIZE, MATRIX_CELL_SIZE).pad(MATRIX_GAP)
+            if ((it + 1) % DecisionMatrix.DIMENSION == 0) {
+                matrixTable.row()
+            }
 
             MatrixCell(actionZone, sensorValueLabel, jumpValueLabel, tooltip)
         }
@@ -172,17 +171,21 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             sizeValueLabel.setText(cell!!.size.toString())
             ageValueLabel.setText(cell!!.age.toString())
             mobileValueLabel.setText(if (cell!!.dna.canMove) "true" else "false")
-
-            val decisionMatrix = cell!!.dna.decisionMatrix
-            matrixCells.forEachIndexed { index, matrixCell ->
-                val instruction = decisionMatrix[index]
-                matrixCell.sensorValueLabel.setText("%.2f".format(instruction.threshold))
-                matrixCell.jumpValueLabel.setText(abs(instruction.jumpOffset).toString())
-                (matrixCell.tooltip.actor as Label).setText(instruction.toDisplayText())
-            }
+            updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false
             matrixTable.isVisible = false
+        }
+    }
+
+    private fun updateMatrixCells(matrixCells: List<MatrixCell>) {
+        val decisionMatrix = cell!!.dna.decisionMatrix
+        for (i in matrixCells.indices) {
+            val matrixCell = matrixCells[i]
+            val instruction = decisionMatrix[i]
+            matrixCell.sensorValueLabel.setText("%.2f".format(instruction.threshold))
+            matrixCell.jumpValueLabel.setText(abs(instruction.jumpOffset).toString())
+            matrixCell.tooltip.actor.setText(instruction.toDisplayText())
         }
     }
 
@@ -193,7 +196,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             Gdx.gl.glEnable(GL30.GL_BLEND)
             Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA)
             draw(cell!!)
-            drawMatrixIcons(cell!!)
+            drawDecisionMatrix(cell!!)
             Gdx.gl.glDisable(GL30.GL_BLEND)
 
         }
@@ -232,28 +235,28 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             radius * 2 / 5
         )
 
-        // toxin mark
-        drawXMark(
-            x + CELL_RADIUS, y - CELL_RADIUS, radius,
-            Color(cell.dna.toxin.color).sub(BacillusGdxGame.TransparentMask).add(0f, 0f, 0f, sqrt(alpha))
-        )
+        val toxinColor = Color(cell.dna.toxin.color)
+            .sub(BacillusGdxGame.TransparentMask)
+            .add(0f, 0f, 0f, sqrt(alpha))
+        drawXMark(x + CELL_RADIUS, y - CELL_RADIUS, radius, toxinColor)
         shapeRenderer.end()
     }
 
-    private fun drawXMark(cx: Float, cy: Float, halfSize: Float, color: Color) {
+    private fun drawXMark(cx: Float, cy: Float, radius: Float, color: Color) {
         shapeRenderer.color = color
-        shapeRenderer.line(cx - halfSize, cy + halfSize, cx - halfSize / 2, cy + halfSize / 2)
-        shapeRenderer.line(cx + halfSize, cy + halfSize, cx + halfSize / 2, cy + halfSize / 2)
-        shapeRenderer.line(cx + halfSize, cy - halfSize, cx + halfSize / 2, cy - halfSize / 2)
-        shapeRenderer.line(cx - halfSize, cy - halfSize, cx - halfSize / 2, cy - halfSize / 2)
+        shapeRenderer.line(cx - radius, cy + radius, cx - radius / 2, cy + radius / 2)
+        shapeRenderer.line(cx + radius, cy + radius, cx + radius / 2, cy + radius / 2)
+        shapeRenderer.line(cx + radius, cy - radius, cx + radius / 2, cy - radius / 2)
+        shapeRenderer.line(cx - radius, cy - radius, cx - radius / 2, cy - radius / 2)
     }
 
-    private fun drawMatrixIcons(cell: Organic) {
+    private fun drawDecisionMatrix(cell: Organic) {
         val decisionMatrix = cell.dna.decisionMatrix
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        matrixCells.forEachIndexed { index, matrixCell ->
-            val instruction = decisionMatrix[index]
+        for (i in matrixCells.indices) {
+            val matrixCell = matrixCells[i]
+            val instruction = decisionMatrix[i]
 
             val actionCenter = matrixCell.actionZone.localToStageCoordinates(
                 Vector2(matrixCell.actionZone.width / 2f, matrixCell.actionZone.height / 2f)
@@ -341,8 +344,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
 
     private fun drawHoldIcon(cx: Float, cy: Float, color: Color) {
         shapeRenderer.color = color
-        val s = ACTION_ICON_SIZE * 0.55f
-        shapeRenderer.rect(cx - s / 2, cy - s / 2, s, s)
+        val size = ACTION_ICON_SIZE * 0.55f
+        shapeRenderer.rect(cx - size / 2, cy - size / 2, size, size)
     }
 
     private fun drawSensorGlyph(glyph: SensorGlyph, cx: Float, cy: Float, color: Color) {
