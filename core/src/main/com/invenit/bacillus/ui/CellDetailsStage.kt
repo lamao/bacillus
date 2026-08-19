@@ -193,6 +193,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         super.draw()
 
         if (cell != null) {
+            shapeRenderer.projectionMatrix = camera.combined
             Gdx.gl.glEnable(GL30.GL_BLEND)
             Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA)
             draw(cell!!)
