@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
-import com.invenit.bacillus.model.matrix.Action
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -19,8 +18,6 @@ class StatisticsStage(val field: Field) : Stage() {
     private val ticsValueLabel: Label
     private val totalValueLabel: Label
     private val mineralsValueLabel: Label
-    private val stationaryValueLabel: Label
-    private val mobileValueLabel: Label
 
     private var skin: Skin = Skin(Gdx.files.internal("uiskin.json"))
 
@@ -55,18 +52,6 @@ class StatisticsStage(val field: Field) : Stage() {
         mineralsValueLabel = Label("", skin)
         table.add(mineralsValueLabel).left().padLeft(10f)
         table.add().expandX()
-
-        table.row().align(Align.left)
-        table.add(Label("Stationary:", skin)).left()
-        stationaryValueLabel = Label("", skin)
-        table.add(stationaryValueLabel).left().padLeft(10f)
-        table.add().expandX()
-
-        table.row().align(Align.left)
-        table.add(Label("Mobile:", skin)).left()
-        mobileValueLabel = Label("", skin)
-        table.add(mobileValueLabel).left().padLeft(10f)
-        table.add().expandX()
     }
 
     override fun act(delta: Float) {
@@ -74,8 +59,6 @@ class StatisticsStage(val field: Field) : Stage() {
 
         setTotal(field.organics.count() + field.minerals.count())
         setMinerals(field.minerals.count())
-        setStationary(field.organics.count { it.chosenAction.category != Action.Category.Move })
-        setMobile(field.organics.count { it.chosenAction.category == Action.Category.Move })
     }
 
     fun setGeneralInfo(fps: Int, ticsPassed: Long) {
@@ -89,14 +72,6 @@ class StatisticsStage(val field: Field) : Stage() {
 
     private fun setMinerals(minerals: Int) {
         mineralsValueLabel.setText(minerals.toString())
-    }
-
-    private fun setStationary(value: Int) {
-        stationaryValueLabel.setText(value.toString())
-    }
-
-    private fun setMobile(value: Int) {
-        mobileValueLabel.setText(value.toString())
     }
 
     override fun dispose() {
