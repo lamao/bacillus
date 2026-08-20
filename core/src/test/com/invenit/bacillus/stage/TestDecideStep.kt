@@ -98,6 +98,22 @@ class TestDecideStep {
     }
 
     @Test
+    fun testCapturesPositionBeforeThisTicAsPreviousPosition() {
+        val cell = organic(Point(1, 1), DecisionMatrix.default())
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+        assertEquals(Point(1, 1), cell.previousPosition)
+
+        // Simulate MoveStep relocating the cell later in the same tic.
+        field.relocate(cell, Point(2, 1))
+        step.execute(field)
+
+        assertEquals(Point(2, 1), cell.previousPosition)
+    }
+
+    @Test
     fun testRestActionSetsNoDirectionRegardlessOfPreviousDirection() {
         val cell = organic(Point(1, 1), DecisionMatrix.default())
         cell.direction = Point(1, 0)

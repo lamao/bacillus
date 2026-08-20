@@ -22,6 +22,12 @@ data class Organic(
     var currentState: Int = 0
     var chosenAction: Action = Action(Action.Category.Rest)
 
+    // Position at the start of this tic, captured before MoveStep may
+    // relocate the cell. Movement is now gated by chosenAction, so it can
+    // stop between tics — animation interpolates from here to the current
+    // (already up to date) position instead of extrapolating from direction.
+    var previousPosition: Point = position
+
     override val body: Substance
         get() = dna.body
 

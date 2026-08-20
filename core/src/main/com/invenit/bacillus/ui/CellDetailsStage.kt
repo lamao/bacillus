@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
-import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.model.matrix.DecisionMatrix
 import com.invenit.bacillus.model.matrix.Sensor
 import kotlin.math.abs
@@ -82,7 +81,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     private val energyValueLabel: Label
     private val sizeValueLabel: Label
     private val ageValueLabel: Label
-    private val mobileValueLabel: Label
     private val matrixCells: List<MatrixCell>
 
     init {
@@ -104,10 +102,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         table.add(Label("Age:", skin)).left()
         ageValueLabel = Label("", skin)
         table.add(ageValueLabel).left().padLeft(10f).row()
-
-        table.add(Label("Mobile:", skin)).left()
-        mobileValueLabel = Label("", skin)
-        table.add(mobileValueLabel).left().padLeft(10f).row()
 
         addActor(table)
 
@@ -175,7 +169,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             energyValueLabel.setText(cell!!.energy.toString())
             sizeValueLabel.setText(cell!!.size.toString())
             ageValueLabel.setText(cell!!.age.toString())
-            mobileValueLabel.setText(if (cell!!.chosenAction.category == Action.Category.Move) "true" else "false")
             updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false

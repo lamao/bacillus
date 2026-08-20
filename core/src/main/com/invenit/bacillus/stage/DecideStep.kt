@@ -24,6 +24,10 @@ class DecideStep(
     }
 
     private fun decide(cell: Organic, field: Field) {
+        // Captured before MoveStep (later this tic) may relocate the cell,
+        // so EnvironmentStage can animate from here to wherever it ends up.
+        cell.previousPosition = cell.position
+
         val matrix = cell.dna.decisionMatrix
         val sensorValue = sense(matrix[cell.currentState].sensor, cell, field)
         val result = matrix.evaluate(cell.currentState, sensorValue)
