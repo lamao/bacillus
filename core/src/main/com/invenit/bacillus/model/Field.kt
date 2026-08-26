@@ -74,7 +74,10 @@ class Field(val width: Int, val height: Int) {
 
 
     // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
-    fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+    // Marked `inline` so the compiler keeps callers' captured accumulator `var`s
+    // (e.g. `result`, `waste`, `totalDamage`) as plain locals instead of boxing
+    // them into heap-allocated Ref wrappers - this runs per organic per tick.
+    inline fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
             val upperY = anchor.y + step
