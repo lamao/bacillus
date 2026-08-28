@@ -44,6 +44,9 @@ Name test classes with a `Test` prefix: `Test<ClassName>.kt` (e.g. `TestPoint.kt
 Some older tests still use the `<ClassName>Test.kt` suffix form; don't rename those in passing, but all new test classes must use the prefix form. If you're meaningfully editing an old suffix-form test file's content anyway, rename it to the prefix form as part of that change; only a pure, unrelated rename (touching a file solely to rename it) still doesn't belong in passing.
 When multiple test methods exercise the same function/property with different inputs, group them into a single `@ParameterizedTest` with `@CsvSource` instead of one `@Test` method per case.
 
+#### Test Coverage:
+Coverage is measured with JaCoCo (`core` module, min 80% line coverage, enforced via `jacocoTestCoverageVerification`). Classes that are thin LibGDX glue with no independently testable logic (e.g. `com.invenit.bacillus.ui.**`, `BacillusGdxGame`) are excluded from coverage via `coverageExcludes` in `build.gradle`. When adding a new class in that category, add it to `coverageExcludes` rather than writing hollow tests just to satisfy the coverage threshold.
+
 **Example Test Structure**:
 ```kotlin
 package com.invenit.bacillus
