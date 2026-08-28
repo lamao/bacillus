@@ -1,9 +1,12 @@
 package com.invenit.bacillus
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.AfterTest
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 internal class TestSettings {
 
@@ -16,6 +19,9 @@ internal class TestSettings {
         Settings.TicDelaySeconds = originalTicDelaySeconds
         Settings.ReproductionThreshold = originalReproductionThreshold
         Settings.BiteYield = originalBiteYield
+        Settings.pause = false
+        Settings.Debug.displayGrid = false
+        Settings.Debug.displaySourcePosition = false
     }
 
     @ParameterizedTest(name = "toxinDamageFunction({0}, {1}) = {2}")
@@ -66,5 +72,26 @@ internal class TestSettings {
         Settings.BiteYield = biteYield
 
         assertEquals(expectedMaxSize, Settings.MaxSize)
+    }
+
+    @Test
+    fun testPauseDefaultsToFalseAndIsMutable() {
+        assertFalse(Settings.pause)
+
+        Settings.pause = true
+
+        assertTrue(Settings.pause)
+    }
+
+    @Test
+    fun testDebugFlagsDefaultToFalseAndAreMutable() {
+        assertFalse(Settings.Debug.displayGrid)
+        assertFalse(Settings.Debug.displaySourcePosition)
+
+        Settings.Debug.displayGrid = true
+        Settings.Debug.displaySourcePosition = true
+
+        assertTrue(Settings.Debug.displayGrid)
+        assertTrue(Settings.Debug.displaySourcePosition)
     }
 }

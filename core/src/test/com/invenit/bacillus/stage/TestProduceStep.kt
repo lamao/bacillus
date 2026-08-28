@@ -120,8 +120,7 @@ class TestProduceStep {
                 Substance.Green,
                 Substance.Sun,
                 produce,
-                Substance.Red,
-                false
+                Substance.Red
             ))
 
 }

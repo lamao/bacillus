@@ -27,8 +27,7 @@ class TestFieldCrud {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
-                Substance.Red,
-                false
+                Substance.Red
             )
         )
         field.add(organic)
@@ -42,8 +41,7 @@ class TestFieldCrud {
                 Substance.Green,
                 Substance.Sun,
                 Substance.White,
-                Substance.Red,
-                false
+                Substance.Red
             )
         )
 
@@ -114,8 +112,7 @@ class TestFieldCrud {
                     Substance.Green,
                     Substance.White,
                     Substance.Red,
-                    Substance.Red,
-                    false
+                    Substance.Red
                 )
             )
         )
@@ -139,5 +136,39 @@ class TestFieldCrud {
         assertNull(field[0, 0])
         assertNull(field[1, 1])
 
+    }
+
+    @Test
+    fun testRelocateMovesSomethingToTarget() {
+        val mineral = Mineral(Point(1, 1), 10, Substance.Green)
+        field.add(mineral)
+
+        field.relocate(mineral, Point(2, 2))
+
+        assertEquals(Point(2, 2), mineral.position)
+        assertNull(field[1, 1])
+        assertEquals(mineral, field[2, 2])
+    }
+
+    @Test
+    fun testRelocateAssertsSourcePositionHoldsTheGivenSomething() {
+        val mineral = Mineral(Point(1, 1), 10, Substance.Green)
+        // Never added to the field, so field[1, 1] doesn't hold it.
+
+        assertFailsWith<AssertionError> {
+            field.relocate(mineral, Point(2, 2))
+        }
+    }
+
+    @Test
+    fun testRelocateAssertsTargetIsFree() {
+        val mineral = Mineral(Point(1, 1), 10, Substance.Green)
+        val blocker = Mineral(Point(2, 2), 10, Substance.White)
+        field.add(mineral)
+        field.add(blocker)
+
+        assertFailsWith<AssertionError> {
+            field.relocate(mineral, Point(2, 2))
+        }
     }
 }

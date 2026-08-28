@@ -78,6 +78,7 @@ internal class SimpleVerificationTest {
 2. Implement new features or bug fixes.
 3. Test your changes.
 4. Create a pull request once task is completed and ready to review. Make PR draft until it's approved.
+5. When everything is approved, merge the pull request, squash commits, and delete the feature branch.
 
 #### Debugging:
 - The UI includes several debug stages (`DebugStage`, `CellDetailsStage`, `SlidersStage`) which can be used to inspect and modify the simulation state at runtime.

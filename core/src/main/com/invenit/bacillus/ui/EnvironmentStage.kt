@@ -67,15 +67,15 @@ class EnvironmentStage(val field: Field) : Stage() {
         if (Settings.Debug.displaySourcePosition) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
             shapeRenderer.color = Color.GRAY
-            this.filter { it.dna.canMove }
+            this.filter { it.position != it.previousPosition }
                 .forEach { cell ->
+                    val previousDisplayPosition = cell.previousPosition.toDisplay()
                     val displayPosition = cell.position.toDisplay()
-                    val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
                     shapeRenderer.line(
+                        previousDisplayPosition.x,
+                        previousDisplayPosition.y,
                         displayPosition.x,
-                        displayPosition.y,
-                        projectedPosition.x,
-                        projectedPosition.y
+                        displayPosition.y
                     )
                 }
             shapeRenderer.end()
@@ -85,14 +85,15 @@ class EnvironmentStage(val field: Field) : Stage() {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         for (cell in this) {
+            val previousDisplayPosition = cell.previousPosition.toDisplay()
             val displayPosition = cell.position.toDisplay()
-            val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
+            val projectedPosition = previousDisplayPosition.interpolated(displayPosition, ticPercentage)
 
-            if (Settings.Debug.displaySourcePosition && cell.dna.canMove) {
+            if (Settings.Debug.displaySourcePosition && cell.position != cell.previousPosition) {
                 shapeRenderer.color = Color.GRAY
                 shapeRenderer.circle(
-                    displayPosition.x,
-                    displayPosition.y,
+                    previousDisplayPosition.x,
+                    previousDisplayPosition.y,
                     BacillusGdxGame.CellRadius / 2
                 )
             }
@@ -124,8 +125,9 @@ class EnvironmentStage(val field: Field) : Stage() {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
         for (cell in this) {
+            val previousDisplayPosition = cell.previousPosition.toDisplay()
             val displayPosition = cell.position.toDisplay()
-            val projectedPosition = displayPosition.projectedPosition(cell.direction, ticPercentage)
+            val projectedPosition = previousDisplayPosition.interpolated(displayPosition, ticPercentage)
 
             val alpha = cell.getAlpha()
             val radius = cell.getRadius()
@@ -203,9 +205,9 @@ class EnvironmentStage(val field: Field) : Stage() {
         (this.y * Settings.CellSize + Settings.CellSize / 2).toFloat()
     )
 
-    private fun Vector2.projectedPosition(direction: Point, percentage: Float): Vector2 = Vector2(
-        this.x + percentage * direction.x * Settings.CellSize,
-        this.y + percentage * direction.y * Settings.CellSize
+    private fun Vector2.interpolated(target: Vector2, percentage: Float): Vector2 = Vector2(
+        this.x + percentage * (target.x - this.x),
+        this.y + percentage * (target.y - this.y)
     )
 
     override fun dispose() {

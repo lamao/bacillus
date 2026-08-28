@@ -47,6 +47,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         const val CHEVRON_INSET = 15f
 
         private val NeutralCellColor = Color(0.16f, 0.16f, 0.2f, 1f)
+        private val CurrentStateColor = Color(0.45f, 0.38f, 0.1f, 1f)
         private val RestIconColor = Color(0.55f, 0.6f, 0.75f, 1f)
         private val SeekColor = Color(0.3f, 0.75f, 0.3f, 1f)
         private val FleeColor = Color(0.85f, 0.35f, 0.25f, 1f)
@@ -61,6 +62,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     private enum class TriDirection { Up, Down, Left, Right }
 
     private class MatrixCell(
+        val container: Table,
         val actionZone: Actor,
         val sensorValueLabel: Label,
         val jumpValueLabel: Label,
@@ -73,12 +75,12 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     private val table = Table()
     private val matrixTable = Table()
     private val neutralCellBackground = coloredDrawable(NeutralCellColor)
+    private val currentStateBackground = coloredDrawable(CurrentStateColor)
 
     private val positionLabel: Label
     private val energyValueLabel: Label
     private val sizeValueLabel: Label
     private val ageValueLabel: Label
-    private val mobileValueLabel: Label
     private val matrixCells: List<MatrixCell>
 
     init {
@@ -100,10 +102,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         table.add(Label("Age:", skin)).left()
         ageValueLabel = Label("", skin)
         table.add(ageValueLabel).left().padLeft(10f).row()
-
-        table.add(Label("Mobile:", skin)).left()
-        mobileValueLabel = Label("", skin)
-        table.add(mobileValueLabel).left().padLeft(10f).row()
 
         addActor(table)
 
@@ -132,7 +130,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
                 matrixTable.row()
             }
 
-            MatrixCell(actionZone, sensorValueLabel, jumpValueLabel, tooltip)
+            MatrixCell(container, actionZone, sensorValueLabel, jumpValueLabel, tooltip)
         }
         matrixTable.pack()
         matrixTable.setPosition(x, y - 2 * CELL_RADIUS - PANEL_GAP, Align.topLeft)
@@ -153,6 +151,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         shapeRenderer.dispose()
         skin.dispose()
         neutralCellBackground.region.texture.dispose()
+        currentStateBackground.region.texture.dispose()
     }
 
     override fun act(delta: Float) {
@@ -170,7 +169,6 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             energyValueLabel.setText(cell!!.energy.toString())
             sizeValueLabel.setText(cell!!.size.toString())
             ageValueLabel.setText(cell!!.age.toString())
-            mobileValueLabel.setText(if (cell!!.dna.canMove) "true" else "false")
             updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false
@@ -180,12 +178,14 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
 
     private fun updateMatrixCells(matrixCells: List<MatrixCell>) {
         val decisionMatrix = cell!!.dna.decisionMatrix
+        val currentState = cell!!.currentState
         for (i in matrixCells.indices) {
             val matrixCell = matrixCells[i]
             val instruction = decisionMatrix[i]
             matrixCell.sensorValueLabel.setText("%.2f".format(instruction.threshold))
             matrixCell.jumpValueLabel.setText(abs(instruction.jumpOffset).toString())
             matrixCell.tooltip.actor.setText(instruction.toDisplayText())
+            matrixCell.container.background = if (i == currentState) currentStateBackground else neutralCellBackground
         }
     }
 

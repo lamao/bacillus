@@ -58,7 +58,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         val initialDecisionMatrix = decisionMatrixFactory.initial()
         (1..Settings.InitNumberOfOrganics).forEach { _ ->
-            spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false, initialDecisionMatrix))
+            spawn(DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, initialDecisionMatrix))
         }
 
         debugStage = DebugStage(field)

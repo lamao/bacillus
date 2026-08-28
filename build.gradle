@@ -79,13 +79,39 @@ project(":core") {
         finalizedBy jacocoTestReport
     }
 
+    def coverageExcludes = ['com/invenit/bacillus/ui/**']
+
     jacocoTestReport {
         dependsOn test
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: coverageExcludes)
+            }))
+        }
         reports {
             xml.required.set(true)
             html.required.set(true)
         }
     }
+
+    jacocoTestCoverageVerification {
+        dependsOn test
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: coverageExcludes)
+            }))
+        }
+        violationRules {
+            rule {
+                limit {
+                    counter = "LINE"
+                    minimum = 0.80
+                }
+            }
+        }
+    }
+
+    check.dependsOn jacocoTestCoverageVerification
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"

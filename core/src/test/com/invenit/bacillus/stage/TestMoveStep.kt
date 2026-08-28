@@ -2,6 +2,7 @@ package com.invenit.bacillus.stage
 
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.Action
 import org.junit.jupiter.api.Test
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -25,8 +26,8 @@ class TestMoveStep {
 
     @Test
     fun testNoDirection() {
-        val mobile = organic(Point(0, 0), Point.Zero, true)
-        val stationary = organic(Point(1, 1), Point.Zero, false)
+        val mobile = organic(Point(0, 0), Point.Zero, moving = true)
+        val stationary = organic(Point(1, 1), Point.Zero, moving = false)
         field.add(mobile)
         field.add(stationary)
 
@@ -40,7 +41,7 @@ class TestMoveStep {
 
     @Test
     fun testMoveToFreePosition() {
-        val cell = organic(Point(1, 2), Point(1, 1), true)
+        val cell = organic(Point(1, 2), Point(1, 1), moving = true)
         field.add(cell)
 
         step.execute(field)
@@ -60,10 +61,10 @@ class TestMoveStep {
                 Substance.Yellow,
                 Substance.Green,
                 Substance.White,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
+        cell.chosenAction = Action(Action.Category.Move, Action.Mode.TowardConsume)
         val food = Mineral(
             Point(0, 3),
             100,
@@ -93,10 +94,10 @@ class TestMoveStep {
                 Substance.Green,
                 Substance.Yellow,
                 Substance.White,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
+        cell.chosenAction = Action(Action.Category.Move, Action.Mode.TowardConsume)
         val food = Mineral(
             Point(0, 3),
             50,
@@ -128,10 +129,10 @@ class TestMoveStep {
                 Substance.Green,
                 Substance.Green,
                 Substance.White,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
+        cell.chosenAction = Action(Action.Category.Move, Action.Mode.TowardConsume)
         field.add(cell)
 
         step.execute(field)
@@ -143,8 +144,8 @@ class TestMoveStep {
         assertEquals(0, cell.accumulatedWaste)
     }
 
-    private fun organic(position: Point, direction: Point, canMove: Boolean): Organic {
-        return Organic(
+    private fun organic(position: Point, direction: Point, moving: Boolean): Organic {
+        val result = Organic(
             position,
             Settings.BiteYield / 2,
             direction,
@@ -152,9 +153,14 @@ class TestMoveStep {
                 Substance.Yellow,
                 Substance.Green,
                 Substance.White,
-                Substance.Red,
-                canMove
+                Substance.Red
             )
         )
+        result.chosenAction = if (moving) {
+            Action(Action.Category.Move, Action.Mode.TowardConsume)
+        } else {
+            Action(Action.Category.Rest)
+        }
+        return result
     }
 }

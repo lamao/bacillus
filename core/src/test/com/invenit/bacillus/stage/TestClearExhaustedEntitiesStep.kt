@@ -70,8 +70,7 @@ class TestClearExhaustedEntitiesStep {
                 body,
                 Substance.White,
                 Substance.Red,
-                Substance.Green,
-                false
+                Substance.Green
             )
         )
         result.energy = energy
