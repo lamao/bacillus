@@ -32,10 +32,10 @@ class SlidersStage(val field: Field) : Stage() {
         table.row()
         table.add(Label("", skin)).colspan(3)
 
-        table.addSlider(0f, 1f, 0.02f, Settings.TicDelaySeconds,
-            { Settings.TicDelaySeconds = it },
-            "Tic Delay",
-            { "%.2f s".format(Settings.TicDelaySeconds) }
+        table.addSlider(0f, 1000f, 1f, Settings.TicsPerSecond,
+            { Settings.TicsPerSecond = it },
+            "Speed",
+            { "%,d TPS".format(Settings.TicsPerSecond.toInt()) }
         )
 
         table.addSlider(0f, 0.3f, 0.005f, Settings.MutationRate,

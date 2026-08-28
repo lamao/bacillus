@@ -15,6 +15,7 @@ import com.invenit.bacillus.model.Field
 class StatisticsStage(val field: Field) : Stage() {
 
     private val fpsValueLabel: Label
+    private val tpsValueLabel: Label
     private val ticsValueLabel: Label
     private val totalValueLabel: Label
     private val mineralsValueLabel: Label
@@ -33,6 +34,12 @@ class StatisticsStage(val field: Field) : Stage() {
         table.add(Label("FPS:", skin)).left()
         fpsValueLabel = Label("", skin)
         table.add(fpsValueLabel).left().padLeft(10f)
+        table.add().expandX()
+
+        table.row().align(Align.left)
+        table.add(Label("TPS:", skin)).left()
+        tpsValueLabel = Label("", skin)
+        table.add(tpsValueLabel).left().padLeft(10f)
         table.add().expandX()
 
         table.row().align(Align.left)
@@ -61,8 +68,9 @@ class StatisticsStage(val field: Field) : Stage() {
         setMinerals(field.minerals.count())
     }
 
-    fun setGeneralInfo(fps: Int, ticsPassed: Long) {
+    fun setGeneralInfo(fps: Int, ticsPerSecond: Int, ticsPassed: Long) {
         fpsValueLabel.setText(fps.toString())
+        tpsValueLabel.setText(ticsPerSecond.toString())
         ticsValueLabel.setText("%,d".format(ticsPassed))
     }
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.utils.TimeUtils
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Environment
 import com.invenit.bacillus.Settings
@@ -19,9 +18,20 @@ import kotlin.math.sqrt
  */
 class EnvironmentStage(val field: Field) : Stage() {
 
-    private var lastTicTime = 0L
+    companion object {
+        // Bounds how much simulated time a single slow/stalled render frame can inject,
+        // so a long stall (e.g. minimized window) doesn't force a huge tic catch-up burst.
+        private const val MaxFrameTime = 0.25f
+    }
+
+    private var accumulatedTime = 0f
     var ticsPassed = 0L
     private var ticPercentage = 0f
+
+    var ticsPerSecond = 0
+        private set
+    private var tpsWindowTime = 0f
+    private var tpsWindowTicCount = 0
 
     private val shapeRenderer = ShapeRenderer()
 
@@ -30,23 +40,37 @@ class EnvironmentStage(val field: Field) : Stage() {
     override fun act(delta: Float) {
         super.act(delta)
 
-        if (Settings.pause) {
-            return
-        }
-
-        val currentTime = TimeUtils.nanoTime()
-        if (currentTime - lastTicTime >= BacillusGdxGame.TicInterval) {
-            lastTicTime = currentTime
-
-            environment.doTic(field)
-
-            ticsPassed++
-        }
-
-        ticPercentage = if (Settings.SmoothAnimation) {
-            (currentTime - lastTicTime) / BacillusGdxGame.TicInterval
+        if (Settings.pause || Settings.TicsPerSecond <= 0f) {
+            accumulatedTime = 0f
+            ticPercentage = 0f
         } else {
-            0f
+            val ticInterval = 1f / Settings.TicsPerSecond
+            accumulatedTime += delta.coerceAtMost(MaxFrameTime)
+
+            while (accumulatedTime >= ticInterval) {
+                environment.doTic(field)
+
+                ticsPassed++
+                tpsWindowTicCount++
+                accumulatedTime -= ticInterval
+            }
+
+            ticPercentage = if (Settings.SmoothAnimation) {
+                accumulatedTime / ticInterval
+            } else {
+                0f
+            }
+        }
+
+        updateTicsPerSecond(delta)
+    }
+
+    private fun updateTicsPerSecond(delta: Float) {
+        tpsWindowTime += delta
+        if (tpsWindowTime >= 1f) {
+            ticsPerSecond = tpsWindowTicCount
+            tpsWindowTicCount = 0
+            tpsWindowTime = 0f
         }
     }
 
