@@ -49,11 +49,11 @@ internal class TestSettings {
     @ParameterizedTest(name = "SmoothAnimation at TicsPerSecond={0} is {1}")
     @CsvSource(
         "0, false",     // paused
-        "3.33, true",   // below threshold
+        "3, true",   // below threshold
         "5, false",     // at threshold
         "50, false",    // above threshold
     )
-    fun testSmoothAnimation(ticsPerSecond: Float, expected: Boolean) {
+    fun testSmoothAnimation(ticsPerSecond: Int, expected: Boolean) {
         Settings.TicsPerSecond = ticsPerSecond
 
         assertEquals(expected, Settings.SmoothAnimation)

@@ -10,6 +10,7 @@ import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Environment
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.util.TicCounter
 import kotlin.math.sqrt
 
 /**
@@ -18,13 +19,7 @@ import kotlin.math.sqrt
  */
 class EnvironmentStage(val field: Field) : Stage() {
 
-    companion object {
-        // Bounds how much simulated time a single slow/stalled render frame can inject,
-        // so a long stall (e.g. minimized window) doesn't force a huge tic catch-up burst.
-        private const val MaxFrameTime = 0.25f
-    }
-
-    private var accumulatedTime = 0f
+    private val ticCounter: TicCounter = TicCounter()
     var ticsPassed = 0L
     private var ticPercentage = 0f
 
@@ -40,29 +35,29 @@ class EnvironmentStage(val field: Field) : Stage() {
     override fun act(delta: Float) {
         super.act(delta)
 
+        updateTicCounter(delta)
+        updateTicsPerSecond(delta)
+    }
+
+    private fun updateTicCounter(delta: Float) {
         if (Settings.pause || Settings.TicsPerSecond <= 0f) {
-            accumulatedTime = 0f
+            ticCounter.reset()
             ticPercentage = 0f
         } else {
-            val ticInterval = 1f / Settings.TicsPerSecond
-            accumulatedTime += delta.coerceAtMost(MaxFrameTime)
+            val deltaTics = ticCounter.update(delta, Settings.TicsPerSecond)
 
-            while (accumulatedTime >= ticInterval) {
+            repeat(deltaTics) {
                 environment.doTic(field)
-
-                ticsPassed++
-                tpsWindowTicCount++
-                accumulatedTime -= ticInterval
             }
+            ticsPassed += deltaTics
+            tpsWindowTicCount += deltaTics
 
             ticPercentage = if (Settings.SmoothAnimation) {
-                accumulatedTime / ticInterval
+                ticCounter.accumulatedTime * Settings.TicsPerSecond
             } else {
                 0f
             }
         }
-
-        updateTicsPerSecond(delta)
     }
 
     private fun updateTicsPerSecond(delta: Float) {
