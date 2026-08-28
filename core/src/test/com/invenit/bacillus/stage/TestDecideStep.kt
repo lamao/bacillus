@@ -98,6 +98,45 @@ class TestDecideStep {
     }
 
     @Test
+    fun testMoveHoldSetsNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.Hold)))
+        cell.direction = Point(1, 0)
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+        assertEquals(Action(Action.Category.Move, Action.Mode.Hold), cell.chosenAction)
+    }
+
+    @Test
+    fun testMoveRandomModeFallsBackToRandomDirection() {
+        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.Random)))
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Point(1, 0), cell.direction)
+    }
+
+    @Test
+    fun testRandomDirectionReturnsNoDirectionWhenItWouldLeaveTheField() {
+        `when`(mockRandomService.random(-1, 1)).thenReturn(-1, -1)
+        val cell = organic(Point(0, 0), moveTowardConsumeMatrix())
+        val mineral = Mineral(Point(1, 0), 100, Substance.Red)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(mineral)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
     fun testCapturesPositionBeforeThisTicAsPreviousPosition() {
         val cell = organic(Point(1, 1), DecisionMatrix.default())
         val field = Field(3, 3)
@@ -216,9 +255,13 @@ class TestDecideStep {
         return DecisionMatrix(instructions)
     }
 
-    private fun moveTowardConsumeMatrix(): DecisionMatrix = matrixWith(
+    private fun moveTowardConsumeMatrix(): DecisionMatrix = matrixWithAction(
+        Action(Action.Category.Move, Action.Mode.TowardConsume)
+    )
+
+    private fun matrixWithAction(action: Action): DecisionMatrix = matrixWith(
         0, Instruction(
-            action = Action(Action.Category.Move, Action.Mode.TowardConsume),
+            action = action,
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
             threshold = 0.0,

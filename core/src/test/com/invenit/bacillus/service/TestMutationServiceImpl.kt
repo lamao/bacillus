@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -113,5 +114,17 @@ class TestMutationServiceImpl {
         val mutated = mutationService.mutatedDna(original)
 
         assertEquals(original.copy(toxin = Substance.White), mutated)
+    }
+
+    @Test
+    fun testMutatedSizeStaysWithinAQuarterOfOriginal() {
+        val originalSize = 1000
+
+        val mutatedSize = mutationService.mutatedSize(originalSize)
+
+        assertTrue(
+            mutatedSize in (originalSize - originalSize / 4)..(originalSize + originalSize / 4),
+            "Expected $mutatedSize to be within a quarter of $originalSize"
+        )
     }
 }

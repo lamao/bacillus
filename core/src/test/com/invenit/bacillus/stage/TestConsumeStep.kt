@@ -1,5 +1,6 @@
 package com.invenit.bacillus.stage
 
+import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.model.matrix.Action
 import org.junit.jupiter.api.extension.ExtendWith
@@ -78,6 +79,38 @@ class TestConsumeStep {
         // energy is not 60 because of production performance which reduces consuming efficiency
         assertEquals( 59, cell.energy,"Energy should increase. Current: ${cell.energy}")
         assertEquals(90, food.size, "Food size should decrease. Current: ${food.size}")
+    }
+
+    @Test
+    fun testConsumeMineralsStopsScanningOnceMaxSizeWouldBeExceeded() {
+        val cell = Organic(
+            Point(5, 5),
+            Settings.MaxSize,
+            Point.Zero,
+            DNA(
+                Substance.Green,
+                Substance.Yellow,
+                Substance.White,
+                Substance.Red
+            )
+        )
+        cell.energy = Settings.MaxSize - 5
+
+        // Within ConsumingRange (2): nearer food is drained first, then the
+        // running gain already tips energy past MaxSize, so the farther
+        // food should never be reached.
+        val nearerFood = Mineral(Point(5, 6), 100, Substance.Yellow)
+        val fartherFood = Mineral(Point(5, 7), 100, Substance.Yellow)
+        val field = Field(10, 10)
+        field.add(cell)
+        field.add(nearerFood)
+        field.add(fartherFood)
+
+        step.execute(field)
+
+        assertEquals(Settings.MaxSize, cell.energy, "Energy should be capped at MaxSize")
+        assertEquals(90, nearerFood.size, "Nearer food should have been drained")
+        assertEquals(100, fartherFood.size, "Farther food should be untouched once the cap was hit")
     }
 
     @Test
