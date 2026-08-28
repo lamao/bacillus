@@ -21,10 +21,6 @@ import com.invenit.bacillus.ui.*
 class BacillusGdxGame : ApplicationAdapter() {
 
     companion object {
-        private const val OneSecond = 1000_000_000L
-        val TicInterval: Float
-            get() = OneSecond.toFloat() * Settings.TicDelaySeconds
-
         val TransparentMask = Color(0f, 0f, 0f, 1f)
 
         const val CellRadius = Settings.CellSize.toFloat() / 2
@@ -136,7 +132,11 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         environmentStage.draw()
 
-        statisticsStage.setGeneralInfo(Gdx.graphics.framesPerSecond, environmentStage.ticsPassed)
+        statisticsStage.setGeneralInfo(
+            Gdx.graphics.framesPerSecond,
+            environmentStage.ticsPerSecond,
+            environmentStage.ticsPassed
+        )
         statisticsStage.act(Gdx.graphics.deltaTime)
         statisticsStage.draw()
 

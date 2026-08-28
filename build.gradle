@@ -79,7 +79,7 @@ project(":core") {
         finalizedBy jacocoTestReport
     }
 
-    def coverageExcludes = ['com/invenit/bacillus/ui/**']
+    def coverageExcludes = ['com/invenit/bacillus/ui/**', 'com/invenit/bacillus/BacillusGdxGame*']
 
     jacocoTestReport {
         dependsOn test

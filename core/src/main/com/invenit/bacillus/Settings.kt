@@ -19,9 +19,9 @@ object Settings {
     const val GridHeight = Height / CellSize
 
     var pause = false
-    var TicDelaySeconds = .02f
+    var TicsPerSecond = 50
     val SmoothAnimation: Boolean
-        get() = TicDelaySeconds > 0.2f
+        get() = TicsPerSecond > 0f && TicsPerSecond < 5f
 
     var BiteYield = 200
     var SunYield = 25

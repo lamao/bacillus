@@ -10,13 +10,13 @@ import kotlin.test.assertTrue
 
 internal class TestSettings {
 
-    private val originalTicDelaySeconds = Settings.TicDelaySeconds
+    private val originalTicsPerSecond = Settings.TicsPerSecond
     private val originalReproductionThreshold = Settings.ReproductionThreshold
     private val originalBiteYield = Settings.BiteYield
 
     @AfterTest
     fun after() {
-        Settings.TicDelaySeconds = originalTicDelaySeconds
+        Settings.TicsPerSecond = originalTicsPerSecond
         Settings.ReproductionThreshold = originalReproductionThreshold
         Settings.BiteYield = originalBiteYield
         Settings.pause = false
@@ -46,14 +46,15 @@ internal class TestSettings {
         assertEquals(amount, Settings.correctedMineralsYield(amount, distance))
     }
 
-    @ParameterizedTest(name = "SmoothAnimation at TicDelaySeconds={0} is {1}")
+    @ParameterizedTest(name = "SmoothAnimation at TicsPerSecond={0} is {1}")
     @CsvSource(
-        "0.3, true",    // above threshold
-        "0.2, false",   // at threshold
-        "0.02, false",  // below threshold
+        "0, false",     // paused
+        "3, true",   // below threshold
+        "5, false",     // at threshold
+        "50, false",    // above threshold
     )
-    fun testSmoothAnimation(ticDelaySeconds: Float, expected: Boolean) {
-        Settings.TicDelaySeconds = ticDelaySeconds
+    fun testSmoothAnimation(ticsPerSecond: Int, expected: Boolean) {
+        Settings.TicsPerSecond = ticsPerSecond
 
         assertEquals(expected, Settings.SmoothAnimation)
     }
