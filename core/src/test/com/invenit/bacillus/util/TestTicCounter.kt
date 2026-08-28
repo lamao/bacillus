@@ -1,7 +1,10 @@
 package com.invenit.bacillus.util
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 /**
  *
@@ -43,6 +46,14 @@ class TestTicCounter {
         assertEquals(2, counter.update(0.25f, 5))
         assertEquals(0f, counter.accumulatedTime, 0.001f)
 
+    }
+
+    @ParameterizedTest(name = "update rejects maxTps={0}")
+    @CsvSource("0", "-1")
+    fun updateRejectsNonPositiveMaxTps(maxTps: Int) {
+        assertFailsWith<IllegalArgumentException> {
+            counter.update(0.1f, maxTps)
+        }
     }
 
 }
