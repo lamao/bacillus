@@ -13,7 +13,7 @@ import com.invenit.bacillus.model.matrix.DecisionMatrixFactory
 class CreatureFactoryImpl(
     decisionMatrixFactory: DecisionMatrixFactory
 ) : CreatureFactory {
-    override var lastDNA: DNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false,
+    override var lastDNA: DNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red,
         decisionMatrixFactory.initial())
     override var lastSize: Int = Settings.DefaultSize
 

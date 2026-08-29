@@ -29,7 +29,7 @@ internal class TestCreatureFactoryImpl {
 
     @Test
     fun testDefaultLastDNA() {
-        val expectedDNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, false, DecisionMatrix.default())
+        val expectedDNA = DNA(Substance.Green, Substance.Sun, Substance.White, Substance.Red, DecisionMatrix.default())
         assertEquals(expectedDNA, factory.lastDNA)
     }
 
@@ -60,7 +60,7 @@ internal class TestCreatureFactoryImpl {
             )
         })
 
-        val newDNA = DNA(Substance.Blue, Substance.Yellow, Substance.Red, Substance.Green, true, newMatrix)
+        val newDNA = DNA(Substance.Blue, Substance.Yellow, Substance.Red, Substance.Green, newMatrix)
         factory.lastDNA = newDNA
         factory.lastSize = 500
 

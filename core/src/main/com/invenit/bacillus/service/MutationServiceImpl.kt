@@ -24,7 +24,6 @@ class MutationServiceImpl(
             DNA.Trait.Consume -> dna.copy(consume = randomConsume())
             DNA.Trait.Produce -> dna.copy(produce = randomProduce())
             DNA.Trait.Toxin -> dna.copy(toxin = randomToxin())
-            DNA.Trait.CanMove -> dna.copy(canMove = randomService.randomBoolean())
         }
     }
 

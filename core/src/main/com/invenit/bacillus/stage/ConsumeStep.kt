@@ -4,6 +4,7 @@ import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Substance
+import com.invenit.bacillus.model.matrix.Action
 import kotlin.math.roundToInt
 
 /**
@@ -20,10 +21,10 @@ class ConsumeStep : Step {
             .forEach { consumeMinerals(it, field) }
     }
 
-    // Digestion runs for cells not currently moving. Today that's the static
-    // canMove flag; once DecideStep (#1 §6) exists, swap this for
-    // "the cell's chosen action isn't Move".
-    private fun isDigesting(cell: Organic): Boolean = !cell.dna.canMove
+    // Digestion runs for cells whose chosen action this tick isn't Move
+    // (#1 §6, #2) — covers both the Sun-income branch above and radial
+    // mineral absorption below.
+    private fun isDigesting(cell: Organic): Boolean = cell.chosenAction.category != Action.Category.Move
 
     private fun consumeMinerals(cell: Organic, field: Field) {
 

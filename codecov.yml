@@ -7,3 +7,6 @@ coverage:
       default:
         target: auto
         informational: false
+
+ignore:
+  - "core/src/main/com/invenit/bacillus/ui/**"

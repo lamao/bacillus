@@ -65,8 +65,7 @@ internal class OrganicTest {
                 Substance.Green,
                 Substance.Red,
                 Substance.White,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
         organic.energy = energy

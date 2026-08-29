@@ -70,8 +70,7 @@ class TestToxinStep {
             Substance.Green,
             Substance.Sun,
             Substance.Yellow,
-            toxin,
-            false
+            toxin
         )
     )
 }
