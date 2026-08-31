@@ -29,10 +29,13 @@ Results print to the console and are also written under
   ring-walk at the two range values `Settings` actually configures
   (`VisionRange`/`ProductionRange` = 1, `ConsumingRange`/`ToxinRange` = 2),
   across populations of 100/500/1000 organics.
-- `SimulationStepBenchmark` - end-to-end cost of `LookUpStep` and
+- `SimulationStepBenchmark` - end-to-end cost of `DecideStep` and
   `ToxinStep` over a populated field. These two don't add/remove field
   entries, so a single fixture can be reused across every invocation
-  without the result drifting.
+  without the result drifting. The fixture's DNA always seeks food (see
+  `BenchmarkFixtures`), so `DecideStep` actually exercises its
+  `iterateRadial`-based sensing instead of settling into an inert Rest
+  state that would skip it.
 
 ## What's not covered yet
 

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Isolates the cost of Field.iterateRadial's ring-walk itself (issue #28):
  * a lambda that mirrors the "read a cell, compare its body substance"
- * shape every real caller (LookUpStep, ConsumeStep, ProduceStep, ToxinStep)
+ * shape every real caller (DecideStep, ConsumeStep, ProduceStep, ToxinStep)
  * uses, at the two range values Settings actually configures.
  */
 @BenchmarkMode(Mode.AverageTime)

@@ -2,7 +2,7 @@ package com.invenit.bacillus.benchmarks;
 
 import com.invenit.bacillus.ServiceContext;
 import com.invenit.bacillus.model.Field;
-import com.invenit.bacillus.stage.LookUpStep;
+import com.invenit.bacillus.stage.DecideStep;
 import com.invenit.bacillus.stage.ToxinStep;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -21,9 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * End-to-end per-step cost over a populated field, for the two steps that
- * only mutate an Organic's own direction/energy (LookUpStep, ToxinStep) and
- * so can safely reuse one Field across every invocation without the result
- * drifting.
+ * only mutate an Organic's own direction/energy/decision state (DecideStep,
+ * ToxinStep) and so can safely reuse one Field across every invocation
+ * without the result drifting.
  *
  * ConsumeStep/ProduceStep/a full Environment.doTic are intentionally left
  * out here: they add or drain minerals, so repeated invocations against a
@@ -43,7 +43,7 @@ public class SimulationStepBenchmark {
     @Param({"100", "500", "1000"})
     public int populationSize;
 
-    private final LookUpStep lookUpStep = new LookUpStep(ServiceContext.INSTANCE.getRandomService());
+    private final DecideStep decideStep = new DecideStep(ServiceContext.INSTANCE.getRandomService());
     private final ToxinStep toxinStep = new ToxinStep();
     private Field field;
 
@@ -53,8 +53,8 @@ public class SimulationStepBenchmark {
     }
 
     @Benchmark
-    public void lookUpStep() {
-        lookUpStep.execute(field);
+    public void decideStep() {
+        decideStep.execute(field);
     }
 
     @Benchmark

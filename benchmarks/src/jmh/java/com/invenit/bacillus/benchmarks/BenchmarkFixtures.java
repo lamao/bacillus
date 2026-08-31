@@ -53,8 +53,7 @@ final class BenchmarkFixtures {
                     randomSubstance(random),
                     randomSubstance(random),
                     randomSubstance(random),
-                    random.nextBoolean(),
-                    inertDecisionMatrix()
+                    alwaysSeekFoodDecisionMatrix()
             );
             field.add(new Organic(position, 50 + random.nextInt(200), Point.Companion.getZero(), dna));
             placed++;
@@ -88,16 +87,23 @@ final class BenchmarkFixtures {
 
     // DNA.decisionMatrix has no @JvmOverloads default, and DecisionMatrix's
     // own DecisionMatrix.Companion.default() can't be called from Java
-    // (`default` is a Java keyword) - build an equivalent inert matrix
-    // directly instead. Content doesn't matter: no Step reads it yet.
-    private static DecisionMatrix inertDecisionMatrix() {
+    // (`default` is a Java keyword) - build one directly instead.
+    //
+    // Every state senses FoodDistance (a Chebyshev distance, always >= 0)
+    // against a threshold of -1 with ">=", so the test is always true: the
+    // matrix always jumps back to itself (jumpOffset 0) and always chooses
+    // Move/TowardConsume. That keeps DecideStep exercising the same
+    // iterateRadial-heavy sensing + food-seeking path every invocation,
+    // rather than settling into Rest (no radial scan at all) like an inert
+    // matrix would - which would make this fixture measure nothing.
+    private static DecisionMatrix alwaysSeekFoodDecisionMatrix() {
         List<Instruction> instructions = new ArrayList<>(DecisionMatrix.SIZE);
         for (int i = 0; i < DecisionMatrix.SIZE; i++) {
             instructions.add(new Instruction(
-                    new Action(Action.Category.Rest, null),
-                    Sensor.EnergyRatio,
+                    new Action(Action.Category.Move, Action.Mode.TowardConsume),
+                    Sensor.FoodDistance,
                     Comparator.GreaterThanOrEqual,
-                    0.0,
+                    -1.0,
                     0
             ));
         }
