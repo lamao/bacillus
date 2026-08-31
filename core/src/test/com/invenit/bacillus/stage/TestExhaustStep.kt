@@ -64,8 +64,7 @@ class TestExhaustStep {
                 Substance.Sun,
                 Substance.White,
                 Substance.Yellow,
-                Substance.Red,
-                true
+                Substance.Red
             )
         )
 

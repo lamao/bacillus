@@ -10,17 +10,20 @@ import com.invenit.bacillus.stage.*
 class Environment {
 
     private val steps = arrayOf(
-        // Conscious — logic a cell's decisions drive. For now these run
-        // unconditionally, still gated only by dna.canMove / energy thresholds.
-        // A future DecideStep (#1 §6) will gate them by a chosen action instead.
+        // Conscious — logic a cell's decisions drive. DecideStep (#1 §6)
+        // reads each cell's Decision Matrix and stamps a chosen action for
+        // this tick; MoveStep is gated by it. SplitStep still runs
+        // unconditionally on its energy threshold — Split isn't in the
+        // minimal action set yet (#1 task 6), so it isn't reachable from the
+        // matrix either way.
         // TODO: Correct moving animation
-        LookUpStep(ServiceContext.randomService),
+        DecideStep(ServiceContext.randomService),
         MoveStep(),
         SplitStep(ServiceContext.randomService, ServiceContext.mutationService),
 
         // Digestion (background/passive) — tied to a cell, but not a decision it
-        // makes. Runs automatically every tick; see ConsumeStep for the swappable
-        // trigger condition.
+        // makes. Runs automatically whenever the chosen action isn't Move;
+        // see ConsumeStep for the trigger condition.
         ConsumeStep(),
 
         // ProduceStep is conceptually Conscious (see above), but stays right after

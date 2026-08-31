@@ -19,6 +19,7 @@ fun main() {
     config.setTitle("Bacillus")
     config.setWindowedMode(Settings.TotalWidth, Settings.Height)
     config.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4)
+    config.setForegroundFPS(60)
 
     val applicationAdapter = BacillusGdxGame()
     Lwjgl3Application(applicationAdapter, config)

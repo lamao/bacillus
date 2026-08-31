@@ -1,21 +1,27 @@
 package com.invenit.bacillus
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.AfterTest
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 internal class TestSettings {
 
-    private val originalTicDelaySeconds = Settings.TicDelaySeconds
+    private val originalTicsPerSecond = Settings.TicsPerSecond
     private val originalReproductionThreshold = Settings.ReproductionThreshold
     private val originalBiteYield = Settings.BiteYield
 
     @AfterTest
     fun after() {
-        Settings.TicDelaySeconds = originalTicDelaySeconds
+        Settings.TicsPerSecond = originalTicsPerSecond
         Settings.ReproductionThreshold = originalReproductionThreshold
         Settings.BiteYield = originalBiteYield
+        Settings.pause = false
+        Settings.Debug.displayGrid = false
+        Settings.Debug.displaySourcePosition = false
     }
 
     @ParameterizedTest(name = "toxinDamageFunction({0}, {1}) = {2}")
@@ -40,14 +46,15 @@ internal class TestSettings {
         assertEquals(amount, Settings.correctedMineralsYield(amount, distance))
     }
 
-    @ParameterizedTest(name = "SmoothAnimation at TicDelaySeconds={0} is {1}")
+    @ParameterizedTest(name = "SmoothAnimation at TicsPerSecond={0} is {1}")
     @CsvSource(
-        "0.3, true",    // above threshold
-        "0.2, false",   // at threshold
-        "0.02, false",  // below threshold
+        "0, false",     // paused
+        "3, true",   // below threshold
+        "5, false",     // at threshold
+        "50, false",    // above threshold
     )
-    fun testSmoothAnimation(ticDelaySeconds: Float, expected: Boolean) {
-        Settings.TicDelaySeconds = ticDelaySeconds
+    fun testSmoothAnimation(ticsPerSecond: Int, expected: Boolean) {
+        Settings.TicsPerSecond = ticsPerSecond
 
         assertEquals(expected, Settings.SmoothAnimation)
     }
@@ -66,5 +73,26 @@ internal class TestSettings {
         Settings.BiteYield = biteYield
 
         assertEquals(expectedMaxSize, Settings.MaxSize)
+    }
+
+    @Test
+    fun testPauseDefaultsToFalseAndIsMutable() {
+        assertFalse(Settings.pause)
+
+        Settings.pause = true
+
+        assertTrue(Settings.pause)
+    }
+
+    @Test
+    fun testDebugFlagsDefaultToFalseAndAreMutable() {
+        assertFalse(Settings.Debug.displayGrid)
+        assertFalse(Settings.Debug.displaySourcePosition)
+
+        Settings.Debug.displayGrid = true
+        Settings.Debug.displaySourcePosition = true
+
+        assertTrue(Settings.Debug.displayGrid)
+        assertTrue(Settings.Debug.displaySourcePosition)
     }
 }

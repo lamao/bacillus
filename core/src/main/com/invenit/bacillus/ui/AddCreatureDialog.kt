@@ -54,7 +54,6 @@ class AddCreatureDialog(
     
     private val allSubstances = Substance.entries.map { SubstanceListCell(it, skin) }
     private val nonSunSubstances = allSubstances.filter { it.substance != Substance.Sun }
-    private val canMoveCheck = CheckBox("Can Move", skin)
     private val sizeSlider = Slider(100f, 2000f, 10f, false, skin)
     private val sizeLabel = Label("", skin)
     
@@ -79,8 +78,6 @@ class AddCreatureDialog(
         table.add(Label("Toxin:", skin))
         table.add(toxinSelect).row()
         
-        table.add(canMoveCheck).colspan(2).row()
-        
         table.add(Label("Initial Size:", skin))
         table.add(sizeSlider).row()
         table.add(sizeLabel).colspan(2).center().row()
@@ -102,7 +99,6 @@ class AddCreatureDialog(
         consumeSelect.selected = allSubstances.find { it.substance == creatureFactory.lastDNA.consume }
         produceSelect.selected = nonSunSubstances.find { it.substance == creatureFactory.lastDNA.produce }
         toxinSelect.selected = nonSunSubstances.find { it.substance == creatureFactory.lastDNA.toxin }
-        canMoveCheck.isChecked = creatureFactory.lastDNA.canMove
         sizeSlider.value = creatureFactory.lastSize.toFloat()
         sizeLabel.setText(sizeSlider.value.toInt().toString())
     }
@@ -119,7 +115,6 @@ class AddCreatureDialog(
                 consumeSelect.selected.substance,
                 produceSelect.selected.substance,
                 toxinSelect.selected.substance,
-                canMoveCheck.isChecked,
                 decisionMatrixFactory.initial()
             )
 
