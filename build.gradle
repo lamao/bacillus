@@ -10,7 +10,6 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "me.champeau.jmh:jmh-gradle-plugin:0.7.2"
 
     }
 }
@@ -128,26 +127,5 @@ project(":core") {
         testImplementation "org.mockito:mockito-core:$mockitoVersion"
         testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
         testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersin"
-    }
-}
-
-// JMH microbenchmarks (#27 next steps: measure allocation/GC-pressure claims
-// instead of relying on static analysis or profiler line-attribution, which
-// is unreliable once Field.iterateRadial is inlined - see #28/#29).
-project(":benchmarks") {
-    apply plugin: "java"
-    apply plugin: "me.champeau.jmh"
-
-    dependencies {
-        jmh project(":core")
-    }
-
-    jmh {
-        jmhVersion = '1.37'
-        fork = 1
-        resultFormat = 'TEXT'
-        if (project.hasProperty('jmhInclude')) {
-            includes = [project.property('jmhInclude')]
-        }
     }
 }

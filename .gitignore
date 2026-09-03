@@ -101,7 +101,6 @@ gradle-app.setting
 /desktop/build/
 /html/build/
 /ios/build/
-/benchmarks/build/
 
 ## OS Specific
 .DS_Store
