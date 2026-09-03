@@ -5,6 +5,7 @@ import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Mineral
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.model.matrix.Action
 
 /**
  * Created by viacheslav.mishcheriakov
@@ -12,7 +13,9 @@ import com.invenit.bacillus.model.Point
  */
 class ProduceStep : Step {
     override fun execute(field: Field) {
-        field.organics.forEach { produceMineral(it, field) }
+        field.organics
+            .filter { it.chosenAction == Action(Action.Category.Produce, Action.Mode.Release) }
+            .forEach { produceMineral(it, field) }
     }
 
     // TODO: Rename to avoid intersection with native Organic.produce

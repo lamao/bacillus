@@ -1,20 +1,27 @@
 package com.invenit.bacillus.model.matrix
 
 /**
- * Instruction DNA #7 — draft, unintegrated (see issue #1 §3, #7).
- * Minimal seed set: Move and Rest categories only, full set is #1 task 6's scope.
+ * Instruction DNA #1 §3 — full action taxonomy. Move and Produce carry a
+ * mode; Rest and Split are complete on their own — Split's only behavior is
+ * "attempt if energy allows" (#1 §3), so there is nothing left to select.
  */
 data class Action(val category: Category, val mode: Mode? = null) {
 
     init {
-        require((category == Category.Move) == (mode != null)) {
-            "mode is required for Move and must be absent for $category"
+        val expectsMode = category == Category.Move || category == Category.Produce
+        require(expectsMode == (mode != null)) {
+            "mode is required for Move/Produce and must be absent for $category"
+        }
+        require(mode == null || mode in category.modes) {
+            "$mode is not a valid mode for $category"
         }
     }
 
-    enum class Category {
-        Move,
-        Rest
+    enum class Category(val modes: Set<Mode>) {
+        Move(setOf(Mode.TowardConsume, Mode.AwayFromToxin, Mode.TowardOpenSpace, Mode.Random, Mode.Hold)),
+        Rest(emptySet()),
+        Produce(setOf(Mode.Release, Mode.Hoard)),
+        Split(emptySet())
     }
 
     enum class Mode {
@@ -22,6 +29,11 @@ data class Action(val category: Category, val mode: Mode? = null) {
         AwayFromToxin,
         TowardOpenSpace,
         Random,
-        Hold
+        Hold,
+
+        // Produce modes. "Hoard" is the issue's own wording for Produce's
+        // "Hold" ("keep hoarding") — Move already owns the name "Hold".
+        Release,
+        Hoard
     }
 }

@@ -13,11 +13,14 @@ internal class TestDecisionMatrixIcons {
     @ParameterizedTest
     @CsvSource(
         "Rest, , RestBars",
+        "Split, , Split",
         "Move, TowardConsume, Seek",
         "Move, AwayFromToxin, Flee",
         "Move, TowardOpenSpace, Explore",
         "Move, Random, Random",
         "Move, Hold, Hold",
+        "Produce, Release, Release",
+        "Produce, Hoard, Hoard",
     )
     fun testActionToIcon(category: Action.Category, mode: Action.Mode?, expected: ActionIcon) {
         assertEquals(expected, Action(category, mode).toIcon())
@@ -27,6 +30,11 @@ internal class TestDecisionMatrixIcons {
     @CsvSource(
         "FoodDistance, Dot",
         "EnergyRatio, Diamond",
+        "ToxinDistance, Triangle",
+        "SizeRatio, InvertedTriangle",
+        "Age, Cross",
+        "Crowding, Cluster",
+        "Random, Spark",
     )
     fun testSensorToGlyph(sensor: Sensor, expected: SensorGlyph) {
         assertEquals(expected, sensor.toGlyph())

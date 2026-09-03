@@ -2,6 +2,7 @@ package com.invenit.bacillus.stage
 
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
+import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.service.MutationService
 import com.invenit.bacillus.service.RandomService
 import org.junit.jupiter.api.Test
@@ -13,6 +14,7 @@ import org.mockito.kotlin.any
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -118,6 +120,23 @@ class TestSplitStep {
 
     }
 
+    @Test
+    fun testDoesNotSplitWhenChosenActionIsNotSplitEvenWithEnoughEnergy() {
+        val field = Field(10, 10)
+        val cell = organic(1, 1, 5000, 5000)
+        cell.chosenAction = Action(Action.Category.Rest)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertNull(field[2, 2])
+        val parent = field[1, 1]
+        assertNotNull(parent)
+        assertTrue(parent is Organic)
+        assertEquals(5000, parent.energy)
+        assertEquals(5000, parent.size)
+    }
+
     private fun organic(x: Int, y: Int, energy: Int, size: Int): Organic {
         val result = Organic(
             Point(x, y),
@@ -131,6 +150,7 @@ class TestSplitStep {
             )
         )
         result.energy = energy
+        result.chosenAction = Action(Action.Category.Split)
         return result
     }
 }

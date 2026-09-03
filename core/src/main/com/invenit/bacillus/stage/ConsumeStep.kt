@@ -14,17 +14,23 @@ import kotlin.math.roundToInt
 class ConsumeStep : Step {
 
     override fun execute(field: Field) {
-        field.organics.filter { it.dna.consume == Substance.Sun }
-            .forEach { it.consume(Settings.SunYield) }
         field.organics
             .filter { isDigesting(it) }
-            .forEach { consumeMinerals(it, field) }
+            .forEach { digest(it, field) }
     }
 
     // Digestion runs for cells whose chosen action this tick isn't Move
-    // (#1 §6, #2) — covers both the Sun-income branch above and radial
-    // mineral absorption below.
+    // (#1 §6, #2) — covers both the Sun-income branch and radial "spread"
+    // substance absorption below, generalized beyond just Sun (#1 task 6).
     private fun isDigesting(cell: Organic): Boolean = cell.chosenAction.category != Action.Category.Move
+
+    private fun digest(cell: Organic, field: Field) {
+        if (cell.dna.consume == Substance.Sun) {
+            cell.consume(Settings.SunYield)
+        } else {
+            consumeMinerals(cell, field)
+        }
+    }
 
     private fun consumeMinerals(cell: Organic, field: Field) {
 
