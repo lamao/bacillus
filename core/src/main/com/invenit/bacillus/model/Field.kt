@@ -72,12 +72,41 @@ class Field(val width: Int, val height: Int) {
         something.position = target
     }
 
+    inline fun iterateRadialSimple(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+        for (step in 1..range) {
 
-    // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
-    // Marked `inline` so the compiler keeps callers' captured accumulator `var`s
-    // (e.g. `result`, `waste`, `totalDamage`) as plain locals instead of boxing
-    // them into heap-allocated Ref wrappers - this runs per organic per tick.
-    inline fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+            val upperY = anchor.y + step
+            val bottomY = anchor.y - step
+            val leftX = anchor.x - step
+            val rightX = anchor.x + step
+
+            for (x in leftX..rightX) {
+                if (!action(x, upperY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY until upperY) {
+                if (!action(rightX, y)) {
+                    return
+                }
+            }
+
+            for (x in leftX until rightX) {
+                if (!action(x, bottomY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY + 1 until upperY) {
+                if (!action(leftX, y)) {
+                    return
+                }
+            }
+        }
+    }
+
+    inline fun iterateRadialNearSides(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
             val upperY = anchor.y + step
@@ -97,13 +126,11 @@ class Field(val width: Int, val height: Int) {
                 }
             }
 
-
             for (x in leftX until rightX) {
                 if (isInside(x, bottomY) && !action(x, bottomY)) {
                     return
                 }
             }
-
 
             for (y in bottomY + 1 until upperY) {
                 if (isInside(leftX, y) && !action(leftX, y)) {
@@ -112,5 +139,27 @@ class Field(val width: Int, val height: Int) {
             }
         }
     }
+
+
+    // Marked `inline` so the compiler keeps callers' captured accumulator `var`s
+    // (e.g. `result`, `waste`, `totalDamage`) as plain locals instead of boxing
+    // them into heap-allocated Ref wrappers - this runs per organic per tick.
+    /**
+     * Iterate over the cells in a radial frame around the given anchor point.
+     * @param anchor The center of the frame.
+     * @param range The radius of the frame.
+     * @param action The action to perform on each cell. Return false to stop iterating.
+     */
+    inline fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+        if (isNearSides(anchor, range)) {
+            iterateRadialNearSides(anchor, range, action)
+        } else {
+            iterateRadialSimple(anchor, range, action)
+        }
+    }
+
+    fun isNearSides(anchor: Point, range: Int): Boolean =
+                anchor.x < range || anchor.x + range >= width
+                || anchor.y < range || anchor.y + range >= height
 
 }
