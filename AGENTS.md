@@ -40,12 +40,22 @@ The project uses **JUnit 5**, **Mockito**, and `kotlin-test` for unit testing. A
 
 #### Adding New Tests:
 New tests should be placed in `core/src/test/com/invenit/bacillus/`.
+
 Name test classes with a `Test` prefix: `Test<ClassName>.kt` (e.g. `TestPoint.kt` for `Point`).
-Some older tests still use the `<ClassName>Test.kt` suffix form; don't rename those in passing, but all new test classes must use the prefix form. If you're meaningfully editing an old suffix-form test file's content anyway, rename it to the prefix form as part of that change; only a pure, unrelated rename (touching a file solely to rename it) still doesn't belong in passing.
-When multiple test methods exercise the same function/property with different inputs, group them into a single `@ParameterizedTest` with `@CsvSource` instead of one `@Test` method per case.
+
+Some older tests still use the `<ClassName>Test.kt` suffix form; don't rename those in passing, but all new test 
+classes must use the prefix form. If you're meaningfully editing an old suffix-form test file's content anyway, 
+rename it to the prefix form as part of that change; only a pure, unrelated rename (touching a file solely to rename it) 
+still doesn't belong in passing.
+
+When multiple test methods exercise the same function/property with different inputs, group them into a single 
+`@ParameterizedTest` with `@CsvSource` instead of one `@Test` method per case.
 
 #### Test Coverage:
-Coverage is measured with JaCoCo (`core` module, min 80% line coverage, enforced via `jacocoTestCoverageVerification`). Classes that are thin LibGDX glue with no independently testable logic (e.g. `com.invenit.bacillus.ui.**`, `BacillusGdxGame`) are excluded from coverage via `coverageExcludes` in `build.gradle`. When adding a new class in that category, add it to `coverageExcludes` rather than writing hollow tests just to satisfy the coverage threshold.
+Coverage is measured with JaCoCo (`core` module, min 80% line coverage, enforced via `jacocoTestCoverageVerification`). 
+Classes that are thin LibGDX glue with no independently testable logic (e.g. `com.invenit.bacillus.ui.**`, `BacillusGdxGame`) 
+are excluded from coverage via `coverageExcludes` in `build.gradle`. When adding a new class in that category, add 
+it to `coverageExcludes` rather than writing hollow tests just to satisfy the coverage threshold.
 
 **Example Test Structure**:
 ```kotlin
@@ -54,9 +64,9 @@ package com.invenit.bacillus
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
-internal class SimpleVerificationTest {
+internal class TestSimpleVerification {
     @Test
-    fun `test that always passes`() {
+    fun testThatAlwaysPasses() {
         assertTrue(true, "This should always be true")
     }
 }
@@ -65,10 +75,9 @@ internal class SimpleVerificationTest {
 ### 3. Development Information
 
 #### Code Style:
-- **Language**: Kotlin 1.9.24.
-- **Naming**: Use standard Kotlin/Java naming conventions (PascalCase for classes, camelCase for methods/variables).
 - **Concurrency**: The simulation logic is mostly single-threaded, driven by the LibGDX render loop or stages.
-- **Simulation Logic**: The simulation is divided into "Steps" (found in `com.invenit.bacillus.stage`). Each step handles a specific part of the simulation tick (e.g., `ConsumeStep`, `MoveStep`, `ProduceStep`).
+- **Simulation Logic**: The simulation is divided into "Steps" (found in `com.invenit.bacillus.stage`). 
+  Each step handles a specific part of the simulation tick (e.g., `ConsumeStep`, `MoveStep`, `ProduceStep`).
 
 #### Key Architectural Components:
 - **Environment**: Manages the simulation state and the `Field`.
@@ -80,9 +89,10 @@ internal class SimpleVerificationTest {
 1. Create a new git branch for each feature or bug fix.
 2. Implement new features or bug fixes.
 3. Test your changes.
-4. Create a pull request once task is completed and ready to review. Make PR draft until it's approved.
+4. Create a pull request once the task is completed and ready to review. Make a PR draft until it's approved.
 5. When everything is approved, merge the pull request, squash commits, and delete the feature branch.
 
 #### Debugging:
-- The UI includes several debug stages (`DebugStage`, `CellDetailsStage`, `SlidersStage`) which can be used to inspect and modify the simulation state at runtime.
+- The UI includes several debug stages (`DebugStage`, `CellDetailsStage`, `SlidersStage`) which can be used to 
+  inspect and modify the simulation state at runtime.
 - Check `BacillusGdxGame.kt` to see how these stages are initialized and toggled.

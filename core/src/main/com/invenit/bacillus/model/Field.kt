@@ -18,7 +18,7 @@ class Field(val width: Int, val height: Int) {
     val minerals: MutableList<Mineral> = mutableListOf()
 
     fun isOutside(position: Point): Boolean = isOutside(position.x, position.y)
-    fun isOutside(x: Int, y: Int): Boolean = x < 0 || x >= width || y < 0 || y >= height
+    fun isOutside(x: Int, y: Int): Boolean = x !in 0..<width || y !in 0..<height
     fun isInside(x: Int, y: Int): Boolean = !isOutside(x, y)
 
     fun isFree(position: Point): Boolean = isFree(position.x, position.y)
@@ -72,9 +72,52 @@ class Field(val width: Int, val height: Int) {
         something.position = target
     }
 
+    // Internal, not private: a public inline function (iterateRadial) can't
+    // call a private member (inlining would copy that call to sites outside
+    // this class, where a private symbol isn't resolvable) - @PublishedApi
+    // internal is the standard escape hatch, keeping these out of Field's
+    // public API while still letting the compiler inline through them.
+    //
+    // No bounds checking - only safe when the whole ring at `range` is
+    // guaranteed inside the grid (see isNearSides). Called directly with an
+    // anchor that isn't, this throws ArrayIndexOutOfBoundsException.
+    @PublishedApi
+    internal inline fun iterateRadialSimple(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+        for (step in 1..range) {
 
-    // TODO: Maybe split into field.getFrame and Util.iterateRadial(anchor, frame, action)
-    fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+            val upperY = anchor.y + step
+            val bottomY = anchor.y - step
+            val leftX = anchor.x - step
+            val rightX = anchor.x + step
+
+            for (x in leftX..rightX) {
+                if (!action(x, upperY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY until upperY) {
+                if (!action(rightX, y)) {
+                    return
+                }
+            }
+
+            for (x in leftX until rightX) {
+                if (!action(x, bottomY)) {
+                    return
+                }
+            }
+
+            for (y in bottomY + 1 until upperY) {
+                if (!action(leftX, y)) {
+                    return
+                }
+            }
+        }
+    }
+
+    @PublishedApi
+    internal inline fun iterateRadialNearSides(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
             val upperY = anchor.y + step
@@ -94,13 +137,11 @@ class Field(val width: Int, val height: Int) {
                 }
             }
 
-
             for (x in leftX until rightX) {
                 if (isInside(x, bottomY) && !action(x, bottomY)) {
                     return
                 }
             }
-
 
             for (y in bottomY + 1 until upperY) {
                 if (isInside(leftX, y) && !action(leftX, y)) {
@@ -109,5 +150,29 @@ class Field(val width: Int, val height: Int) {
             }
         }
     }
+
+    /**
+     * Iterate over the cells in a radial frame around the given anchor point.
+     * Marked `inline` so callers' captured accumulator `var`s (e.g. `result`,
+     * `waste`, `totalDamage`) stay plain locals instead of being boxed into
+     * heap-allocated Ref wrappers - this runs per organic per tick. Dispatches
+     * to the bounds-check-free path when the whole ring is guaranteed inside
+     * the grid, and to the checked path otherwise.
+     * @param anchor The center of the frame.
+     * @param range The radius of the frame.
+     * @param action The action to perform on each cell. Return false to stop iterating.
+     */
+    inline fun iterateRadial(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+        if (isNearSides(anchor, range)) {
+            iterateRadialNearSides(anchor, range, action)
+        } else {
+            iterateRadialSimple(anchor, range, action)
+        }
+    }
+
+    @PublishedApi
+    internal fun isNearSides(anchor: Point, range: Int): Boolean =
+        anchor.x < range || anchor.x + range >= width
+            || anchor.y < range || anchor.y + range >= height
 
 }
