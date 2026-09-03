@@ -1,8 +1,12 @@
 package com.invenit.bacillus.model
 
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -111,6 +115,54 @@ class TestFieldIterateRadial {
         }
 
         assertEquals(Point(4, 5), visited.last())
+    }
+
+    // Field is 20x10. One row/column below the threshold on each side is
+    // "near" (routes to the checked path); exactly at the threshold is the
+    // last anchor still safe for the unchecked path.
+    @ParameterizedTest
+    @CsvSource(
+        "10, 5, 2, false", // deep interior
+        "2, 5, 2, false",  // exactly at the left threshold - not near
+        "1, 5, 2, true",   // one inside the left threshold - near
+        "17, 5, 2, false", // exactly at the right threshold - not near
+        "18, 5, 2, true",  // one past the right threshold - near
+        "10, 2, 2, false", // exactly at the top threshold - not near
+        "10, 1, 2, true",  // one inside the top threshold - near
+        "10, 7, 2, false", // exactly at the bottom threshold - not near
+        "10, 8, 2, true",  // one past the bottom threshold - near
+    )
+    fun testIsNearSides(x: Int, y: Int, range: Int, expected: Boolean) {
+        assertEquals(expected, field.isNearSides(Point(x, y), range))
+    }
+
+    @Test
+    fun testIterateRadialSimpleThrowsWhenAnchorIsNearAnEdge() {
+        // Documents why iterateRadial's isNearSides guard exists:
+        // iterateRadialSimple performs no bounds checking of its own, so an
+        // anchor too close to an edge hands a caller's action out-of-range
+        // coordinates. It's the action's own field access (field[x, y], as
+        // every real caller does) that then indexes the grid out of bounds -
+        // iterateRadialSimple itself never touches the grid.
+        assertFailsWith<IndexOutOfBoundsException> {
+            field.iterateRadialSimple(Point(0, 0), 2) { x, y -> field[x, y] != null }
+        }
+    }
+
+    @Test
+    fun testSimpleAndNearSidesPathsVisitTheSameCellsInTheSameOrder() {
+        // Field(20, 10) with anchor (10, 5) and range 2 is safe for both
+        // paths (confirmed by testIsNearSides above) - they must agree.
+        val anchor = Point(10, 5)
+        assertFalse(field.isNearSides(anchor, 2), "Test anchor must be safe for iterateRadialSimple")
+
+        val visitedBySimple = mutableListOf<Point>()
+        field.iterateRadialSimple(anchor, 2) { x, y -> visitedBySimple.add(Point(x, y)); true }
+
+        val visitedByNearSides = mutableListOf<Point>()
+        field.iterateRadialNearSides(anchor, 2) { x, y -> visitedByNearSides.add(Point(x, y)); true }
+
+        assertEquals(visitedByNearSides, visitedBySimple)
     }
 
     private fun countCellsVisited(point: Point, range: Int): Int {

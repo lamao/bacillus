@@ -72,7 +72,17 @@ class Field(val width: Int, val height: Int) {
         something.position = target
     }
 
-    inline fun iterateRadialSimple(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+    // Internal, not private: a public inline function (iterateRadial) can't
+    // call a private member (inlining would copy that call to sites outside
+    // this class, where a private symbol isn't resolvable) - @PublishedApi
+    // internal is the standard escape hatch, keeping these out of Field's
+    // public API while still letting the compiler inline through them.
+    //
+    // No bounds checking - only safe when the whole ring at `range` is
+    // guaranteed inside the grid (see isNearSides). Called directly with an
+    // anchor that isn't, this throws ArrayIndexOutOfBoundsException.
+    @PublishedApi
+    internal inline fun iterateRadialSimple(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
             val upperY = anchor.y + step
@@ -106,7 +116,8 @@ class Field(val width: Int, val height: Int) {
         }
     }
 
-    inline fun iterateRadialNearSides(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
+    @PublishedApi
+    internal inline fun iterateRadialNearSides(anchor: Point, range: Int, action: (x: Int, y: Int) -> Boolean) {
         for (step in 1..range) {
 
             val upperY = anchor.y + step
@@ -140,12 +151,13 @@ class Field(val width: Int, val height: Int) {
         }
     }
 
-
-    // Marked `inline` so the compiler keeps callers' captured accumulator `var`s
-    // (e.g. `result`, `waste`, `totalDamage`) as plain locals instead of boxing
-    // them into heap-allocated Ref wrappers - this runs per organic per tick.
     /**
      * Iterate over the cells in a radial frame around the given anchor point.
+     * Marked `inline` so callers' captured accumulator `var`s (e.g. `result`,
+     * `waste`, `totalDamage`) stay plain locals instead of being boxed into
+     * heap-allocated Ref wrappers - this runs per organic per tick. Dispatches
+     * to the bounds-check-free path when the whole ring is guaranteed inside
+     * the grid, and to the checked path otherwise.
      * @param anchor The center of the frame.
      * @param range The radius of the frame.
      * @param action The action to perform on each cell. Return false to stop iterating.
@@ -158,8 +170,9 @@ class Field(val width: Int, val height: Int) {
         }
     }
 
-    fun isNearSides(anchor: Point, range: Int): Boolean =
-                anchor.x < range || anchor.x + range >= width
-                || anchor.y < range || anchor.y + range >= height
+    @PublishedApi
+    internal fun isNearSides(anchor: Point, range: Int): Boolean =
+        anchor.x < range || anchor.x + range >= width
+            || anchor.y < range || anchor.y + range >= height
 
 }
