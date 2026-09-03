@@ -6,6 +6,7 @@ import com.invenit.bacillus.model.Mineral
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
 import com.invenit.bacillus.model.Substance
+import com.invenit.bacillus.model.matrix.Action
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.test.BeforeTest
@@ -111,6 +112,44 @@ class TestProduceStep {
 
     }
 
+    @Test
+    fun testDoesNotProduceWhenChosenActionIsNotProduceReleaseEvenWithAccumulatedWaste() {
+        val cell = organic(2, 2, 100, Substance.Yellow)
+        cell.chosenAction = Action(Action.Category.Rest)
+        cell.accumulatedWaste = 100
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(100, cell.accumulatedWaste)
+        for (x in 1..3) {
+            for (y in 1..3) {
+                if (cell.position != Point(x, y)) {
+                    assertNull(field[x, y])
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDoesNotProduceWhenChosenActionIsProduceHoard() {
+        val cell = organic(2, 2, 100, Substance.Yellow)
+        cell.chosenAction = Action(Action.Category.Produce, Action.Mode.Hoard)
+        cell.accumulatedWaste = 100
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(100, cell.accumulatedWaste)
+        for (x in 1..3) {
+            for (y in 1..3) {
+                if (cell.position != Point(x, y)) {
+                    assertNull(field[x, y])
+                }
+            }
+        }
+    }
+
     fun organic(x: Int, y: Int, size: Int = 100, produce: Substance) =
         Organic(
             Point(x, y),
@@ -121,6 +160,7 @@ class TestProduceStep {
                 Substance.Sun,
                 produce,
                 Substance.Red
-            ))
+            )
+        ).also { it.chosenAction = Action(Action.Category.Produce, Action.Mode.Release) }
 
 }

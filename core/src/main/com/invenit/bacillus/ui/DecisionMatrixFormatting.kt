@@ -15,7 +15,9 @@ fun Instruction.toDisplayText(): String =
 
 private fun Action.toDisplayText(): String = when (category) {
     Action.Category.Rest -> "Rest"
+    Action.Category.Split -> "Split"
     Action.Category.Move -> "Move:${mode!!.abbreviation}"
+    Action.Category.Produce -> "Produce:${mode!!.abbreviation}"
 }
 
 private val Action.Mode.abbreviation: String
@@ -25,12 +27,19 @@ private val Action.Mode.abbreviation: String
         Action.Mode.TowardOpenSpace -> "open"
         Action.Mode.Random -> "rand"
         Action.Mode.Hold -> "hold"
+        Action.Mode.Release -> "rel"
+        Action.Mode.Hoard -> "hoard"
     }
 
 private val Sensor.abbreviation: String
     get() = when (this) {
         Sensor.FoodDistance -> "F"
+        Sensor.ToxinDistance -> "T"
         Sensor.EnergyRatio -> "E"
+        Sensor.SizeRatio -> "S"
+        Sensor.Age -> "A"
+        Sensor.Crowding -> "C"
+        Sensor.Random -> "R"
     }
 
 private val Comparator.symbol: String

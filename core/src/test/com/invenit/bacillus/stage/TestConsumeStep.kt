@@ -114,6 +114,29 @@ class TestConsumeStep {
     }
 
     @Test
+    fun testCellThatChoseMoveDoesNotConsumeSun() {
+        val field = Field(10, 10)
+        val cell = Organic(
+            Point(1, 1),
+            1000,
+            Point.Zero,
+            DNA(
+                Substance.Green,
+                Substance.Sun,
+                Substance.Blue,
+                Substance.Red
+            )
+        )
+        cell.chosenAction = Action(Action.Category.Move, Action.Mode.Hold)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(1000, cell.energy, "Energy should not change when the chosen action is Move")
+        assertEquals(1000, cell.size, "Size should not change when the chosen action is Move")
+    }
+
+    @Test
     fun testCellThatChoseMoveDoesNotConsumeMinerals() {
         val cell = Organic(
             Point(1, 1),

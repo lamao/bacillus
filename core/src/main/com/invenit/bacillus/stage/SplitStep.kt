@@ -4,6 +4,7 @@ import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
 import com.invenit.bacillus.model.Organic
 import com.invenit.bacillus.model.Point
+import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.service.MutationService
 import com.invenit.bacillus.service.RandomService
 import kotlin.math.roundToInt
@@ -20,7 +21,7 @@ class SplitStep(
 
     override fun execute(field: Field) {
         field.organics
-            .filter { it.energy >= Settings.ReproductionThreshold }
+            .filter { it.chosenAction.category == Action.Category.Split && it.energy >= Settings.ReproductionThreshold }
             .forEach { split(it, field) }
     }
 

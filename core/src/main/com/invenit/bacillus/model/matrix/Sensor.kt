@@ -1,10 +1,15 @@
 package com.invenit.bacillus.model.matrix
 
 /**
- * Instruction DNA #7 — draft, unintegrated (see issue #1 §4, #7).
- * Minimal seed set: FoodDistance and EnergyRatio only.
+ * Instruction DNA #1 §4 — full sensor taxonomy. Each instruction's one test
+ * compares one of these scalars against a mutable threshold.
  */
 enum class Sensor {
     FoodDistance,
-    EnergyRatio
+    ToxinDistance,
+    EnergyRatio,
+    SizeRatio,
+    Age,
+    Crowding,
+    Random
 }
