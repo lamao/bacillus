@@ -18,7 +18,7 @@ class Field(val width: Int, val height: Int) {
     val minerals: MutableList<Mineral> = mutableListOf()
 
     fun isOutside(position: Point): Boolean = isOutside(position.x, position.y)
-    fun isOutside(x: Int, y: Int): Boolean = x < 0 || x >= width || y < 0 || y >= height
+    fun isOutside(x: Int, y: Int): Boolean = x !in 0..<width || y !in 0..<height
     fun isInside(x: Int, y: Int): Boolean = !isOutside(x, y)
 
     fun isFree(position: Point): Boolean = isFree(position.x, position.y)
