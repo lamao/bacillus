@@ -106,7 +106,7 @@ internal class TestDecisionMatrixFormatting {
         "Move, Random, rand",
         "Move, Hold, hold",
         "Produce, Release, rel",
-        "Produce, Hoard, hoard",
+        "Produce, Retain, retain",
     )
     fun testModeAbbreviations(category: Action.Category, mode: Action.Mode, expectedAbbreviation: String) {
         val instruction = Instruction(

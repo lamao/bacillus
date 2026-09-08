@@ -10,7 +10,7 @@ import com.invenit.bacillus.model.matrix.Sensor
  * (#9 icon rework). Pure selection logic only — the actual drawing lives
  * in [CellDetailsStage].
  */
-enum class ActionIcon { RestBars, Seek, Flee, Explore, Random, Hold, Release, Hoard, Split }
+enum class ActionIcon { RestBars, Seek, Flee, Explore, Random, Hold, Release, Retain, Split }
 enum class SensorGlyph { Dot, Diamond, Triangle, InvertedTriangle, Cross, Cluster, Spark }
 enum class ChevronDirection { Up, Down }
 enum class JumpDirection { Forward, Backward, Neutral }
@@ -28,7 +28,7 @@ private fun Action.Mode.toIcon(): ActionIcon = when (this) {
     Action.Mode.Random -> ActionIcon.Random
     Action.Mode.Hold -> ActionIcon.Hold
     Action.Mode.Release -> ActionIcon.Release
-    Action.Mode.Hoard -> ActionIcon.Hoard
+    Action.Mode.Retain -> ActionIcon.Retain
 }
 
 fun Sensor.toGlyph(): SensorGlyph = when (this) {

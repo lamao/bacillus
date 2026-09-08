@@ -5,7 +5,6 @@ import com.invenit.bacillus.model.matrix.Comparator
 import com.invenit.bacillus.model.matrix.Sensor
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.assertEquals
 
 internal class TestDecisionMatrixIcons {
@@ -20,7 +19,7 @@ internal class TestDecisionMatrixIcons {
         "Move, Random, Random",
         "Move, Hold, Hold",
         "Produce, Release, Release",
-        "Produce, Hoard, Hoard",
+        "Produce, Retain, Retain",
     )
     fun testActionToIcon(category: Action.Category, mode: Action.Mode?, expected: ActionIcon) {
         assertEquals(expected, Action(category, mode).toIcon())

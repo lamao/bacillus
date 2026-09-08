@@ -95,7 +95,7 @@ class DecideStep(
         Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell, field) ?: randomDirection(cell.position, field)
         Action.Mode.Random -> randomDirection(cell.position, field)
         Action.Mode.Hold -> Field.NoDirection
-        Action.Mode.Release, Action.Mode.Hoard ->
+        Action.Mode.Release, Action.Mode.Retain ->
             error("$mode is a Produce mode; moveDirection only runs for a chosen Move action")
     }
 

@@ -132,9 +132,9 @@ class TestProduceStep {
     }
 
     @Test
-    fun testDoesNotProduceWhenChosenActionIsProduceHoard() {
+    fun testDoesNotProduceWhenChosenActionIsProduceRetain() {
         val cell = organic(2, 2, 100, Substance.Yellow)
-        cell.chosenAction = Action(Action.Category.Produce, Action.Mode.Hoard)
+        cell.chosenAction = Action(Action.Category.Produce, Action.Mode.Retain)
         cell.accumulatedWaste = 100
         field.add(cell)
 

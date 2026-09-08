@@ -55,7 +55,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         private val RandomColor = Color(0.7f, 0.4f, 0.85f, 1f)
         private val HoldColor = Color(0.6f, 0.6f, 0.6f, 1f)
         private val ReleaseColor = Color(0.85f, 0.55f, 0.2f, 1f)
-        private val HoardColor = Color(0.55f, 0.45f, 0.2f, 1f)
+        private val RetainColor = Color(0.55f, 0.45f, 0.2f, 1f)
         private val SplitColor = Color(0.3f, 0.85f, 0.55f, 1f)
         private val FoodGlyphColor = SeekColor
         private val EnergyGlyphColor = Color(0.85f, 0.65f, 0.15f, 1f)
@@ -310,7 +310,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             ActionIcon.Random -> drawRandomIcon(cx, cy, RandomColor)
             ActionIcon.Hold -> drawHoldIcon(cx, cy, HoldColor)
             ActionIcon.Release -> drawReleaseIcon(cx, cy, ReleaseColor)
-            ActionIcon.Hoard -> drawHoardIcon(cx, cy, HoardColor)
+            ActionIcon.Retain -> drawRetainIcon(cx, cy, RetainColor)
             ActionIcon.Split -> drawSplitIcon(cx, cy, SplitColor)
         }
     }
@@ -364,7 +364,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         drawTriangleGlyph(TriDirection.Down, cx, cy, ACTION_ICON_SIZE * 0.8f, color)
     }
 
-    private fun drawHoardIcon(cx: Float, cy: Float, color: Color) {
+    private fun drawRetainIcon(cx: Float, cy: Float, color: Color) {
         shapeRenderer.color = color
         shapeRenderer.circle(cx, cy, ACTION_ICON_SIZE * 0.4f)
     }

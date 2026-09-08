@@ -20,7 +20,7 @@ data class Action(val category: Category, val mode: Mode? = null) {
     enum class Category(val modes: Set<Mode>) {
         Move(setOf(Mode.TowardConsume, Mode.AwayFromToxin, Mode.TowardOpenSpace, Mode.Random, Mode.Hold)),
         Rest(emptySet()),
-        Produce(setOf(Mode.Release, Mode.Hoard)),
+        Produce(setOf(Mode.Release, Mode.Retain)),
         Split(emptySet())
     }
 
@@ -31,9 +31,7 @@ data class Action(val category: Category, val mode: Mode? = null) {
         Random,
         Hold,
 
-        // Produce modes. "Hoard" is the issue's own wording for Produce's
-        // "Hold" ("keep hoarding") — Move already owns the name "Hold".
         Release,
-        Hoard
+        Retain
     }
 }

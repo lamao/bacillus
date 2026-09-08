@@ -28,7 +28,7 @@ private val Action.Mode.abbreviation: String
         Action.Mode.Random -> "rand"
         Action.Mode.Hold -> "hold"
         Action.Mode.Release -> "rel"
-        Action.Mode.Hoard -> "hoard"
+        Action.Mode.Retain -> "retain"
     }
 
 private val Sensor.abbreviation: String
