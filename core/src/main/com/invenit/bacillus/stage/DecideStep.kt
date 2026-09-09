@@ -40,26 +40,32 @@ class DecideStep(
     }
 
     private fun sense(sensor: Sensor, cell: Organic, field: Field): Double = when (sensor) {
-        Sensor.FoodDistance -> distanceTo(cell, field, Settings.VisionRange, cell.dna.consume)
-        Sensor.ToxinDistance -> distanceTo(cell, field, Settings.ToxinRange, cell.dna.toxin)
+        Sensor.FoodDistance -> distanceTo(cell.position, field, Settings.VisionRange, cell.dna.consume)
+        Sensor.ToxinDistance -> distanceTo(cell.position, field, Settings.ToxinRange, cell.dna.toxin)
         Sensor.EnergyRatio -> cell.energy.toDouble() / cell.size.toDouble()
         Sensor.SizeRatio -> cell.size.toDouble() / Settings.MaxSize.toDouble()
         Sensor.Age -> cell.age.toDouble() / Settings.MaxAge.toDouble()
-        Sensor.Crowding -> crowding(cell, field).toDouble()
+        Sensor.Crowding -> crowding(cell.position, field).toDouble()
         Sensor.Random -> random.random().toDouble()
     }
 
-    // Nearest cell whose body matches `substance`, in Chebyshev rings out
-    // from the cell (see Field.iterateRadial). Nothing in range reads as
-    // just past `range`, so both "<" and ">=" threshold tests see it as far
-    // away.
-    private fun distanceTo(cell: Organic, field: Field, range: Int, substance: Substance): Double {
+    /**
+     * The nearest cell whose body matches `substance`, in Chebyshev rings out
+     * from the cell (see Field.iterateRadial). Nothing in range reads as
+     * just past `range`, so both "<" and ">=" threshold tests see it as far
+     * away.
+     * @param position source position
+     * @param field field object
+     * @param range range to look up
+     * @param substance substance to search distance to
+     */
+    private fun distanceTo(position: Point, field: Field, range: Int, substance: Substance): Double {
         var distance = range + 1
 
-        field.iterateRadial(cell.position, range) { x, y ->
+        field.iterateRadial(position, range) { x, y ->
             val something = field[x, y]
             if (something?.body == substance) {
-                distance = cell.position.distance(x, y)
+                distance = position.distance(x, y)
                 return@iterateRadial false
             }
             return@iterateRadial true
@@ -68,10 +74,10 @@ class DecideStep(
         return distance.toDouble()
     }
 
-    private fun crowding(cell: Organic, field: Field): Int {
+    private fun crowding(position: Point, field: Field): Int {
         var count = 0
 
-        field.iterateRadial(cell.position, Settings.VisionRange) { x, y ->
+        field.iterateRadial(position, Settings.VisionRange) { x, y ->
             if (field[x, y] is Organic) {
                 count++
             }
@@ -90,9 +96,9 @@ class DecideStep(
     }
 
     private fun moveDirection(mode: Action.Mode, cell: Organic, field: Field): Point = when (mode) {
-        Action.Mode.TowardConsume -> directionToFood(cell, field) ?: randomDirection(cell.position, field)
-        Action.Mode.AwayFromToxin -> directionAwayFromToxin(cell, field) ?: randomDirection(cell.position, field)
-        Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell, field) ?: randomDirection(cell.position, field)
+        Action.Mode.TowardConsume -> directionToFood(cell, field) ?: Field.NoDirection
+        Action.Mode.AwayFromToxin -> directionAwayFromToxin(cell, field) ?: Field.NoDirection
+        Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell.position, field) ?: Field.NoDirection
         Action.Mode.Random -> randomDirection(cell.position, field)
         Action.Mode.Hold -> Field.NoDirection
         Action.Mode.Release, Action.Mode.Retain ->
@@ -136,12 +142,12 @@ class DecideStep(
     // VisionRange. Null when nothing's nearby (already open) or the crowd
     // is symmetric around the cell (no direction reads as more open than
     // another) — either way, the caller falls back to a random step.
-    private fun directionAwayFromCrowd(cell: Organic, field: Field): Point? {
+    private fun directionAwayFromCrowd(position: Point, field: Field): Point? {
         var sumX = 0
         var sumY = 0
         var count = 0
 
-        field.iterateRadial(cell.position, Settings.VisionRange) { x, y ->
+        field.iterateRadial(position, Settings.VisionRange) { x, y ->
             if (field[x, y] != null) {
                 sumX += x
                 sumY += y
@@ -155,7 +161,7 @@ class DecideStep(
         }
 
         val crowdCenter = Point(sumX / count, sumY / count)
-        val direction = crowdCenter.direction(cell.position.x, cell.position.y)
+        val direction = crowdCenter.direction(position.x, position.y)
         return if (direction == Field.NoDirection) null else direction
     }
 

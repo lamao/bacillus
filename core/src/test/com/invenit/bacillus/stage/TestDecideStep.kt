@@ -39,8 +39,7 @@ class TestDecideStep {
     }
 
     @Test
-    fun testMoveTowardConsumeWithNoSuitableFoodAndNoMovingSelected() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(0, 0)
+    fun testMoveTowardConsumeWithNoSuitableFoodFallsToNoDirection() {
         val cell = organic(Point(1, 1), moveTowardConsumeMatrix())
         val mineral = Mineral(Point(2, 1), 100, Substance.Red)
         val field = Field(3, 3)
@@ -50,21 +49,6 @@ class TestDecideStep {
         step.execute(field)
 
         assertEquals(Field.NoDirection, cell.direction)
-        assertEquals(Action(Action.Category.Move, Action.Mode.TowardConsume), cell.chosenAction)
-    }
-
-    @Test
-    fun testMoveTowardConsumeWithNoSuitableFoodAndRandomMovingSelected() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(1, -1)
-        val cell = organic(Point(1, 1), moveTowardConsumeMatrix())
-        val mineral = Mineral(Point(2, 1), 100, Substance.Red)
-        val field = Field(3, 3)
-        field.add(cell)
-        field.add(mineral)
-
-        step.execute(field)
-
-        assertEquals(Point(1, -1), cell.direction)
     }
 
     @Test
@@ -125,7 +109,9 @@ class TestDecideStep {
     @Test
     fun testRandomDirectionReturnsNoDirectionWhenItWouldLeaveTheField() {
         `when`(mockRandomService.random(-1, 1)).thenReturn(-1, -1)
-        val cell = organic(Point(0, 0), moveTowardConsumeMatrix())
+        val cell = organic(Point(0, 0), matrixWithAction(
+            Action(Action.Category.Move, Action.Mode.Random)
+        ))
         val mineral = Mineral(Point(1, 0), 100, Substance.Red)
         val field = Field(3, 3)
         field.add(cell)
@@ -437,15 +423,14 @@ class TestDecideStep {
     }
 
     @Test
-    fun testMoveAwayFromToxinWithNoToxinNearbyFallsBackToRandomDirection() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
+    fun testMoveAwayFromToxinWithNoToxinNearbyFallsBackToNoDirection() {
         val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.AwayFromToxin)))
         val field = Field(3, 3)
         field.add(cell)
 
         step.execute(field)
 
-        assertEquals(Point(1, 0), cell.direction)
+        assertEquals(Field.NoDirection, cell.direction)
     }
 
     @Test
@@ -462,20 +447,18 @@ class TestDecideStep {
     }
 
     @Test
-    fun testMoveTowardOpenSpaceWithNothingNearbyFallsBackToRandomDirection() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
+    fun testMoveTowardOpenSpaceWithNothingNearbyFallsToNoDirection() {
         val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
         val field = Field(3, 3)
         field.add(cell)
 
         step.execute(field)
 
-        assertEquals(Point(1, 0), cell.direction)
+        assertEquals(Field.NoDirection, cell.direction)
     }
 
     @Test
-    fun testMoveTowardOpenSpaceWithSymmetricCrowdFallsBackToRandomDirection() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
+    fun testMoveTowardOpenSpaceWithSymmetricCrowdFallsBackToNoDirection() {
         val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
         val left = Mineral(Point(0, 1), 100, Substance.Blue)
         val right = Mineral(Point(2, 1), 100, Substance.Blue)
@@ -486,7 +469,7 @@ class TestDecideStep {
 
         step.execute(field)
 
-        assertEquals(Point(1, 0), cell.direction)
+        assertEquals(Field.NoDirection, cell.direction)
     }
 
     @Test
