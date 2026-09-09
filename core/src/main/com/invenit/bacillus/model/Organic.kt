@@ -17,6 +17,13 @@ data class Organic(
     var age: Int = 0
     var energy: Int = size
 
+    val energyPercentage: Int
+        get() = toPercentage(energy, size)
+    val sizePercentage: Int
+        get() = toPercentage(size, Settings.MaxSize)
+    val agePercentage: Int
+        get() = toPercentage(age, Settings.MaxAge)
+
     // Decision Matrix instruction pointer (#1 §6) — runtime state, not part
     // of the genome. Newborns start at state 0 (#1 §2 ground rules).
     var currentState: Int = 0
@@ -56,5 +63,7 @@ data class Organic(
         }
         return actualDrain
     }
+
+    private fun toPercentage(part: Int, whole: Int): Int = (part * 100) / whole
 
 }

@@ -8,6 +8,7 @@ import com.invenit.bacillus.model.Substance
 import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.model.matrix.Sensor
 import com.invenit.bacillus.service.RandomService
+import kotlin.math.round
 
 /**
  * Instruction DNA #1 §6, task 6 (#11). Each tick, reads a cell's current
@@ -39,15 +40,17 @@ class DecideStep(
         cell.direction = direction(result.action, cell, field)
     }
 
-    private fun sense(sensor: Sensor, cell: Organic, field: Field): Double = when (sensor) {
+    private fun sense(sensor: Sensor, cell: Organic, field: Field): Int = when (sensor) {
         Sensor.FoodDistance -> distanceTo(cell.position, field, Settings.VisionRange, cell.dna.consume)
         Sensor.ToxinDistance -> distanceTo(cell.position, field, Settings.ToxinRange, cell.dna.toxin)
-        Sensor.EnergyRatio -> cell.energy.toDouble() / cell.size.toDouble()
-        Sensor.SizeRatio -> cell.size.toDouble() / Settings.MaxSize.toDouble()
-        Sensor.Age -> cell.age.toDouble() / Settings.MaxAge.toDouble()
-        Sensor.Crowding -> crowding(cell.position, field).toDouble()
-        Sensor.Random -> random.random().toDouble()
+        Sensor.EnergyRatio -> cell.energyPercentage
+        Sensor.SizeRatio -> cell.sizePercentage
+        Sensor.Age -> cell.agePercentage
+        Sensor.Crowding -> crowding(cell.position, field)
+        Sensor.Random -> round(random.random() * 100).toInt()
     }
+
+
 
     /**
      * The nearest cell whose body matches `substance`, in Chebyshev rings out
@@ -59,7 +62,7 @@ class DecideStep(
      * @param range range to look up
      * @param substance substance to search distance to
      */
-    private fun distanceTo(position: Point, field: Field, range: Int, substance: Substance): Double {
+    private fun distanceTo(position: Point, field: Field, range: Int, substance: Substance): Int {
         var distance = range + 1
 
         field.iterateRadial(position, range) { x, y ->
@@ -71,7 +74,7 @@ class DecideStep(
             return@iterateRadial true
         }
 
-        return distance.toDouble()
+        return distance
     }
 
     private fun crowding(position: Point, field: Field): Int {
@@ -97,8 +100,8 @@ class DecideStep(
 
     private fun moveDirection(mode: Action.Mode, cell: Organic, field: Field): Point = when (mode) {
         Action.Mode.TowardConsume -> directionToFood(cell, field) ?: randomDirection(cell.position, field)
-        Action.Mode.AwayFromToxin -> directionAwayFromToxin(cell, field) ?: Field.NoDirection
-        Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell.position, field) ?: Field.NoDirection
+        Action.Mode.AwayFromToxin -> directionAwayFromToxin(cell, field)
+        Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell.position, field)
         Action.Mode.Random -> randomDirection(cell.position, field)
         Action.Mode.Hold -> Field.NoDirection
         Action.Mode.Release, Action.Mode.Retain ->
@@ -129,18 +132,22 @@ class DecideStep(
      * @return the direction away from the nearest matching toxin cell within
      * [Settings.ToxinRange], or `null` if none is in range
      */
-    private fun directionAwayFromToxin(cell: Organic, field: Field): Point? {
-        var result: Point? = null
+    private fun directionAwayFromToxin(cell: Organic, field: Field): Point {
+        var direction: Point? = null
 
         field.iterateRadial(cell.position, Settings.ToxinRange) { x, y ->
             val something = field[x, y]
             if (something?.body == cell.dna.toxin) {
-                result = Point(x, y).direction(cell.position.x, cell.position.y)
+                direction = Point(x, y).direction(cell.position.x, cell.position.y)
                 return@iterateRadial false
             }
             return@iterateRadial true
         }
 
+        val result = direction ?: return Field.NoDirection
+        if (field.isOutside(cell.position + result)) {
+            return Field.NoDirection
+        }
         return result
     }
 
@@ -154,7 +161,7 @@ class DecideStep(
      * `position` (no direction reads as more open than another) — either
      * way, the caller falls back to a random step
      */
-    private fun directionAwayFromCrowd(position: Point, field: Field): Point? {
+    private fun directionAwayFromCrowd(position: Point, field: Field): Point {
         var sumX = 0
         var sumY = 0
         var count = 0
@@ -169,12 +176,17 @@ class DecideStep(
         }
 
         if (count == 0) {
-            return null
+            return Field.NoDirection
         }
 
         val crowdCenter = Point(sumX / count, sumY / count)
         val direction = crowdCenter.direction(position.x, position.y)
-        return if (direction == Field.NoDirection) null else direction
+
+        val newPosition = position + direction
+        if (field.isOutside(newPosition)) {
+            return Field.NoDirection
+        }
+        return direction
     }
 
     private fun randomDirection(position: Point, field: Field): Point {

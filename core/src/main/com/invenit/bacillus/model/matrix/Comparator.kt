@@ -7,7 +7,7 @@ enum class Comparator {
     LessThan,
     GreaterThanOrEqual;
 
-    fun test(value: Double, threshold: Double): Boolean = when (this) {
+    fun test(value: Int, threshold: Int): Boolean = when (this) {
         LessThan -> value < threshold
         GreaterThanOrEqual -> value >= threshold
     }

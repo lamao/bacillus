@@ -18,10 +18,7 @@ class MutationServiceImpl(
 ) : MutationService {
 
     companion object {
-        // Nudge Threshold (#1 §5) perturbs a threshold by a small step in
-        // either direction — small enough that "flee at distance 2" drifts
-        // toward "flee at distance 3" gradually rather than jumping.
-        private const val THRESHOLD_NUDGE_RANGE = 0.1f
+        private const val THRESHOLD_NUDGE_RANGE_PERCENTS = 10
     }
 
     /**
@@ -54,16 +51,18 @@ class MutationServiceImpl(
      * rerolled and the matching mutation count incremented
      */
     override fun mutatedDna(dna: DNA): DNA {
-        if (randomService.random() >= Settings.MutationRate) return dna
+        if (randomService.random() >= Settings.MutationRate) {
+            return dna
+        }
 
-        return if (randomService.random() < Settings.DmMutationRatio) {
-            dna.copy(
+        if (randomService.random() < Settings.DmMutationRatio) {
+            return dna.copy(
                 decisionMatrix = mutatedDecisionMatrix(dna.decisionMatrix),
                 dmMutationCount = dna.dmMutationCount + 1
             )
-        } else {
-            mutatedTrait(dna)
         }
+
+        return mutatedTrait(dna)
     }
 
     private fun mutatedTrait(dna: DNA): DNA {
@@ -120,7 +119,9 @@ class MutationServiceImpl(
     }
 
     private fun randomModeFor(category: Action.Category): Action.Mode? {
-        if (category.modes.isEmpty()) return null
+        if (category.modes.isEmpty()) {
+            return null
+        }
         val modes = category.modes.toList()
         return modes[randomService.random(0, modes.size - 1)]
     }
@@ -139,21 +140,25 @@ class MutationServiceImpl(
      * @param threshold the current threshold
      * @return [threshold] shifted by a small random amount
      */
-    private fun nudgedThreshold(threshold: Double): Double =
-        threshold + randomService.random(-THRESHOLD_NUDGE_RANGE, THRESHOLD_NUDGE_RANGE)
+    private fun nudgedThreshold(threshold: Int): Int {
+        val offsetPercents = randomService.random(-THRESHOLD_NUDGE_RANGE_PERCENTS, THRESHOLD_NUDGE_RANGE_PERCENTS)
+        val offset = threshold * offsetPercents / 100
 
-    /**
-     * Reroll jump offset (#1 §5): the true-branch offset becomes a fresh
-     * random value, wrapped modulo the matrix size — an offset of 30 on a
-     * 25-cell matrix becomes 5. The false branch (the implicit +1 advance)
-     * is never touched; it isn't stored.
-     * @return a random offset in `[0, DecisionMatrix.SIZE)`
-     */
-    private fun randomJumpOffset(): Int =
-        Math.floorMod(randomService.random(-DecisionMatrix.SIZE, DecisionMatrix.SIZE * 2), DecisionMatrix.SIZE)
+        if (offset == 0) {
+            if (offsetPercents < 0) {
+                return threshold - 1
+            } else if (offsetPercents > 0) {
+                return threshold + 1
+            }
+        }
 
-    override fun randomBody() = Substance.values()[randomService.random(1, Substance.values().size - 1)]
-    override fun randomConsume() = Substance.values()[randomService.random(0, Substance.values().size - 1)]
-    override fun randomProduce() = Substance.values()[randomService.random(1, Substance.values().size - 1)]
-    override fun randomToxin() = Substance.values()[randomService.random(1, Substance.values().size - 1)]
+        return (threshold + offset).coerceAtLeast(0)
+    }
+
+    private fun randomJumpOffset(): Int = randomService.random(0, DecisionMatrix.SIZE - 1)
+
+    override fun randomBody() = Substance.entries[randomService.random(1, Substance.entries.size - 1)]
+    override fun randomConsume() = Substance.entries[randomService.random(0, Substance.entries.size - 1)]
+    override fun randomProduce() = Substance.entries[randomService.random(1, Substance.entries.size - 1)]
+    override fun randomToxin() = Substance.entries[randomService.random(1, Substance.entries.size - 1)]
 }

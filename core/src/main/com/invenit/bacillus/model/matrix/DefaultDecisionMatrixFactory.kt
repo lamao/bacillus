@@ -9,7 +9,7 @@ class DefaultDecisionMatrixFactory : DecisionMatrixFactory {
         private const val GROW_SIZE = 23
         private const val PRODUCE_START = GROW_SIZE               // 23 — Produce is a single checkpoint state
         private const val SPLIT_START = DecisionMatrix.SIZE - 1   // 24 — Split is a single checkpoint state
-        private const val SPLIT_READY_THRESHOLD = 0.85
+        private const val SPLIT_READY_THRESHOLD_PERCENTS = 85
     }
 
     /**
@@ -43,7 +43,7 @@ class DefaultDecisionMatrixFactory : DecisionMatrixFactory {
                     action = Action(Action.Category.Rest),
                     sensor = Sensor.SizeRatio,
                     comparator = Comparator.GreaterThanOrEqual,
-                    threshold = SPLIT_READY_THRESHOLD,
+                    threshold = SPLIT_READY_THRESHOLD_PERCENTS,
                     jumpOffset = Math.floorMod(PRODUCE_START - index, DecisionMatrix.SIZE)
                 )
 
@@ -68,7 +68,7 @@ class DefaultDecisionMatrixFactory : DecisionMatrixFactory {
         action = action,
         sensor = Sensor.EnergyRatio,
         comparator = Comparator.GreaterThanOrEqual,
-        threshold = 0.0,
+        threshold = 0,
         jumpOffset = 1
     )
 }
