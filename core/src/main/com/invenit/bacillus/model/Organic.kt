@@ -64,6 +64,10 @@ data class Organic(
         return actualDrain
     }
 
-    private fun toPercentage(part: Int, whole: Int): Int = (part * 100) / whole
+    // `whole` is `size` for energyPercentage - normally >0, but drain() can
+    // take it to 0 (it clamps energy to match in that case, so energy<=0
+    // too and ClearExhaustedEntitiesStep reaps the cell same-tick; still,
+    // nothing here should crash if that invariant ever slips).
+    private fun toPercentage(part: Int, whole: Int): Int = if (whole <= 0) 0 else (part * 100) / whole
 
 }

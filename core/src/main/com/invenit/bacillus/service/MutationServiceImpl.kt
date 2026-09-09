@@ -136,20 +136,21 @@ class MutationServiceImpl(
     /**
      * Nudge threshold (#1 §5): a small perturbation in either direction, so
      * a threshold drifts gradually instead of jumping to an unrelated
-     * value. No bounds are applied (#1 §7 — unbounded by design).
+     * value. Every sensor now reads a non-negative percentage or count
+     * (#12), so the result is floored at 0 - the one bound #1 §7 didn't
+     * anticipate back when thresholds were unbounded doubles.
      * @param threshold the current threshold
-     * @return [threshold] shifted by a small random amount
+     * @return [threshold] shifted by a small random amount, never negative
      */
     private fun nudgedThreshold(threshold: Int): Int {
         val offsetPercents = randomService.random(-THRESHOLD_NUDGE_RANGE_PERCENTS, THRESHOLD_NUDGE_RANGE_PERCENTS)
-        val offset = threshold * offsetPercents / 100
+        var offset = threshold * offsetPercents / 100
 
+        // A small threshold (e.g. under 10) can round its percentage-based
+        // offset to zero; fall back to a unit step in the same direction so
+        // the nudge still moves it.
         if (offset == 0) {
-            if (offsetPercents < 0) {
-                return threshold - 1
-            } else if (offsetPercents > 0) {
-                return threshold + 1
-            }
+            offset = if (offsetPercents < 0) -1 else if (offsetPercents > 0) 1 else 0
         }
 
         return (threshold + offset).coerceAtLeast(0)

@@ -15,7 +15,7 @@ internal class TestDefaultDecisionMatrixFactory {
     fun testInitialGrowStateJumpsToProduceWhenSplitReady(index: Int) {
         val matrix = factory.initial()
 
-        val result = matrix.evaluate(index, sensorValue = 0.9)   // above the split-ready threshold
+        val result = matrix.evaluate(index, sensorValue = 90)   // above the split-ready threshold
 
         assertEquals(Action(Action.Category.Rest), result.action)
         assertEquals(23, result.nextIndex)
@@ -28,7 +28,7 @@ internal class TestDefaultDecisionMatrixFactory {
     fun testInitialGrowStateAdvancesWhileBelowSplitReady(index: Int, expectedNext: Int) {
         val matrix = factory.initial()
 
-        val result = matrix.evaluate(index, sensorValue = 0.1)   // below the split-ready threshold
+        val result = matrix.evaluate(index, sensorValue = 10)   // below the split-ready threshold
 
         assertEquals(Action(Action.Category.Rest), result.action)
         assertEquals(expectedNext, result.nextIndex)
@@ -36,9 +36,9 @@ internal class TestDefaultDecisionMatrixFactory {
 
     @ParameterizedTest(name = "initial()[23] releases waste and always advances into the Split checkpoint, sensorValue={0}")
     @CsvSource(
-        "0.1", "0.9",
+        "10", "90",
     )
-    fun testProduceCheckpointAlwaysAdvancesToSplit(sensorValue: Double) {
+    fun testProduceCheckpointAlwaysAdvancesToSplit(sensorValue: Int) {
         val matrix = factory.initial()
 
         val result = matrix.evaluate(23, sensorValue)
@@ -49,9 +49,9 @@ internal class TestDefaultDecisionMatrixFactory {
 
     @ParameterizedTest(name = "initial()[24] attempts a split and always wraps back to growing, sensorValue={0}")
     @CsvSource(
-        "0.1", "0.9",
+        "10", "90",
     )
-    fun testSplitCheckpointAlwaysWrapsToGrow(sensorValue: Double) {
+    fun testSplitCheckpointAlwaysWrapsToGrow(sensorValue: Int) {
         val matrix = factory.initial()
 
         val result = matrix.evaluate(24, sensorValue)

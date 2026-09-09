@@ -9,8 +9,6 @@ import com.invenit.bacillus.model.matrix.Instruction
 import com.invenit.bacillus.model.matrix.Sensor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
@@ -44,7 +42,7 @@ class TestMutationServiceImpl {
         action = Action(Action.Category.Rest),
         sensor = Sensor.EnergyRatio,
         comparator = Comparator.GreaterThanOrEqual,
-        threshold = 0.0,
+        threshold = 0,
         jumpOffset = 0
     )
 
@@ -169,7 +167,7 @@ class TestMutationServiceImpl {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
@@ -197,7 +195,7 @@ class TestMutationServiceImpl {
             action = Action(Action.Category.Produce, Action.Mode.Release),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
@@ -220,7 +218,7 @@ class TestMutationServiceImpl {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
@@ -243,7 +241,7 @@ class TestMutationServiceImpl {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
@@ -264,7 +262,7 @@ class TestMutationServiceImpl {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
@@ -272,40 +270,82 @@ class TestMutationServiceImpl {
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
         whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
-        whenever(mockRandomService.random(-0.1f, 0.1f)).thenReturn(0.05f)
+        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)  // -10% of 50 = -5
 
         val mutated = mutationService.mutatedDna(dna)
 
-        // Computed the same way the implementation computes it, so both
-        // sides go through identical Double+Float widening - no float/double
-        // rounding mismatch between expected and actual.
-        val expectedThreshold = 0.5 + 0.05f
-        assertEquals(original.copy(threshold = expectedThreshold), mutated.decisionMatrix[5])
+        assertEquals(original.copy(threshold = 45), mutated.decisionMatrix[5])
     }
 
-    @ParameterizedTest(name = "reroll jump offset: raw {0} on a 25-cell matrix wraps to {1}")
-    @CsvSource(
-        "30, 5",    // issue #1 §5's own example: overflow wraps forward
-        "-1, 24",   // negative offset wraps backward past the start
-    )
-    fun testDmMutationRerollJumpOffsetWraps(rawOffset: Int, expectedOffset: Int) {
+    @Test
+    fun testDmMutationNudgeThresholdOnSmallValueStillMovesByOne() {
+        // 10% of 5, truncated, is 0 - the nudge falls back to a unit step
+        // so a small threshold doesn't get stuck.
         val original = Instruction(
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 5,
             jumpOffset = 3
         )
         val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
 
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
-        whenever(mockRandomService.random(0, 4)).thenReturn(4)  // DmOperator.RerollJumpOffset
-        whenever(mockRandomService.random(-DecisionMatrix.SIZE, DecisionMatrix.SIZE * 2)).thenReturn(rawOffset)
+        whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
+        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)
 
         val mutated = mutationService.mutatedDna(dna)
 
-        assertEquals(original.copy(jumpOffset = expectedOffset), mutated.decisionMatrix[5])
+        assertEquals(original.copy(threshold = 4), mutated.decisionMatrix[5])
+    }
+
+    @Test
+    fun testDmMutationNudgeThresholdNeverGoesNegative() {
+        // Every sensor is now a non-negative percentage or count (#12), so
+        // nudging a threshold that's already at 0 downward must floor at 0
+        // instead of going negative.
+        val original = Instruction(
+            action = Action(Action.Category.Rest),
+            sensor = Sensor.EnergyRatio,
+            comparator = Comparator.GreaterThanOrEqual,
+            threshold = 0,
+            jumpOffset = 3
+        )
+        val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
+
+        whenever(mockRandomService.random()).thenReturn(0.0f)
+        whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
+        whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
+        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)
+
+        val mutated = mutationService.mutatedDna(dna)
+
+        assertEquals(original.copy(threshold = 0), mutated.decisionMatrix[5])
+    }
+
+    @Test
+    fun testDmMutationRerollJumpOffset() {
+        val original = Instruction(
+            action = Action(Action.Category.Rest),
+            sensor = Sensor.EnergyRatio,
+            comparator = Comparator.GreaterThanOrEqual,
+            threshold = 50,
+            jumpOffset = 3
+        )
+        val dna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, original))
+
+        whenever(mockRandomService.random()).thenReturn(0.0f)
+        // The state-index pick and the new-jump-offset pick share the exact
+        // same (0, SIZE - 1) call signature, so this sequences them: 5 for
+        // the first call (which state to mutate), 12 for the second (the
+        // rerolled offset itself).
+        whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5, 12)
+        whenever(mockRandomService.random(0, 4)).thenReturn(4)  // DmOperator.RerollJumpOffset
+
+        val mutated = mutationService.mutatedDna(dna)
+
+        assertEquals(original.copy(jumpOffset = 12), mutated.decisionMatrix[5])
     }
 
     @Test

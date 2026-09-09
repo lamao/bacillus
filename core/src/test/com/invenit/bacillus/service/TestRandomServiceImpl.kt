@@ -23,13 +23,6 @@ internal class TestRandomServiceImpl {
     }
 
     @Test
-    fun testRandomFloatRangeIsWithinBounds() {
-        val value = service.random(-0.1f, 0.1f)
-
-        assertTrue(value in -0.1f..0.1f, "Expected $value to be within [-0.1, 0.1]")
-    }
-
-    @Test
     fun testRandomBooleanDoesNotThrow() {
         service.randomBoolean()
     }

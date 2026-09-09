@@ -17,11 +17,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Move, Action.Mode.TowardConsume),
             sensor = Sensor.FoodDistance,
             comparator = Comparator.LessThan,
-            threshold = 2.0,
+            threshold = 2,
             jumpOffset = 4
         )
 
-        assertEquals("Move:seek\nF<2.00\n+4", instruction.toDisplayText())
+        assertEquals("Move:seek\nF<2\n+4", instruction.toDisplayText())
     }
 
     @Test
@@ -30,11 +30,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.6,
+            threshold = 60,
             jumpOffset = -3
         )
 
-        assertEquals("Rest\nE>=0.60\n-3", instruction.toDisplayText())
+        assertEquals("Rest\nE>=60\n-3", instruction.toDisplayText())
     }
 
     @Test
@@ -43,11 +43,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.0,
+            threshold = 0,
             jumpOffset = 0
         )
 
-        assertEquals("Rest\nE>=0.00\n+0", instruction.toDisplayText())
+        assertEquals("Rest\nE>=0\n+0", instruction.toDisplayText())
     }
 
     @Test
@@ -56,11 +56,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Split),
             sensor = Sensor.SizeRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.9,
+            threshold = 90,
             jumpOffset = 1
         )
 
-        assertEquals("Split\nS>=0.90\n+1", instruction.toDisplayText())
+        assertEquals("Split\nS>=90\n+1", instruction.toDisplayText())
     }
 
     @Test
@@ -69,11 +69,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Produce, Action.Mode.Release),
             sensor = Sensor.ToxinDistance,
             comparator = Comparator.LessThan,
-            threshold = 1.0,
+            threshold = 1,
             jumpOffset = -2
         )
 
-        assertEquals("Produce:rel\nT<1.00\n-2", instruction.toDisplayText())
+        assertEquals("Produce:rel\nT<1\n-2", instruction.toDisplayText())
     }
 
     @ParameterizedTest
@@ -91,11 +91,11 @@ internal class TestDecisionMatrixFormatting {
             action = Action(Action.Category.Rest),
             sensor = sensor,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.0,
+            threshold = 0,
             jumpOffset = 0
         )
 
-        assertEquals("Rest\n${expectedAbbreviation}>=0.00\n+0", instruction.toDisplayText())
+        assertEquals("Rest\n${expectedAbbreviation}>=0\n+0", instruction.toDisplayText())
     }
 
     @ParameterizedTest
@@ -113,10 +113,10 @@ internal class TestDecisionMatrixFormatting {
             action = Action(category, mode),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.0,
+            threshold = 0,
             jumpOffset = 0
         )
 
-        assertEquals("$category:$expectedAbbreviation\nE>=0.00\n+0", instruction.toDisplayText())
+        assertEquals("$category:$expectedAbbreviation\nE>=0\n+0", instruction.toDisplayText())
     }
 }

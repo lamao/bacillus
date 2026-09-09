@@ -55,7 +55,7 @@ internal class TestCreatureFactoryImpl {
                 action = Action(Action.Category.Move, Action.Mode.TowardConsume),
                 sensor = Sensor.EnergyRatio,
                 comparator = Comparator.LessThan,
-                threshold = 10.0,
+                threshold = 10,
                 jumpOffset = 1
             )
         })

@@ -8,21 +8,21 @@ internal class TestComparator {
 
     @ParameterizedTest(name = "{0} < {1} = {2}")
     @CsvSource(
-        "1.0, 2.0, true",
-        "2.0, 2.0, false",
-        "3.0, 2.0, false",
+        "1, 2, true",
+        "2, 2, false",
+        "3, 2, false",
     )
-    fun testLessThan(value: Double, threshold: Double, expected: Boolean) {
+    fun testLessThan(value: Int, threshold: Int, expected: Boolean) {
         assertEquals(expected, Comparator.LessThan.test(value, threshold))
     }
 
     @ParameterizedTest(name = "{0} >= {1} = {2}")
     @CsvSource(
-        "1.0, 2.0, false",
-        "2.0, 2.0, true",
-        "3.0, 2.0, true",
+        "1, 2, false",
+        "2, 2, true",
+        "3, 2, true",
     )
-    fun testGreaterThanOrEqual(value: Double, threshold: Double, expected: Boolean) {
+    fun testGreaterThanOrEqual(value: Int, threshold: Int, expected: Boolean) {
         assertEquals(expected, Comparator.GreaterThanOrEqual.test(value, threshold))
     }
 }

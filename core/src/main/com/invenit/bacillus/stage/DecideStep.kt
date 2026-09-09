@@ -50,8 +50,6 @@ class DecideStep(
         Sensor.Random -> round(random.random() * 100).toInt()
     }
 
-
-
     /**
      * The nearest cell whose body matches `substance`, in Chebyshev rings out
      * from the cell (see Field.iterateRadial). Nothing in range reads as
@@ -130,7 +128,8 @@ class DecideStep(
      * @param cell the cell fleeing the toxin
      * @param field the field to search
      * @return the direction away from the nearest matching toxin cell within
-     * [Settings.ToxinRange], or `null` if none is in range
+     * [Settings.ToxinRange], or [Field.NoDirection] if none is in range or
+     * the away-step would leave the field
      */
     private fun directionAwayFromToxin(cell: Organic, field: Field): Point {
         var direction: Point? = null
@@ -156,10 +155,10 @@ class DecideStep(
      * [Settings.VisionRange].
      * @param position the position to step away from the crowd around
      * @param field the field to search
-     * @return the direction away from the crowd centroid, or `null` when
-     * nothing's nearby (already open) or the crowd is symmetric around
-     * `position` (no direction reads as more open than another) — either
-     * way, the caller falls back to a random step
+     * @return the direction away from the crowd centroid, or
+     * [Field.NoDirection] when nothing's nearby (already open), the crowd
+     * is symmetric around `position` (no direction reads as more open than
+     * another), or the away-step would leave the field
      */
     private fun directionAwayFromCrowd(position: Point, field: Field): Point {
         var sumX = 0
