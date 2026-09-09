@@ -8,56 +8,56 @@ internal class TestDefaultDecisionMatrixFactory {
 
     private val factory = DefaultDecisionMatrixFactory()
 
-    @ParameterizedTest(name = "initial()[{0}] hunts and drops to rest once low energy fires")
+    @ParameterizedTest(name = "initial()[{0}] grows and detours to the Produce checkpoint once big enough")
     @CsvSource(
-        "0", "1", "8", "17",
+        "0", "1", "8", "22",
     )
-    fun testInitialHuntStateJumpsToRestOnLowEnergy(index: Int) {
+    fun testInitialGrowStateJumpsToProduceWhenSplitReady(index: Int) {
         val matrix = factory.initial()
 
-        val result = matrix.evaluate(index, sensorValue = 0.1)   // below the low-energy threshold
+        val result = matrix.evaluate(index, sensorValue = 0.9)   // above the split-ready threshold
 
-        assertEquals(Action(Action.Category.Move, Action.Mode.TowardConsume), result.action)
-        assertEquals(18, result.nextIndex)
+        assertEquals(Action(Action.Category.Rest), result.action)
+        assertEquals(23, result.nextIndex)
     }
 
-    @ParameterizedTest(name = "initial()[{0}] keeps hunting while energy holds")
+    @ParameterizedTest(name = "initial()[{0}] keeps growing while still below split-ready size")
     @CsvSource(
-        "0, 1", "8, 9", "17, 18",
+        "0, 1", "8, 9", "22, 23",
     )
-    fun testInitialHuntStateAdvancesWhileEnergyHolds(index: Int, expectedNext: Int) {
+    fun testInitialGrowStateAdvancesWhileBelowSplitReady(index: Int, expectedNext: Int) {
         val matrix = factory.initial()
 
-        val result = matrix.evaluate(index, sensorValue = 0.9)   // above the low-energy threshold
+        val result = matrix.evaluate(index, sensorValue = 0.1)   // below the split-ready threshold
 
-        assertEquals(Action(Action.Category.Move, Action.Mode.TowardConsume), result.action)
+        assertEquals(Action(Action.Category.Rest), result.action)
         assertEquals(expectedNext, result.nextIndex)
     }
 
-    @ParameterizedTest(name = "initial()[{0}] rests and jumps back to hunting once energy recovers")
+    @ParameterizedTest(name = "initial()[23] releases waste and always advances into the Split checkpoint, sensorValue={0}")
     @CsvSource(
-        "18", "20", "24",
+        "0.1", "0.9",
     )
-    fun testInitialRestStateJumpsToHuntOnRecoveredEnergy(index: Int) {
+    fun testProduceCheckpointAlwaysAdvancesToSplit(sensorValue: Double) {
         val matrix = factory.initial()
 
-        val result = matrix.evaluate(index, sensorValue = 0.9)   // above the recovered-energy threshold
+        val result = matrix.evaluate(23, sensorValue)
 
-        assertEquals(Action(Action.Category.Rest), result.action)
+        assertEquals(Action(Action.Category.Produce, Action.Mode.Release), result.action)
+        assertEquals(24, result.nextIndex)
+    }
+
+    @ParameterizedTest(name = "initial()[24] attempts a split and always wraps back to growing, sensorValue={0}")
+    @CsvSource(
+        "0.1", "0.9",
+    )
+    fun testSplitCheckpointAlwaysWrapsToGrow(sensorValue: Double) {
+        val matrix = factory.initial()
+
+        val result = matrix.evaluate(24, sensorValue)
+
+        assertEquals(Action(Action.Category.Split), result.action)
         assertEquals(0, result.nextIndex)
-    }
-
-    @ParameterizedTest(name = "initial()[{0}] keeps resting while energy stays low")
-    @CsvSource(
-        "18, 19", "20, 21", "24, 0",
-    )
-    fun testInitialRestStateAdvancesWhileEnergyStaysLow(index: Int, expectedNext: Int) {
-        val matrix = factory.initial()
-
-        val result = matrix.evaluate(index, sensorValue = 0.1)   // below the recovered-energy threshold
-
-        assertEquals(Action(Action.Category.Rest), result.action)
-        assertEquals(expectedNext, result.nextIndex)
     }
 
 }

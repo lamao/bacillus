@@ -5,7 +5,6 @@ import com.invenit.bacillus.model.matrix.Comparator
 import com.invenit.bacillus.model.matrix.Sensor
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.assertEquals
 
 internal class TestDecisionMatrixIcons {
@@ -13,11 +12,14 @@ internal class TestDecisionMatrixIcons {
     @ParameterizedTest
     @CsvSource(
         "Rest, , RestBars",
+        "Split, , Split",
         "Move, TowardConsume, Seek",
         "Move, AwayFromToxin, Flee",
         "Move, TowardOpenSpace, Explore",
         "Move, Random, Random",
         "Move, Hold, Hold",
+        "Produce, Release, Release",
+        "Produce, Retain, Retain",
     )
     fun testActionToIcon(category: Action.Category, mode: Action.Mode?, expected: ActionIcon) {
         assertEquals(expected, Action(category, mode).toIcon())
@@ -27,6 +29,11 @@ internal class TestDecisionMatrixIcons {
     @CsvSource(
         "FoodDistance, Dot",
         "EnergyRatio, Diamond",
+        "ToxinDistance, Triangle",
+        "SizeRatio, InvertedTriangle",
+        "Age, Cross",
+        "Crowding, Cluster",
+        "Random, Spark",
     )
     fun testSensorToGlyph(sensor: Sensor, expected: SensorGlyph) {
         assertEquals(expected, sensor.toGlyph())

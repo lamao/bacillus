@@ -12,10 +12,7 @@ class Environment {
     private val steps = arrayOf(
         // Conscious — logic a cell's decisions drive. DecideStep (#1 §6)
         // reads each cell's Decision Matrix and stamps a chosen action for
-        // this tick; MoveStep is gated by it. SplitStep still runs
-        // unconditionally on its energy threshold — Split isn't in the
-        // minimal action set yet (#1 task 6), so it isn't reachable from the
-        // matrix either way.
+        // this tick; MoveStep and SplitStep are gated by it (#1 task 6).
         // TODO: Correct moving animation
         DecideStep(ServiceContext.randomService),
         MoveStep(),
@@ -26,8 +23,10 @@ class Environment {
         // see ConsumeStep for the trigger condition.
         ConsumeStep(),
 
-        // ProduceStep is conceptually Conscious (see above), but stays right after
-        // ConsumeStep so waste accumulated this tick is expelled this same tick.
+        // ProduceStep is conceptually Conscious (see above) — gated by the
+        // chosen action being Produce(Release) (#1 task 6) — but stays right
+        // after ConsumeStep so waste accumulated this tick is expelled this
+        // same tick.
         ProduceStep(),
 
         // Environmental — logic no cell can influence.

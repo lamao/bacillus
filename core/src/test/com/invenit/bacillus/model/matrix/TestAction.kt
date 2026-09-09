@@ -1,38 +1,60 @@
 package com.invenit.bacillus.model.matrix
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.assertEquals
 
 internal class TestAction {
 
-    @Test
-    fun testMoveRequiresMode() {
+    @ParameterizedTest
+    @EnumSource(value = Action.Category::class, names = ["Move", "Produce"])
+    fun testCategoriesWithRequiredMode(category: Action.Category) {
         assertThrows<IllegalArgumentException> {
-            Action(Action.Category.Move)
+            Action(category)
         }
     }
 
-    @Test
-    fun testRestRejectsMode() {
+    @ParameterizedTest
+    @EnumSource(value = Action.Category::class, names = ["Rest", "Split"])
+    fun testRestAndSplitRejectMode(category: Action.Category) {
         assertThrows<IllegalArgumentException> {
-            Action(Action.Category.Rest, Action.Mode.Random)
+            Action(category, Action.Mode.Random)
         }
     }
 
-    @Test
-    fun testMoveWithMode() {
-        val action = Action(Action.Category.Move, Action.Mode.TowardConsume)
-
-        assertEquals(Action.Category.Move, action.category)
-        assertEquals(Action.Mode.TowardConsume, action.mode)
+    @ParameterizedTest
+    @CsvSource(
+        "Move, Release",
+        "Produce, TowardConsume"
+    )
+    fun testRejectAlienMode(category: Action.Category, mode: Action.Mode) {
+        assertThrows<IllegalArgumentException> {
+            Action(category, mode)
+        }
     }
 
-    @Test
-    fun testRestWithoutMode() {
-        val action = Action(Action.Category.Rest)
+    @ParameterizedTest
+    @EnumSource(value = Action.Category::class, names = ["Rest", "Split"])
+    fun testCategoryWithoutModeConstructs(category: Action.Category) {
+        val action = Action(category)
 
-        assertEquals(Action.Category.Rest, action.category)
+        assertEquals(category, action.category)
         assertEquals(null, action.mode)
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "Move, AwayFromToxin",
+        "Move, Hold",
+        "Produce, Release",
+        "Produce, Retain"
+    )
+    fun testCategoriesWithMode(category: Action.Category, mode: Action.Mode) {
+        val action = Action(category, mode)
+
+        assertEquals(category, action.category)
+        assertEquals(mode, action.mode)
     }
 }

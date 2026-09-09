@@ -5,6 +5,8 @@ import com.invenit.bacillus.model.*
 import com.invenit.bacillus.model.matrix.*
 import com.invenit.bacillus.service.RandomService
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
@@ -39,8 +41,8 @@ class TestDecideStep {
     }
 
     @Test
-    fun testMoveTowardConsumeWithNoSuitableFoodAndNoMovingSelected() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(0, 0)
+    fun testMoveTowardConsumeWithNoSuitableFoodFallsToNoDirection() {
+        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
         val cell = organic(Point(1, 1), moveTowardConsumeMatrix())
         val mineral = Mineral(Point(2, 1), 100, Substance.Red)
         val field = Field(3, 3)
@@ -49,22 +51,7 @@ class TestDecideStep {
 
         step.execute(field)
 
-        assertEquals(Field.NoDirection, cell.direction)
-        assertEquals(Action(Action.Category.Move, Action.Mode.TowardConsume), cell.chosenAction)
-    }
-
-    @Test
-    fun testMoveTowardConsumeWithNoSuitableFoodAndRandomMovingSelected() {
-        `when`(mockRandomService.random(-1, 1)).thenReturn(1, -1)
-        val cell = organic(Point(1, 1), moveTowardConsumeMatrix())
-        val mineral = Mineral(Point(2, 1), 100, Substance.Red)
-        val field = Field(3, 3)
-        field.add(cell)
-        field.add(mineral)
-
-        step.execute(field)
-
-        assertEquals(Point(1, -1), cell.direction)
+        assertEquals(Point(1, 0), cell.direction)
     }
 
     @Test
@@ -125,7 +112,9 @@ class TestDecideStep {
     @Test
     fun testRandomDirectionReturnsNoDirectionWhenItWouldLeaveTheField() {
         `when`(mockRandomService.random(-1, 1)).thenReturn(-1, -1)
-        val cell = organic(Point(0, 0), moveTowardConsumeMatrix())
+        val cell = organic(Point(0, 0), matrixWithAction(
+            Action(Action.Category.Move, Action.Mode.Random)
+        ))
         val mineral = Mineral(Point(1, 0), 100, Substance.Red)
         val field = Field(3, 3)
         field.add(cell)
@@ -249,6 +238,236 @@ class TestDecideStep {
         assertEquals(1, cell.currentState)
     }
 
+    @Test
+    fun testToxinDistanceSensorReflectsNearestMatchingToxin() {
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.ToxinDistance,
+                comparator = Comparator.LessThan,
+                threshold = 2.0,
+                jumpOffset = 5
+            )
+        )
+        val cell = organic(Point(1, 1), matrix)
+        val toxin = Mineral(Point(2, 1), 50, Substance.Red)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(toxin)
+
+        step.execute(field)
+
+        // distance 1 < threshold 2 -> condition met -> jump
+        assertEquals(5, cell.currentState)
+    }
+
+    @Test
+    fun testToxinDistanceSensorWhenNothingInRangeReadsAsFarAway() {
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.ToxinDistance,
+                comparator = Comparator.LessThan,
+                threshold = (Settings.ToxinRange + 1).toDouble(),
+                jumpOffset = 5
+            )
+        )
+        val cell = organic(Point(1, 1), matrix)
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        // sentinel (ToxinRange + 1) is never < an equal threshold -> advance
+        assertEquals(1, cell.currentState)
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "1.0, 3",   // ratio 1.0 >= threshold 0.5 -> jump
+        "0.01, 1",  // ratio well below threshold 0.5 -> advance
+    )
+    fun testSizeRatioSensor(sizeFraction: Double, expectedCurrentState: Int) {
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.SizeRatio,
+                comparator = Comparator.GreaterThanOrEqual,
+                threshold = 0.5,
+                jumpOffset = 3
+            )
+        )
+        val cell = organic(Point(1, 1), matrix, size = (Settings.MaxSize * sizeFraction).toInt())
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(expectedCurrentState, cell.currentState)
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "0.6, 3",  // age ratio 0.6 >= threshold 0.5 -> jump
+        "0.1, 1",  // age ratio 0.1 below threshold 0.5 -> advance
+    )
+    fun testAgeSensor(ageFraction: Double, expectedCurrentState: Int) {
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.Age,
+                comparator = Comparator.GreaterThanOrEqual,
+                threshold = 0.5,
+                jumpOffset = 3
+            )
+        )
+        val cell = organic(Point(1, 1), matrix)
+        cell.age = (Settings.MaxAge * ageFraction).toInt()
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(expectedCurrentState, cell.currentState)
+    }
+
+    @Test
+    fun testCrowdingSensorCountsOnlyOrganicsWithinVisionRange() {
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.Crowding,
+                comparator = Comparator.GreaterThanOrEqual,
+                threshold = 2.0,
+                jumpOffset = 4
+            )
+        )
+        val cell = organic(Point(1, 1), matrix)
+        val neighborOrganic1 = organic(Point(0, 1), DecisionMatrix.default())
+        val neighborOrganic2 = organic(Point(2, 1), DecisionMatrix.default())
+        val neighborMineral = Mineral(Point(1, 0), 50, Substance.Blue)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(neighborOrganic1)
+        field.add(neighborOrganic2)
+        field.add(neighborMineral)
+
+        step.execute(field)
+
+        // 2 organics within range >= threshold 2 -> jump; the mineral doesn't count
+        assertEquals(4, cell.currentState)
+    }
+
+    @Test
+    fun testRandomSensorUsesFreshDrawFromRandomService() {
+        `when`(mockRandomService.random()).thenReturn(0.5f)
+        val matrix = matrixWith(
+            0, Instruction(
+                action = Action(Action.Category.Rest),
+                sensor = Sensor.Random,
+                comparator = Comparator.GreaterThanOrEqual,
+                threshold = 0.5,
+                jumpOffset = 6
+            )
+        )
+        val cell = organic(Point(1, 1), matrix)
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(6, cell.currentState)
+    }
+
+    @Test
+    fun testMoveAwayFromToxinWithToxinNearby() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.AwayFromToxin)))
+        val toxin = Mineral(Point(2, 1), 100, Substance.Red)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(toxin)
+
+        step.execute(field)
+
+        assertEquals(Point(-1, 0), cell.direction)
+    }
+
+    @Test
+    fun testMoveAwayFromToxinWithNoToxinNearbyFallsBackToNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.AwayFromToxin)))
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
+    fun testMoveTowardOpenSpaceStepsAwayFromCrowdCentroid() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
+        val crowdMember = Mineral(Point(2, 1), 100, Substance.Blue)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(crowdMember)
+
+        step.execute(field)
+
+        assertEquals(Point(-1, 0), cell.direction)
+    }
+
+    @Test
+    fun testMoveTowardOpenSpaceWithNothingNearbyFallsToNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
+    fun testMoveTowardOpenSpaceWithSymmetricCrowdFallsBackToNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
+        val left = Mineral(Point(0, 1), 100, Substance.Blue)
+        val right = Mineral(Point(2, 1), 100, Substance.Blue)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(left)
+        field.add(right)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
+    fun testSplitActionSetsNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Split)))
+        cell.direction = Point(1, 0)
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+        assertEquals(Action(Action.Category.Split), cell.chosenAction)
+    }
+
+    @Test
+    fun testProduceReleaseActionSetsNoDirection() {
+        val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Produce, Action.Mode.Release)))
+        cell.direction = Point(1, 0)
+        val field = Field(3, 3)
+        field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+        assertEquals(Action(Action.Category.Produce, Action.Mode.Release), cell.chosenAction)
+    }
+
     private fun matrixWith(index: Int, instruction: Instruction): DecisionMatrix {
         val instructions = MutableList(DecisionMatrix.SIZE) { filler }
         instructions[index] = instruction
@@ -269,10 +488,10 @@ class TestDecideStep {
         )
     )
 
-    private fun organic(position: Point, decisionMatrix: DecisionMatrix): Organic {
+    private fun organic(position: Point, decisionMatrix: DecisionMatrix, size: Int = 100): Organic {
         return Organic(
             position,
-            100,
+            size,
             Field.NoDirection,
             DNA(
                 Substance.Green,
