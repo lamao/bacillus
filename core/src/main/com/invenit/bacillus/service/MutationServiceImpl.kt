@@ -19,6 +19,7 @@ class MutationServiceImpl(
 
     companion object {
         private const val THRESHOLD_NUDGE_RANGE_PERCENTS = 10
+        private const val MINIMAL_THRESHOLD_NUDGE_RANGE = 1
     }
 
     /**
@@ -134,26 +135,26 @@ class MutationServiceImpl(
     private fun randomSensor(): Sensor = Sensor.entries[randomService.random(0, Sensor.entries.size - 1)]
 
     /**
-     * Nudge threshold (#1 §5): a small perturbation in either direction, so
-     * a threshold drifts gradually instead of jumping to an unrelated
-     * value. Every sensor now reads a non-negative percentage or count
-     * (#12), so the result is floored at 0 - the one bound #1 §7 didn't
-     * anticipate back when thresholds were unbounded doubles.
+     * Nudge threshold (#1 §5): a fresh value drawn from a small window
+     * around the current threshold, so it drifts gradually instead of
+     * jumping to an unrelated value. The window's half-width is a
+     * percentage of the current threshold, floored at
+     * [MINIMAL_THRESHOLD_NUDGE_RANGE] so a small threshold still has
+     * somewhere to move. Every sensor now reads a non-negative percentage
+     * or count (#12), so the window's low end is floored at 0 - the one
+     * bound #1 §7 didn't anticipate back when thresholds were unbounded
+     * doubles.
      * @param threshold the current threshold
-     * @return [threshold] shifted by a small random amount, never negative
+     * @return a value drawn from `[threshold - offsetRange, threshold + offsetRange]`,
+     * clamped to never go negative
      */
     private fun nudgedThreshold(threshold: Int): Int {
-        val offsetPercents = randomService.random(-THRESHOLD_NUDGE_RANGE_PERCENTS, THRESHOLD_NUDGE_RANGE_PERCENTS)
-        var offset = threshold * offsetPercents / 100
+        val offsetRange = (threshold * THRESHOLD_NUDGE_RANGE_PERCENTS / 100)
+            .coerceAtLeast(MINIMAL_THRESHOLD_NUDGE_RANGE)
+        val rangeStart = (threshold - offsetRange).coerceAtLeast(0)
+        val rangeEnd = threshold + offsetRange
 
-        // A small threshold (e.g. under 10) can round its percentage-based
-        // offset to zero; fall back to a unit step in the same direction so
-        // the nudge still moves it.
-        if (offset == 0) {
-            offset = if (offsetPercents < 0) -1 else if (offsetPercents > 0) 1 else 0
-        }
-
-        return (threshold + offset).coerceAtLeast(0)
+        return randomService.random(rangeStart, rangeEnd)
     }
 
     private fun randomJumpOffset(): Int = randomService.random(0, DecisionMatrix.SIZE - 1)

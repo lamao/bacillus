@@ -270,17 +270,19 @@ class TestMutationServiceImpl {
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
         whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
-        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)  // -10% of 50 = -5
+        // offsetRange = 10% of 50 = 5, so the window is [45, 55].
+        whenever(mockRandomService.random(45, 55)).thenReturn(48)
 
         val mutated = mutationService.mutatedDna(dna)
 
-        assertEquals(original.copy(threshold = 45), mutated.decisionMatrix[5])
+        assertEquals(original.copy(threshold = 48), mutated.decisionMatrix[5])
     }
 
     @Test
-    fun testDmMutationNudgeThresholdOnSmallValueStillMovesByOne() {
-        // 10% of 5, truncated, is 0 - the nudge falls back to a unit step
-        // so a small threshold doesn't get stuck.
+    fun testDmMutationNudgeThresholdOnSmallValueUsesMinimalRange() {
+        // 10% of 5, truncated, is 0 - the window falls back to
+        // MINIMAL_THRESHOLD_NUDGE_RANGE (1) so a small threshold still has
+        // somewhere to move: [4, 6].
         val original = Instruction(
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
@@ -293,7 +295,7 @@ class TestMutationServiceImpl {
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
         whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
-        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)
+        whenever(mockRandomService.random(4, 6)).thenReturn(4)
 
         val mutated = mutationService.mutatedDna(dna)
 
@@ -301,10 +303,13 @@ class TestMutationServiceImpl {
     }
 
     @Test
-    fun testDmMutationNudgeThresholdNeverGoesNegative() {
+    fun testDmMutationNudgeThresholdWindowNeverGoesNegative() {
         // Every sensor is now a non-negative percentage or count (#12), so
-        // nudging a threshold that's already at 0 downward must floor at 0
-        // instead of going negative.
+        // a threshold already at 0 must get a window of [0, 1], not
+        // [-1, 1] - proven here by stubbing only the floored call: if the
+        // implementation regressed to an unfloored range, this stub
+        // wouldn't match and Mockito's unstubbed-int default (0) would make
+        // the assertion below fail instead of silently passing.
         val original = Instruction(
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
@@ -317,11 +322,11 @@ class TestMutationServiceImpl {
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
         whenever(mockRandomService.random(0, 4)).thenReturn(3)  // DmOperator.NudgeThreshold
-        whenever(mockRandomService.random(-10, 10)).thenReturn(-10)
+        whenever(mockRandomService.random(0, 1)).thenReturn(1)
 
         val mutated = mutationService.mutatedDna(dna)
 
-        assertEquals(original.copy(threshold = 0), mutated.decisionMatrix[5])
+        assertEquals(original.copy(threshold = 1), mutated.decisionMatrix[5])
     }
 
     @Test
