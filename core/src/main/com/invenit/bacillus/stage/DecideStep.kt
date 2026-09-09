@@ -96,7 +96,7 @@ class DecideStep(
     }
 
     private fun moveDirection(mode: Action.Mode, cell: Organic, field: Field): Point = when (mode) {
-        Action.Mode.TowardConsume -> directionToFood(cell, field) ?: Field.NoDirection
+        Action.Mode.TowardConsume -> directionToFood(cell, field) ?: randomDirection(cell.position, field)
         Action.Mode.AwayFromToxin -> directionAwayFromToxin(cell, field) ?: Field.NoDirection
         Action.Mode.TowardOpenSpace -> directionAwayFromCrowd(cell.position, field) ?: Field.NoDirection
         Action.Mode.Random -> randomDirection(cell.position, field)

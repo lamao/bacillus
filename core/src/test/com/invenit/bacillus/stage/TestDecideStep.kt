@@ -40,6 +40,7 @@ class TestDecideStep {
 
     @Test
     fun testMoveTowardConsumeWithNoSuitableFoodFallsToNoDirection() {
+        `when`(mockRandomService.random(-1, 1)).thenReturn(1, 0)
         val cell = organic(Point(1, 1), moveTowardConsumeMatrix())
         val mineral = Mineral(Point(2, 1), 100, Substance.Red)
         val field = Field(3, 3)
@@ -48,7 +49,7 @@ class TestDecideStep {
 
         step.execute(field)
 
-        assertEquals(Field.NoDirection, cell.direction)
+        assertEquals(Point(1, 0), cell.direction)
     }
 
     @Test
