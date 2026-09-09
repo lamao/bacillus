@@ -78,6 +78,10 @@ internal class TestSimpleVerification {
 - **Concurrency**: The simulation logic is mostly single-threaded, driven by the LibGDX render loop or stages.
 - **Simulation Logic**: The simulation is divided into "Steps" (found in `com.invenit.bacillus.stage`). 
   Each step handles a specific part of the simulation tick (e.g., `ConsumeStep`, `MoveStep`, `ProduceStep`).
+- **Method comments**: When a method needs explaining, use KDoc (`/** ... */`) rather than a plain `//` comment 
+  above it, and document its parameters with `@param` (and `@return` when the return value isn't self-evident) 
+  instead of folding that into prose. Reserve inline `//` comments for notes on a specific statement inside a 
+  method body, not for documenting the method itself.
 
 #### Key Architectural Components:
 - **Environment**: Manages the simulation state and the `Field`.

@@ -54,12 +54,16 @@ class DefaultDecisionMatrixFactory : DecisionMatrixFactory {
         }
     )
 
-    // A single-state waypoint the ring always passes through once per lap.
-    // Its test is a placeholder, not a real condition: the true and false
-    // branches both land on the very next index (jumpOffset 1 matches the
-    // implicit advance), so which one fires doesn't matter — that's what
-    // makes Produce/Split unconditionally reachable rather than dependent
-    // on a sensor value ever landing a particular way.
+    /**
+     * A single-state waypoint the ring always passes through once per lap.
+     * Its test is a placeholder, not a real condition: the true and false
+     * branches both land on the very next index (jumpOffset 1 matches the
+     * implicit advance), so which one fires doesn't matter — that's what
+     * makes Produce/Split unconditionally reachable rather than dependent
+     * on a sensor value ever landing a particular way.
+     * @param action the action to stamp on this waypoint state
+     * @return an [Instruction] that always advances to the next index
+     */
     private fun checkpoint(action: Action) = Instruction(
         action = action,
         sensor = Sensor.EnergyRatio,

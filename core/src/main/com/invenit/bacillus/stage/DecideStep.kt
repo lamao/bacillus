@@ -121,8 +121,14 @@ class DecideStep(
         return result
     }
 
-    // Nearest toxin source wins, same as FoodDistance; the direction points
-    // from it back to the cell, i.e. away.
+    /**
+     * The nearest toxin source wins, same as [distanceTo]/FoodDistance; the
+     * direction returned points from it back to the cell, i.e. away.
+     * @param cell the cell fleeing the toxin
+     * @param field the field to search
+     * @return the direction away from the nearest matching toxin cell within
+     * [Settings.ToxinRange], or `null` if none is in range
+     */
     private fun directionAwayFromToxin(cell: Organic, field: Field): Point? {
         var result: Point? = null
 
@@ -138,10 +144,16 @@ class DecideStep(
         return result
     }
 
-    // Steps away from the centroid of everything occupying a cell within
-    // VisionRange. Null when nothing's nearby (already open) or the crowd
-    // is symmetric around the cell (no direction reads as more open than
-    // another) — either way, the caller falls back to a random step.
+    /**
+     * Steps away from the centroid of everything occupying a cell within
+     * [Settings.VisionRange].
+     * @param position the position to step away from the crowd around
+     * @param field the field to search
+     * @return the direction away from the crowd centroid, or `null` when
+     * nothing's nearby (already open) or the crowd is symmetric around
+     * `position` (no direction reads as more open than another) — either
+     * way, the caller falls back to a random step
+     */
     private fun directionAwayFromCrowd(position: Point, field: Field): Point? {
         var sumX = 0
         var sumY = 0
