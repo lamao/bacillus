@@ -205,7 +205,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         for (i in matrixCells.indices) {
             val matrixCell = matrixCells[i]
             val instruction = decisionMatrix[i]
-            matrixCell.sensorValueLabel.setText("%.2f".format(instruction.threshold))
+            matrixCell.sensorValueLabel.setText("%d".format(instruction.threshold))
             matrixCell.jumpValueLabel.setText(abs(instruction.jumpOffset).toString())
             matrixCell.tooltip.actor.setText(instruction.toDisplayText())
             matrixCell.container.background = if (i == currentState) currentStateBackground else neutralCellBackground

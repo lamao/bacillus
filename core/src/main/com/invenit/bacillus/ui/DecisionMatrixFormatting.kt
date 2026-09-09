@@ -11,7 +11,7 @@ import com.invenit.bacillus.model.matrix.Sensor
  * takes when that test passes.
  */
 fun Instruction.toDisplayText(): String =
-    "${action.toDisplayText()}\n${sensor.abbreviation}${comparator.symbol}${"%.2f".format(threshold)}\n${jumpOffset.toSignedString()}"
+    "${action.toDisplayText()}\n${sensor.abbreviation}${comparator.symbol}${"%d".format(threshold)}\n${jumpOffset.toSignedString()}"
 
 private fun Action.toDisplayText(): String = when (category) {
     Action.Category.Rest -> "Rest"
