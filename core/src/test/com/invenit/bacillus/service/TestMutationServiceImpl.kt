@@ -27,6 +27,10 @@ import kotlin.test.assertTrue
  * mutation), then whether it targets the Decision Matrix or a trait
  * (Settings.DmMutationRatio). DM tests rely on the second `random()` call
  * being below the default 0.8 ratio; trait tests need it above.
+ *
+ * Each mutation also bumps DNA.dmMutationCount/traitMutationCount - a
+ * per-lineage "distance from the founder genome" carried on the genome
+ * itself, not tracked globally by the service.
  */
 @ExtendWith(MockitoExtension::class)
 class TestMutationServiceImpl {
@@ -69,8 +73,8 @@ class TestMutationServiceImpl {
         val mutated = mutationService.mutatedDna(original)
 
         assertEquals(original, mutated)
-        assertEquals(0, mutationService.dmMutationCount)
-        assertEquals(0, mutationService.traitMutationCount)
+        assertEquals(0, mutated.dmMutationCount)
+        assertEquals(0, mutated.traitMutationCount)
     }
 
     @Test
@@ -89,9 +93,8 @@ class TestMutationServiceImpl {
 
         val mutated = mutationService.mutatedDna(original)
 
-        assertEquals(original.copy(body = Substance.Red), mutated)
-        assertEquals(1, mutationService.traitMutationCount)
-        assertEquals(0, mutationService.dmMutationCount)
+        assertEquals(original.copy(body = Substance.Red, traitMutationCount = 1), mutated)
+        assertEquals(0, mutated.dmMutationCount)
     }
 
     @Test
@@ -109,8 +112,7 @@ class TestMutationServiceImpl {
 
         val mutated = mutationService.mutatedDna(original)
 
-        assertEquals(original.copy(consume = Substance.Sun), mutated)
-        assertEquals(1, mutationService.traitMutationCount)
+        assertEquals(original.copy(consume = Substance.Sun, traitMutationCount = 1), mutated)
     }
 
     @Test
@@ -128,8 +130,7 @@ class TestMutationServiceImpl {
 
         val mutated = mutationService.mutatedDna(original)
 
-        assertEquals(original.copy(produce = Substance.Red), mutated)
-        assertEquals(1, mutationService.traitMutationCount)
+        assertEquals(original.copy(produce = Substance.Red, traitMutationCount = 1), mutated)
     }
 
     @Test
@@ -147,8 +148,7 @@ class TestMutationServiceImpl {
 
         val mutated = mutationService.mutatedDna(original)
 
-        assertEquals(original.copy(toxin = Substance.White), mutated)
-        assertEquals(1, mutationService.traitMutationCount)
+        assertEquals(original.copy(toxin = Substance.White, traitMutationCount = 1), mutated)
     }
 
     @Test
@@ -187,8 +187,8 @@ class TestMutationServiceImpl {
 
         val expected = original.copy(action = Action(Action.Category.Produce, Action.Mode.Release))
         assertEquals(expected, mutated.decisionMatrix[5])
-        assertEquals(1, mutationService.dmMutationCount)
-        assertEquals(0, mutationService.traitMutationCount)
+        assertEquals(1, mutated.dmMutationCount)
+        assertEquals(0, mutated.traitMutationCount)
     }
 
     @Test
@@ -211,6 +211,7 @@ class TestMutationServiceImpl {
 
         val expected = original.copy(action = Action(Action.Category.Produce, Action.Mode.Retain))
         assertEquals(expected, mutated.decisionMatrix[5])
+        assertEquals(1, mutated.dmMutationCount)
     }
 
     @Test
@@ -231,9 +232,9 @@ class TestMutationServiceImpl {
         val mutated = mutationService.mutatedDna(dna)
 
         // Rest has no modes to reroll -> the instruction is unchanged, but the
-        // mutation event still counts.
+        // mutation event still counts toward the genome's distance.
         assertEquals(original, mutated.decisionMatrix[5])
-        assertEquals(1, mutationService.dmMutationCount)
+        assertEquals(1, mutated.dmMutationCount)
     }
 
     @Test
@@ -308,27 +309,27 @@ class TestMutationServiceImpl {
     }
 
     @Test
-    fun testMutationCountersTrackDmAndTraitMutationsSeparately() {
-        val dmDna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White, matrixWith(5, filler))
-        val traitDna = DNA(Substance.Blue, Substance.Green, Substance.Yellow, Substance.White)
+    fun testMutationCountsAccumulatePerLineageAcrossGenerations() {
+        // A genome that already carries 2 DM mutations and 1 trait mutation
+        // from earlier generations - its distance from the founder genome
+        // so far.
+        val parentDna = DNA(
+            Substance.Blue, Substance.Green, Substance.Yellow, Substance.White,
+            matrixWith(5, filler),
+            dmMutationCount = 2,
+            traitMutationCount = 1
+        )
 
-        // One DM mutation.
         whenever(mockRandomService.random()).thenReturn(0.0f)
         whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
         whenever(mockRandomService.random(0, 4)).thenReturn(2)  // DmOperator.RerollSensor
         whenever(mockRandomService.random(0, Sensor.entries.size - 1)).thenReturn(Sensor.Age.ordinal)
-        mutationService.mutatedDna(dmDna)
 
-        assertEquals(1, mutationService.dmMutationCount)
-        assertEquals(0, mutationService.traitMutationCount)
+        val offspringDna = mutationService.mutatedDna(parentDna)
 
-        // One trait mutation.
-        whenever(mockRandomService.random()).thenReturn(0.0f, 1.0f)
-        whenever(mockRandomService.random(0, DNA.Trait.count() - 1)).thenReturn(0)
-        whenever(mockRandomService.random(1, Substance.values().size - 1)).thenReturn(Substance.Red.ordinal)
-        mutationService.mutatedDna(traitDna)
-
-        assertEquals(1, mutationService.dmMutationCount)
-        assertEquals(1, mutationService.traitMutationCount)
+        // One more DM mutation lands on top of what the parent already
+        // carried - the trait count is inherited unchanged.
+        assertEquals(3, offspringDna.dmMutationCount)
+        assertEquals(1, offspringDna.traitMutationCount)
     }
 }

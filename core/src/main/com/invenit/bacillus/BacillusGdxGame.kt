@@ -59,7 +59,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         debugStage = DebugStage(field)
         environmentStage = EnvironmentStage(field)
-        statisticsStage = StatisticsStage(field, mutationService)
+        statisticsStage = StatisticsStage(field)
         statisticsStage.viewport.setWorldSize(Settings.TotalWidth.toFloat(), Settings.Height.toFloat())
         statisticsStage.viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
         slidersStage = SlidersStage(field)

@@ -36,12 +36,6 @@ class MutationServiceImpl(
         RerollJumpOffset
     }
 
-    override var dmMutationCount: Int = 0
-        private set
-
-    override var traitMutationCount: Int = 0
-        private set
-
     override fun mutatedSize(size: Int): Int =
         size + MathUtils.random(-size / 4, size / 4)
 
@@ -50,29 +44,37 @@ class MutationServiceImpl(
      * happens at all this call, gated by [Settings.MutationRate] (unchanged
      * from the original trait-only mutation); second — only if it does —
      * whether it targets the Decision Matrix or a trait, weighted by
-     * [Settings.DmMutationRatio].
+     * [Settings.DmMutationRatio]. Whichever fires also bumps that half of
+     * [dna]'s own per-lineage mutation count (#12) — [DNA.dmMutationCount]
+     * or [DNA.traitMutationCount], this genome's "distance" from the
+     * founder genome, carried on the genome itself rather than tracked
+     * globally so every cell can be inspected individually.
      * @param dna the genome to (possibly) mutate
-     * @return [dna] unchanged, or a copy with one DM state or one trait rerolled
+     * @return [dna] unchanged, or a copy with one DM state or one trait
+     * rerolled and the matching mutation count incremented
      */
     override fun mutatedDna(dna: DNA): DNA {
         if (randomService.random() >= Settings.MutationRate) return dna
 
         return if (randomService.random() < Settings.DmMutationRatio) {
-            dmMutationCount++
-            dna.copy(decisionMatrix = mutatedDecisionMatrix(dna.decisionMatrix))
+            dna.copy(
+                decisionMatrix = mutatedDecisionMatrix(dna.decisionMatrix),
+                dmMutationCount = dna.dmMutationCount + 1
+            )
         } else {
-            traitMutationCount++
             mutatedTrait(dna)
         }
     }
 
-    private fun mutatedTrait(dna: DNA): DNA =
-        when (DNA.Trait.entries[randomService.random(0, DNA.Trait.count() - 1)]) {
+    private fun mutatedTrait(dna: DNA): DNA {
+        val mutated = when (DNA.Trait.entries[randomService.random(0, DNA.Trait.count() - 1)]) {
             DNA.Trait.Body -> dna.copy(body = randomBody())
             DNA.Trait.Consume -> dna.copy(consume = randomConsume())
             DNA.Trait.Produce -> dna.copy(produce = randomProduce())
             DNA.Trait.Toxin -> dna.copy(toxin = randomToxin())
         }
+        return mutated.copy(traitMutationCount = dna.traitMutationCount + 1)
+    }
 
     /**
      * Picks one random state in [matrix] and rewrites it with one randomly

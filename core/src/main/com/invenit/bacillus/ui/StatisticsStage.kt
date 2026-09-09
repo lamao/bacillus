@@ -8,20 +8,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.Field
-import com.invenit.bacillus.service.MutationService
 
 /**
  * Created by viacheslav.mishcheriakov
  */
-class StatisticsStage(val field: Field, val mutationService: MutationService) : Stage() {
+class StatisticsStage(val field: Field) : Stage() {
 
     private val fpsValueLabel: Label
     private val tpsValueLabel: Label
     private val ticsValueLabel: Label
     private val totalValueLabel: Label
     private val mineralsValueLabel: Label
-    private val dmMutationsValueLabel: Label
-    private val traitMutationsValueLabel: Label
 
     private var skin: Skin = Skin(Gdx.files.internal("uiskin.json"))
 
@@ -62,18 +59,6 @@ class StatisticsStage(val field: Field, val mutationService: MutationService) : 
         mineralsValueLabel = Label("", skin)
         table.add(mineralsValueLabel).left().padLeft(10f)
         table.add().expandX()
-
-        table.row().align(Align.left)
-        table.add(Label("DM Mutations:", skin)).left()
-        dmMutationsValueLabel = Label("", skin)
-        table.add(dmMutationsValueLabel).left().padLeft(10f)
-        table.add().expandX()
-
-        table.row().align(Align.left)
-        table.add(Label("Trait Mutations:", skin)).left()
-        traitMutationsValueLabel = Label("", skin)
-        table.add(traitMutationsValueLabel).left().padLeft(10f)
-        table.add().expandX()
     }
 
     override fun act(delta: Float) {
@@ -81,8 +66,6 @@ class StatisticsStage(val field: Field, val mutationService: MutationService) : 
 
         setTotal(field.organics.count() + field.minerals.count())
         setMinerals(field.minerals.count())
-        dmMutationsValueLabel.setText("%,d".format(mutationService.dmMutationCount))
-        traitMutationsValueLabel.setText("%,d".format(mutationService.traitMutationCount))
     }
 
     fun setGeneralInfo(fps: Int, ticsPerSecond: Int, ticsPassed: Long) {
