@@ -127,4 +127,32 @@ internal class TestDecisionMatrix {
         assertEquals(5, result.nextIndex)   // (20 + 10) mod 25
     }
 
+    @Test
+    fun testWithInstructionReplacesOnlyTheGivenState() {
+        val marker = filler.copy(threshold = 42.0)
+        val matrix = DecisionMatrix(List(DecisionMatrix.SIZE) { filler })
+
+        val mutated = matrix.withInstruction(5, marker)
+
+        assertEquals(marker, mutated[5])
+        assertEquals(filler, mutated[4])
+        assertEquals(filler, mutated[6])
+        // The original matrix is untouched.
+        assertEquals(filler, matrix[5])
+    }
+
+    @ParameterizedTest(name = "withInstruction({0}, ...) replaces state 3")
+    @CsvSource(
+        "28",    // wraps forward past the end (28 mod 25 = 3)
+        "-22",   // wraps backward past the start (-22 mod 25 = 3)
+    )
+    fun testWithInstructionWrapsIndex(index: Int) {
+        val marker = filler.copy(threshold = 42.0)
+        val matrix = DecisionMatrix(List(DecisionMatrix.SIZE) { filler })
+
+        val mutated = matrix.withInstruction(index, marker)
+
+        assertEquals(marker, mutated[3])
+    }
+
 }

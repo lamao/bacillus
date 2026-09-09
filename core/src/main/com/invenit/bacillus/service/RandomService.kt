@@ -6,6 +6,7 @@ package com.invenit.bacillus.service
  */
 interface RandomService {
     fun random(start: Int, end: Int): Int
+    fun random(start: Float, end: Float): Float
     fun random(): Float
     fun randomBoolean(): Boolean
 }

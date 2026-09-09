@@ -16,6 +16,17 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
 
     operator fun get(index: Int): Instruction = instructions[wrap(index)]
 
+    /**
+     * A copy of this matrix with the instruction at [index] replaced by
+     * [instruction], leaving every other state untouched. Used by DM
+     * mutation (#1 §5) to rewrite exactly one state in the ring.
+     * @param index the state to replace; wrapped modulo [SIZE] like [get]
+     * @param instruction the new instruction for that state
+     * @return a new [DecisionMatrix] with the one state replaced
+     */
+    fun withInstruction(index: Int, instruction: Instruction): DecisionMatrix =
+        DecisionMatrix(instructions.toMutableList().also { it[wrap(index)] = instruction })
+
     /** Index reached by the implicit advance taken when a state's test is false. */
     fun next(index: Int): Int = wrap(index + 1)
 
