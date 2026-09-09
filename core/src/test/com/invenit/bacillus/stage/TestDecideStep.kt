@@ -5,6 +5,8 @@ import com.invenit.bacillus.model.*
 import com.invenit.bacillus.model.matrix.*
 import com.invenit.bacillus.service.RandomService
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
@@ -280,8 +282,12 @@ class TestDecideStep {
         assertEquals(1, cell.currentState)
     }
 
-    @Test
-    fun testSizeRatioSensorAboveThresholdJumps() {
+    @ParameterizedTest
+    @CsvSource(
+        "1.0, 3",   // ratio 1.0 >= threshold 0.5 -> jump
+        "0.01, 1",  // ratio well below threshold 0.5 -> advance
+    )
+    fun testSizeRatioSensor(sizeFraction: Double, expectedCurrentState: Int) {
         val matrix = matrixWith(
             0, Instruction(
                 action = Action(Action.Category.Rest),
@@ -291,37 +297,21 @@ class TestDecideStep {
                 jumpOffset = 3
             )
         )
-        val cell = organic(Point(1, 1), matrix, size = Settings.MaxSize)
+        val cell = organic(Point(1, 1), matrix, size = (Settings.MaxSize * sizeFraction).toInt())
         val field = Field(3, 3)
         field.add(cell)
 
         step.execute(field)
 
-        assertEquals(3, cell.currentState)
+        assertEquals(expectedCurrentState, cell.currentState)
     }
 
-    @Test
-    fun testSizeRatioSensorBelowThresholdAdvances() {
-        val matrix = matrixWith(
-            0, Instruction(
-                action = Action(Action.Category.Rest),
-                sensor = Sensor.SizeRatio,
-                comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.5,
-                jumpOffset = 3
-            )
-        )
-        val cell = organic(Point(1, 1), matrix, size = 10)
-        val field = Field(3, 3)
-        field.add(cell)
-
-        step.execute(field)
-
-        assertEquals(1, cell.currentState)
-    }
-
-    @Test
-    fun testAgeSensorReflectsAgeOverMaxAge() {
+    @ParameterizedTest
+    @CsvSource(
+        "0.6, 3",  // age ratio 0.6 >= threshold 0.5 -> jump
+        "0.1, 1",  // age ratio 0.1 below threshold 0.5 -> advance
+    )
+    fun testAgeSensor(ageFraction: Double, expectedCurrentState: Int) {
         val matrix = matrixWith(
             0, Instruction(
                 action = Action(Action.Category.Rest),
@@ -332,34 +322,13 @@ class TestDecideStep {
             )
         )
         val cell = organic(Point(1, 1), matrix)
-        cell.age = (Settings.MaxAge * 0.6).toInt()
+        cell.age = (Settings.MaxAge * ageFraction).toInt()
         val field = Field(3, 3)
         field.add(cell)
 
         step.execute(field)
 
-        assertEquals(3, cell.currentState)
-    }
-
-    @Test
-    fun testAgeSensorBelowThresholdAdvances() {
-        val matrix = matrixWith(
-            0, Instruction(
-                action = Action(Action.Category.Rest),
-                sensor = Sensor.Age,
-                comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.5,
-                jumpOffset = 3
-            )
-        )
-        val cell = organic(Point(1, 1), matrix)
-        cell.age = (Settings.MaxAge * 0.1).toInt()
-        val field = Field(3, 3)
-        field.add(cell)
-
-        step.execute(field)
-
-        assertEquals(1, cell.currentState)
+        assertEquals(expectedCurrentState, cell.currentState)
     }
 
     @Test
