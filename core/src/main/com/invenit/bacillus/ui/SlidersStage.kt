@@ -32,7 +32,7 @@ class SlidersStage(val field: Field) : Stage() {
         table.row()
         table.add(Label("", skin)).colspan(3)
 
-        table.addSlider(0f, 1000f, 5f, Settings.TicsPerSecond.toFloat(),
+        table.addSlider(0f, 2000f, 5f, Settings.TicsPerSecond.toFloat(),
             { Settings.TicsPerSecond = it.toInt() },
             "Speed",
             { "%,d TPS".format(Settings.TicsPerSecond) }
@@ -42,6 +42,12 @@ class SlidersStage(val field: Field) : Stage() {
             { Settings.MutationRate = it },
             "Mutation Rate",
             { "%.3f".format(Settings.MutationRate) }
+        )
+
+        table.addSlider(0f, 1f, 0.05f, Settings.DmMutationRatio,
+            { Settings.DmMutationRatio = it },
+            "DM Mutation Ratio",
+            { "%.2f".format(Settings.DmMutationRatio) }
         )
 
         table.addSlider(0f, 200f, 5f, Settings.SunYield.toFloat(),

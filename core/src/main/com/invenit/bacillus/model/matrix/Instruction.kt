@@ -9,6 +9,6 @@ data class Instruction(
     val action: Action,
     val sensor: Sensor,
     val comparator: Comparator,
-    val threshold: Double,
+    val threshold: Int,
     val jumpOffset: Int
 )

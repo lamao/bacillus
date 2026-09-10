@@ -56,6 +56,10 @@ object Settings {
 
     const val ProbabilityToSpawnOrganics = 0.0f
     var MutationRate = 0.01f
+    // Of a mutation that fires (gated by MutationRate above), the share that
+    // targets the Decision Matrix (#1 §5) rather than a body/consume/
+    // produce/toxin trait (#12).
+    var DmMutationRatio = 0.8f
     const val UnexpectedDeathRate = 0f
 
     const val InitNumberOfOrganics = 20

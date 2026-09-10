@@ -31,7 +31,7 @@ class TestDecideStep {
         action = Action(Action.Category.Rest),
         sensor = Sensor.EnergyRatio,
         comparator = Comparator.GreaterThanOrEqual,
-        threshold = 0.0,
+        threshold = 0,
         jumpOffset = 0
     )
 
@@ -161,7 +161,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.EnergyRatio,
                 comparator = Comparator.LessThan,
-                threshold = 0.0,
+                threshold = 0,
                 jumpOffset = 10
             )
         )
@@ -181,7 +181,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.EnergyRatio,
                 comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.0,
+                threshold = 0,
                 jumpOffset = 10
             )
         )
@@ -201,7 +201,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.FoodDistance,
                 comparator = Comparator.LessThan,
-                threshold = 2.0,
+                threshold = 2,
                 jumpOffset = 5
             )
         )
@@ -224,7 +224,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.FoodDistance,
                 comparator = Comparator.LessThan,
-                threshold = (Settings.VisionRange + 1).toDouble(),
+                threshold = Settings.VisionRange + 1,
                 jumpOffset = 5
             )
         )
@@ -245,7 +245,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.ToxinDistance,
                 comparator = Comparator.LessThan,
-                threshold = 2.0,
+                threshold = 2,
                 jumpOffset = 5
             )
         )
@@ -268,7 +268,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.ToxinDistance,
                 comparator = Comparator.LessThan,
-                threshold = (Settings.ToxinRange + 1).toDouble(),
+                threshold = Settings.ToxinRange + 1,
                 jumpOffset = 5
             )
         )
@@ -293,7 +293,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.SizeRatio,
                 comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.5,
+                threshold = 50,
                 jumpOffset = 3
             )
         )
@@ -317,7 +317,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.Age,
                 comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.5,
+                threshold = 50,
                 jumpOffset = 3
             )
         )
@@ -338,7 +338,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.Crowding,
                 comparator = Comparator.GreaterThanOrEqual,
-                threshold = 2.0,
+                threshold = 2,
                 jumpOffset = 4
             )
         )
@@ -366,7 +366,7 @@ class TestDecideStep {
                 action = Action(Action.Category.Rest),
                 sensor = Sensor.Random,
                 comparator = Comparator.GreaterThanOrEqual,
-                threshold = 0.5,
+                threshold = 50,
                 jumpOffset = 6
             )
         )
@@ -404,6 +404,21 @@ class TestDecideStep {
     }
 
     @Test
+    fun testMoveAwayFromToxinFallsBackToNoDirectionWhenAwayStepWouldLeaveField() {
+        // Cell at the left edge; toxin to its right means "away" points off
+        // the field's left side.
+        val cell = organic(Point(0, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.AwayFromToxin)))
+        val toxin = Mineral(Point(1, 1), 100, Substance.Red)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(toxin)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
     fun testMoveTowardOpenSpaceStepsAwayFromCrowdCentroid() {
         val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
         val crowdMember = Mineral(Point(2, 1), 100, Substance.Blue)
@@ -421,6 +436,21 @@ class TestDecideStep {
         val cell = organic(Point(1, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
         val field = Field(3, 3)
         field.add(cell)
+
+        step.execute(field)
+
+        assertEquals(Field.NoDirection, cell.direction)
+    }
+
+    @Test
+    fun testMoveTowardOpenSpaceFallsBackToNoDirectionWhenAwayStepWouldLeaveField() {
+        // Cell at the left edge; the crowd is to its right, so away from it
+        // points off the field's left side.
+        val cell = organic(Point(0, 1), matrixWithAction(Action(Action.Category.Move, Action.Mode.TowardOpenSpace)))
+        val crowdMember = Mineral(Point(1, 1), 100, Substance.Blue)
+        val field = Field(3, 3)
+        field.add(cell)
+        field.add(crowdMember)
 
         step.execute(field)
 
@@ -483,7 +513,7 @@ class TestDecideStep {
             action = action,
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.0,
+            threshold = 0,
             jumpOffset = 0
         )
     )

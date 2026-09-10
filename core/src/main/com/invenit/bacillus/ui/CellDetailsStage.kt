@@ -89,6 +89,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     private val energyValueLabel: Label
     private val sizeValueLabel: Label
     private val ageValueLabel: Label
+    private val dmMutationsValueLabel: Label
+    private val traitMutationsValueLabel: Label
     private val matrixCells: List<MatrixCell>
 
     init {
@@ -110,6 +112,17 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         table.add(Label("Age:", skin)).left()
         ageValueLabel = Label("", skin)
         table.add(ageValueLabel).left().padLeft(10f).row()
+
+        // Per-cell mutation counts (#12): how many DM/trait mutations this
+        // cell's genome carries since the founder genome that seeded the
+        // population - i.e. this cell's "distance" from that original.
+        table.add(Label("DM Mutations:", skin)).left()
+        dmMutationsValueLabel = Label("", skin)
+        table.add(dmMutationsValueLabel).left().padLeft(10f).row()
+
+        table.add(Label("Trait Mutations:", skin)).left()
+        traitMutationsValueLabel = Label("", skin)
+        table.add(traitMutationsValueLabel).left().padLeft(10f).row()
 
         addActor(table)
 
@@ -177,6 +190,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             energyValueLabel.setText(cell!!.energy.toString())
             sizeValueLabel.setText(cell!!.size.toString())
             ageValueLabel.setText(cell!!.age.toString())
+            dmMutationsValueLabel.setText(cell!!.dna.dmMutationCount.toString())
+            traitMutationsValueLabel.setText(cell!!.dna.traitMutationCount.toString())
             updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false
@@ -190,7 +205,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         for (i in matrixCells.indices) {
             val matrixCell = matrixCells[i]
             val instruction = decisionMatrix[i]
-            matrixCell.sensorValueLabel.setText("%.2f".format(instruction.threshold))
+            matrixCell.sensorValueLabel.setText("%d".format(instruction.threshold))
             matrixCell.jumpValueLabel.setText(abs(instruction.jumpOffset).toString())
             matrixCell.tooltip.actor.setText(instruction.toDisplayText())
             matrixCell.container.background = if (i == currentState) currentStateBackground else neutralCellBackground

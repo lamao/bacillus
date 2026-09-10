@@ -12,7 +12,7 @@ internal class TestDecisionMatrix {
         action = Action(Action.Category.Rest),
         sensor = Sensor.EnergyRatio,
         comparator = Comparator.GreaterThanOrEqual,
-        threshold = 0.0,
+        threshold = 0,
         jumpOffset = 0
     )
 
@@ -35,19 +35,6 @@ internal class TestDecisionMatrix {
 
         assertEquals(filler, matrix[0])
         assertEquals(filler, matrix[DecisionMatrix.SIZE - 1])
-    }
-
-    @ParameterizedTest(name = "get({0}) reads state 3")
-    @CsvSource(
-        "3",     // no wrap
-        "28",    // wraps forward past the end (28 mod 25 = 3)
-        "-22",   // wraps backward past the start (-22 mod 25 = 3)
-    )
-    fun testGetWrapsIndex(index: Int) {
-        val marker = filler.copy(threshold = 42.0)
-        val matrix = matrixWith(3, marker)
-
-        assertEquals(marker, matrix[index])
     }
 
     @ParameterizedTest(name = "next({0}) = {1}")
@@ -82,12 +69,12 @@ internal class TestDecisionMatrix {
             action = Action(Action.Category.Move, Action.Mode.TowardConsume),
             sensor = Sensor.FoodDistance,
             comparator = Comparator.LessThan,
-            threshold = 2.0,
+            threshold = 2,
             jumpOffset = 4
         )
         val matrix = matrixWith(0, move)
 
-        val result = matrix.evaluate(0, sensorValue = 1.0)
+        val result = matrix.evaluate(0, sensorValue = 1)
 
         assertEquals(move.action, result.action)
         assertEquals(4, result.nextIndex)
@@ -99,12 +86,12 @@ internal class TestDecisionMatrix {
             action = Action(Action.Category.Move, Action.Mode.TowardConsume),
             sensor = Sensor.FoodDistance,
             comparator = Comparator.LessThan,
-            threshold = 2.0,
+            threshold = 2,
             jumpOffset = 4
         )
         val matrix = matrixWith(0, move)
 
-        val result = matrix.evaluate(0, sensorValue = 5.0)
+        val result = matrix.evaluate(0, sensorValue = 5)
 
         assertEquals(move.action, result.action)
         assertEquals(1, result.nextIndex)
@@ -116,15 +103,29 @@ internal class TestDecisionMatrix {
             action = Action(Action.Category.Rest),
             sensor = Sensor.EnergyRatio,
             comparator = Comparator.GreaterThanOrEqual,
-            threshold = 0.5,
+            threshold = 50,
             jumpOffset = 10
         )
         val matrix = matrixWith(20, rest)
 
-        val result = matrix.evaluate(20, sensorValue = 0.9)
+        val result = matrix.evaluate(20, sensorValue = 90)
 
         assertEquals(rest.action, result.action)
         assertEquals(5, result.nextIndex)   // (20 + 10) mod 25
+    }
+
+    @Test
+    fun testWithInstructionReplacesOnlyTheGivenState() {
+        val marker = filler.copy(threshold = 42)
+        val matrix = DecisionMatrix(List(DecisionMatrix.SIZE) { filler })
+
+        val mutated = matrix.withInstruction(5, marker)
+
+        assertEquals(marker, mutated[5])
+        assertEquals(filler, mutated[4])
+        assertEquals(filler, mutated[6])
+        // The original matrix is untouched.
+        assertEquals(filler, matrix[5])
     }
 
 }

@@ -14,7 +14,18 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
         }
     }
 
-    operator fun get(index: Int): Instruction = instructions[wrap(index)]
+    operator fun get(index: Int): Instruction = instructions[index]
+
+    /**
+     * A copy of this matrix with the instruction at [index] replaced by
+     * [instruction], leaving every other state untouched. Used by DM
+     * mutation (#1 §5) to rewrite exactly one state in the ring.
+     * @param index the state to replace;
+     * @param instruction the new instruction for that state
+     * @return a new [DecisionMatrix] with the one state replaced
+     */
+    fun withInstruction(index: Int, instruction: Instruction): DecisionMatrix =
+        DecisionMatrix(instructions.toMutableList().also { it[index] = instruction })
 
     /** Index reached by the implicit advance taken when a state's test is false. */
     fun next(index: Int): Int = wrap(index + 1)
@@ -28,7 +39,7 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
      * live [com.invenit.bacillus.model.Organic] is #1 task 5's scope, not this draft's) to decide the
      * next index.
      */
-    fun evaluate(index: Int, sensorValue: Double): StateResult {
+    fun evaluate(index: Int, sensorValue: Int): StateResult {
         val instruction = this[index]
         val conditionMet = instruction.comparator.test(sensorValue, instruction.threshold)
         val nextIndex = if (conditionMet) jump(index, instruction.jumpOffset) else next(index)
@@ -48,7 +59,7 @@ data class DecisionMatrix(private val instructions: List<Instruction>) {
                     action = Action(Action.Category.Rest),
                     sensor = Sensor.EnergyRatio,
                     comparator = Comparator.GreaterThanOrEqual,
-                    threshold = 0.0,
+                    threshold = 0,
                     jumpOffset = 0
                 )
             }
