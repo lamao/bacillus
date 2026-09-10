@@ -82,7 +82,7 @@ class MutationServiceImpl(
      * @param matrix the Decision Matrix to mutate
      * @return a copy of [matrix] with exactly one state's instruction changed
      */
-    private fun mutatedDecisionMatrix(matrix: DecisionMatrix): DecisionMatrix {
+    override fun mutatedDecisionMatrix(matrix: DecisionMatrix): DecisionMatrix {
         val index = randomService.random(0, DecisionMatrix.SIZE - 1)
         val instruction = matrix[index]
 
