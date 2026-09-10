@@ -150,6 +150,31 @@ class TestMutationServiceImpl {
     }
 
     @Test
+    fun testMutatedDecisionMatrixAppliesUnconditionally() {
+        // Unlike mutatedDna, mutatedDecisionMatrix (#13) isn't gated by the
+        // Settings.MutationRate roll - proven here by never stubbing
+        // mockRandomService.random(), so Mockito's unstubbed-float default
+        // (0f) would pass the gate anyway, but the point is that this entry
+        // point never calls it in the first place.
+        val original = Instruction(
+            action = Action(Action.Category.Rest),
+            sensor = Sensor.EnergyRatio,
+            comparator = Comparator.GreaterThanOrEqual,
+            threshold = 50,
+            jumpOffset = 3
+        )
+        val matrix = matrixWith(5, original)
+
+        whenever(mockRandomService.random(0, DecisionMatrix.SIZE - 1)).thenReturn(5)
+        whenever(mockRandomService.random(0, 4)).thenReturn(2)  // DmOperator.RerollSensor
+        whenever(mockRandomService.random(0, Sensor.entries.size - 1)).thenReturn(Sensor.Crowding.ordinal)
+
+        val mutated = mutationService.mutatedDecisionMatrix(matrix)
+
+        assertEquals(original.copy(sensor = Sensor.Crowding), mutated[5])
+    }
+
+    @Test
     fun testMutatedSizeStaysWithinAQuarterOfOriginal() {
         val originalSize = 1000
 

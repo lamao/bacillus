@@ -76,7 +76,7 @@ class BacillusGdxGame : ApplicationAdapter() {
 
         slidersStage.setConfigureButtonHandler {
             Settings.pause = true
-            AddCreatureDialog(creatureFactory, decisionMatrixFactory) {
+            AddCreatureDialog(creatureFactory, decisionMatrixFactory, mutationService) {
                 Settings.pause = false
             }.showConfiguration(cellDetailsStage)
         }

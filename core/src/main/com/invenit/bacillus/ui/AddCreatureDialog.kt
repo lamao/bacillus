@@ -13,10 +13,12 @@ import com.invenit.bacillus.model.DNA
 import com.invenit.bacillus.model.Substance
 import com.invenit.bacillus.model.matrix.DecisionMatrixFactory
 import com.invenit.bacillus.service.CreatureFactory
+import com.invenit.bacillus.service.MutationService
 
 class AddCreatureDialog(
     private val creatureFactory: CreatureFactory,
     private val decisionMatrixFactory: DecisionMatrixFactory,
+    private val mutationService: MutationService,
     private val onClosed: () -> Unit
 ) : Dialog("Configure Creature", Skin(Gdx.files.internal("uiskin.json"))) {
 
@@ -56,7 +58,11 @@ class AddCreatureDialog(
     private val nonSunSubstances = allSubstances.filter { it.substance != Substance.Sun }
     private val sizeSlider = Slider(100f, 2000f, 10f, false, skin)
     private val sizeLabel = Label("", skin)
-    
+    // At minimum, manual spawns get the standard preset (#8) unchanged; this
+    // opts into a mutated variant instead, reusing the mutation operators
+    // from #12 rather than the full grid editor #1 §6 explicitly defers.
+    private val mutateDecisionMatrixCheckBox = CheckBox(" Mutate Decision Matrix", skin)
+
     init {
         val table = contentTable
         table.defaults().pad(5f).left()
@@ -82,6 +88,8 @@ class AddCreatureDialog(
         table.add(sizeSlider).row()
         table.add(sizeLabel).colspan(2).center().row()
 
+        table.add(mutateDecisionMatrixCheckBox).colspan(2).left().row()
+
         sizeSlider.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 sizeLabel.setText(sizeSlider.value.toInt().toString())
@@ -101,6 +109,7 @@ class AddCreatureDialog(
         toxinSelect.selected = nonSunSubstances.find { it.substance == creatureFactory.lastDNA.toxin }
         sizeSlider.value = creatureFactory.lastSize.toFloat()
         sizeLabel.setText(sizeSlider.value.toInt().toString())
+        mutateDecisionMatrixCheckBox.isChecked = false
     }
 
     fun showConfiguration(stage: Stage) {
@@ -110,12 +119,16 @@ class AddCreatureDialog(
 
     override fun result(`object`: Any?) {
         if (`object` == true) {
+            val decisionMatrix = decisionMatrixFactory.initial().let {
+                if (mutateDecisionMatrixCheckBox.isChecked) mutationService.mutatedDecisionMatrix(it) else it
+            }
+
             creatureFactory.lastDNA = DNA(
                 bodySelect.selected.substance,
                 consumeSelect.selected.substance,
                 produceSelect.selected.substance,
                 toxinSelect.selected.substance,
-                decisionMatrixFactory.initial()
+                decisionMatrix
             )
 
             creatureFactory.lastSize = sizeSlider.value.toInt()
