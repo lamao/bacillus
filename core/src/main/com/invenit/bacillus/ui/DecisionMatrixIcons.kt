@@ -46,6 +46,12 @@ val IconStrokeColor: Color = Color(0.07f, 0.07f, 0.09f, 1f)
 /** Jump glyphs sit directly on the cell's plain background rather than a color badge, so they keep a neutral accent color. */
 val JumpGlyphColor: Color = Color(0.8f, 0.8f, 0.8f, 1f)
 
+/** A matrix cell's idle background — also used by [LegendDialog] as the neutral backdrop for the condition/jump glyphs, which (like a cell) carry no badge of their own. */
+val NeutralCellColor: Color = Color(0.16f, 0.16f, 0.2f, 1f)
+
+/** A matrix cell's background while it's the organic's currently executing state. */
+val CurrentStateColor: Color = Color(0.45f, 0.38f, 0.1f, 1f)
+
 fun Action.toIcon(): ActionIcon = when (category) {
     Action.Category.Rest -> ActionIcon.RestBars
     Action.Category.Split -> ActionIcon.Split

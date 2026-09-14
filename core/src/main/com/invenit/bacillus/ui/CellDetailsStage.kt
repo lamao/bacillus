@@ -52,12 +52,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         const val SENSOR_BADGE_INSET = 1f
 
         const val LEGEND_BUTTON_SIZE = 18f
-
-        private val NeutralCellColor = Color(0.16f, 0.16f, 0.2f, 1f)
-        private val CurrentStateColor = Color(0.45f, 0.38f, 0.1f, 1f)
     }
-
-    private enum class TriDirection { Up, Down, Left, Right }
 
     private class MatrixCell(
         val container: Table,
@@ -261,16 +256,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         val toxinColor = Color(cell.dna.toxin.color)
             .sub(BacillusGdxGame.TransparentMask)
             .add(0f, 0f, 0f, sqrt(alpha))
-        drawXMark(x + CELL_RADIUS, y - CELL_RADIUS, radius, toxinColor)
+        DecisionMatrixRenderer.drawXMark(shapeRenderer, x + CELL_RADIUS, y - CELL_RADIUS, radius, toxinColor)
         shapeRenderer.end()
-    }
-
-    private fun drawXMark(cx: Float, cy: Float, radius: Float, color: Color) {
-        shapeRenderer.color = color
-        shapeRenderer.line(cx - radius, cy + radius, cx - radius / 2, cy + radius / 2)
-        shapeRenderer.line(cx + radius, cy + radius, cx + radius / 2, cy + radius / 2)
-        shapeRenderer.line(cx + radius, cy - radius, cx + radius / 2, cy - radius / 2)
-        shapeRenderer.line(cx - radius, cy - radius, cx - radius / 2, cy - radius / 2)
     }
 
     private fun drawDecisionMatrix(cell: Organic) {
@@ -285,31 +272,35 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             val actionCenter = matrixCell.actionZone.localToStageCoordinates(
                 Vector2(matrixCell.actionZone.width / 2f, matrixCell.actionZone.height / 2f)
             )
-            drawBadge(
-                actionCenter.x, actionCenter.y,
+            DecisionMatrixRenderer.drawBadge(
+                shapeRenderer, actionCenter.x, actionCenter.y,
                 matrixCell.actionZone.width, matrixCell.actionZone.height,
                 ACTION_BADGE_INSET, icon.badgeColor()
             )
-            drawActionIcon(icon, actionCenter.x, actionCenter.y)
+            DecisionMatrixRenderer.drawActionIcon(shapeRenderer, icon, actionCenter.x, actionCenter.y, ACTION_ICON_SIZE, IconStrokeColor)
 
             val sensorAnchor = matrixCell.sensorValueLabel.localToStageCoordinates(
                 Vector2(0f, matrixCell.sensorValueLabel.height / 2f)
             )
-            drawBadge(
-                sensorAnchor.x + SENSOR_BADGE_WIDTH / 2f, sensorAnchor.y,
+            DecisionMatrixRenderer.drawBadge(
+                shapeRenderer, sensorAnchor.x + SENSOR_BADGE_WIDTH / 2f, sensorAnchor.y,
                 SENSOR_BADGE_WIDTH, SENSOR_ROW_HEIGHT,
                 SENSOR_BADGE_INSET, instruction.sensor.badgeColor()
             )
-            drawSensorGlyph(instruction.sensor.toGlyph(), sensorAnchor.x + GLYPH_INSET, sensorAnchor.y, IconStrokeColor)
-            drawTriangleGlyph(
-                instruction.comparator.toChevron().toTriDirection(),
+            DecisionMatrixRenderer.drawSensorGlyph(
+                shapeRenderer, instruction.sensor.toGlyph(), sensorAnchor.x + GLYPH_INSET, sensorAnchor.y, GLYPH_SIZE, IconStrokeColor
+            )
+            DecisionMatrixRenderer.drawChevron(
+                shapeRenderer, instruction.comparator.toChevron(),
                 sensorAnchor.x + CHEVRON_INSET, sensorAnchor.y, CHEVRON_SIZE, IconStrokeColor
             )
 
             val jumpAnchor = matrixCell.jumpValueLabel.localToStageCoordinates(
                 Vector2(0f, matrixCell.jumpValueLabel.height / 2f)
             )
-            drawJumpGlyph(instruction.jumpOffset.toJumpDirection(), jumpAnchor.x + GLYPH_INSET, jumpAnchor.y)
+            DecisionMatrixRenderer.drawJumpGlyph(
+                shapeRenderer, instruction.jumpOffset.toJumpDirection(), jumpAnchor.x + GLYPH_INSET, jumpAnchor.y, CHEVRON_SIZE, JumpGlyphColor
+            )
         }
         shapeRenderer.end()
 
@@ -319,140 +310,10 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
                 val actionCenter = matrixCell.actionZone.localToStageCoordinates(
                     Vector2(matrixCell.actionZone.width / 2f, matrixCell.actionZone.height / 2f)
                 )
-                drawExploreRing(actionCenter.x, actionCenter.y)
+                DecisionMatrixRenderer.drawExploreRing(shapeRenderer, actionCenter.x, actionCenter.y, ACTION_ICON_SIZE, IconStrokeColor)
             }
         }
         shapeRenderer.end()
-    }
-
-    /** Flat color-filled backing behind a glyph (#36), centered at ([cx], [cy]) and inset from its ([width], [height]) zone. */
-    private fun drawBadge(cx: Float, cy: Float, width: Float, height: Float, inset: Float, color: Color) {
-        shapeRenderer.color = color
-        shapeRenderer.rect(cx - width / 2f + inset, cy - height / 2f + inset, width - 2 * inset, height - 2 * inset)
-    }
-
-    private fun drawActionIcon(icon: ActionIcon, cx: Float, cy: Float) {
-        when (icon) {
-            ActionIcon.RestBars -> drawRestBars(cx, cy, IconStrokeColor)
-            ActionIcon.Seek -> drawSeekIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Flee -> drawFleeIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Explore -> drawTriangleGlyph(TriDirection.Up, cx, cy - ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, IconStrokeColor)
-            ActionIcon.Random -> drawRandomIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Hold -> drawHoldIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Release -> drawReleaseIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Retain -> drawRetainIcon(cx, cy, IconStrokeColor)
-            ActionIcon.Split -> drawSplitIcon(cx, cy, IconStrokeColor)
-        }
-    }
-
-    private fun drawRestBars(cx: Float, cy: Float, color: Color) {
-        val barWidth = ACTION_ICON_SIZE * 0.22f
-        val barHeight = ACTION_ICON_SIZE
-        val gap = ACTION_ICON_SIZE * 0.16f
-        shapeRenderer.color = color
-        shapeRenderer.rect(cx - gap / 2 - barWidth, cy - barHeight / 2, barWidth, barHeight)
-        shapeRenderer.rect(cx + gap / 2, cy - barHeight / 2, barWidth, barHeight)
-    }
-
-    private fun drawSeekIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Up, cx, cy - ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, color)
-        shapeRenderer.color = color
-        shapeRenderer.circle(cx, cy + ACTION_ICON_SIZE * 0.55f, ACTION_ICON_SIZE * 0.12f)
-    }
-
-    private fun drawFleeIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Up, cx, cy + ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, color)
-        drawXMark(cx, cy - ACTION_ICON_SIZE * 0.45f, ACTION_ICON_SIZE * 0.18f, color)
-    }
-
-    private fun drawExploreRing(cx: Float, cy: Float) {
-        shapeRenderer.color = IconStrokeColor
-        shapeRenderer.circle(cx, cy + ACTION_ICON_SIZE * 0.55f, ACTION_ICON_SIZE * 0.14f)
-    }
-
-    private fun drawRandomIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val h = ACTION_ICON_SIZE * 0.4f
-        val w = ACTION_ICON_SIZE * 0.35f
-        shapeRenderer.line(cx - w, cy - h, cx, cy - h * 0.2f)
-        shapeRenderer.line(cx, cy - h * 0.2f, cx - w * 0.5f, cy + h * 0.3f)
-        shapeRenderer.line(cx - w * 0.5f, cy + h * 0.3f, cx + w, cy + h)
-        shapeRenderer.triangle(
-            cx + w, cy + h,
-            cx + w - ACTION_ICON_SIZE * 0.18f, cy + h - ACTION_ICON_SIZE * 0.05f,
-            cx + w - ACTION_ICON_SIZE * 0.05f, cy + h - ACTION_ICON_SIZE * 0.18f
-        )
-    }
-
-    private fun drawHoldIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val size = ACTION_ICON_SIZE * 0.55f
-        shapeRenderer.rect(cx - size / 2, cy - size / 2, size, size)
-    }
-
-    private fun drawReleaseIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Down, cx, cy, ACTION_ICON_SIZE * 0.8f, color)
-    }
-
-    private fun drawRetainIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        shapeRenderer.circle(cx, cy, ACTION_ICON_SIZE * 0.4f)
-    }
-
-    private fun drawSplitIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val r = ACTION_ICON_SIZE * 0.28f
-        val offset = ACTION_ICON_SIZE * 0.3f
-        shapeRenderer.circle(cx - offset, cy, r)
-        shapeRenderer.circle(cx + offset, cy, r)
-    }
-
-    private fun drawSensorGlyph(glyph: SensorGlyph, cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        when (glyph) {
-            SensorGlyph.Dot -> shapeRenderer.circle(cx, cy, GLYPH_SIZE / 2)
-            SensorGlyph.Diamond -> {
-                shapeRenderer.triangle(cx, cy + GLYPH_SIZE / 2, cx - GLYPH_SIZE / 2, cy, cx + GLYPH_SIZE / 2, cy)
-                shapeRenderer.triangle(cx, cy - GLYPH_SIZE / 2, cx - GLYPH_SIZE / 2, cy, cx + GLYPH_SIZE / 2, cy)
-            }
-            SensorGlyph.Triangle -> drawTriangleGlyph(TriDirection.Up, cx, cy, GLYPH_SIZE, color)
-            SensorGlyph.InvertedTriangle -> drawTriangleGlyph(TriDirection.Down, cx, cy, GLYPH_SIZE, color)
-            SensorGlyph.Cross -> drawXMark(cx, cy, GLYPH_SIZE / 2, color)
-            SensorGlyph.Cluster -> {
-                val r = GLYPH_SIZE * 0.18f
-                shapeRenderer.circle(cx - GLYPH_SIZE * 0.3f, cy, r)
-                shapeRenderer.circle(cx + GLYPH_SIZE * 0.3f, cy, r)
-                shapeRenderer.circle(cx, cy + GLYPH_SIZE * 0.3f, r)
-            }
-            SensorGlyph.Spark -> shapeRenderer.rect(cx - GLYPH_SIZE / 2, cy - GLYPH_SIZE / 2, GLYPH_SIZE, GLYPH_SIZE)
-        }
-    }
-
-    private fun ChevronDirection.toTriDirection(): TriDirection = when (this) {
-        ChevronDirection.Up -> TriDirection.Up
-        ChevronDirection.Down -> TriDirection.Down
-    }
-
-    private fun drawJumpGlyph(direction: JumpDirection, cx: Float, cy: Float) {
-        when (direction) {
-            JumpDirection.Forward -> drawTriangleGlyph(TriDirection.Right, cx, cy, CHEVRON_SIZE, JumpGlyphColor)
-            JumpDirection.Backward -> drawTriangleGlyph(TriDirection.Left, cx, cy, CHEVRON_SIZE, JumpGlyphColor)
-            JumpDirection.Neutral -> {
-                shapeRenderer.color = JumpGlyphColor
-                shapeRenderer.circle(cx, cy, CHEVRON_SIZE * 0.25f)
-            }
-        }
-    }
-
-    private fun drawTriangleGlyph(direction: TriDirection, cx: Float, cy: Float, size: Float, color: Color) {
-        shapeRenderer.color = color
-        val h = size / 2
-        when (direction) {
-            TriDirection.Up -> shapeRenderer.triangle(cx, cy + h, cx - h, cy - h, cx + h, cy - h)
-            TriDirection.Down -> shapeRenderer.triangle(cx, cy - h, cx - h, cy + h, cx + h, cy + h)
-            TriDirection.Left -> shapeRenderer.triangle(cx - h, cy, cx + h, cy - h, cx + h, cy + h)
-            TriDirection.Right -> shapeRenderer.triangle(cx + h, cy, cx - h, cy - h, cx - h, cy + h)
-        }
     }
 
     private fun Organic.getAlpha() =
