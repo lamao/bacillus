@@ -3,24 +3,22 @@ package com.invenit.bacillus.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL30
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.invenit.bacillus.BacillusGdxGame
 import com.invenit.bacillus.Settings
 import com.invenit.bacillus.model.*
 import com.invenit.bacillus.model.matrix.DecisionMatrix
-import com.invenit.bacillus.model.matrix.Sensor
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -46,28 +44,15 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         const val GLYPH_INSET = 6f
         const val CHEVRON_INSET = 15f
 
-        private val NeutralCellColor = Color(0.16f, 0.16f, 0.2f, 1f)
-        private val CurrentStateColor = Color(0.45f, 0.38f, 0.1f, 1f)
-        private val RestIconColor = Color(0.55f, 0.6f, 0.75f, 1f)
-        private val SeekColor = Color(0.3f, 0.75f, 0.3f, 1f)
-        private val FleeColor = Color(0.85f, 0.35f, 0.25f, 1f)
-        private val ExploreColor = Color(0.3f, 0.75f, 0.8f, 1f)
-        private val RandomColor = Color(0.7f, 0.4f, 0.85f, 1f)
-        private val HoldColor = Color(0.6f, 0.6f, 0.6f, 1f)
-        private val ReleaseColor = Color(0.85f, 0.55f, 0.2f, 1f)
-        private val RetainColor = Color(0.55f, 0.45f, 0.2f, 1f)
-        private val SplitColor = Color(0.3f, 0.85f, 0.55f, 1f)
-        private val FoodGlyphColor = SeekColor
-        private val EnergyGlyphColor = Color(0.85f, 0.65f, 0.15f, 1f)
-        private val ToxinGlyphColor = FleeColor
-        private val SizeGlyphColor = Color(0.5f, 0.6f, 0.9f, 1f)
-        private val AgeGlyphColor = Color(0.75f, 0.75f, 0.75f, 1f)
-        private val CrowdingGlyphColor = ExploreColor
-        private val RandomGlyphColor = RandomColor
-        private val JumpGlyphColor = Color(0.8f, 0.8f, 0.8f, 1f)
-    }
+        // Badge fills behind the action glyph and the sensor+condition glyphs (#36):
+        // a flat color block per cell, in the spirit of bacillus-vibe's per-cell color
+        // fill, so a state's category reads at a glance across the whole grid.
+        const val ACTION_BADGE_INSET = 1f
+        const val SENSOR_BADGE_WIDTH = 22f
+        const val SENSOR_BADGE_INSET = 1f
 
-    private enum class TriDirection { Up, Down, Left, Right }
+        const val LEGEND_BUTTON_SIZE = 18f
+    }
 
     private class MatrixCell(
         val container: Table,
@@ -82,6 +67,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     private val skin: Skin = Skin(Gdx.files.internal("uiskin.json"))
     private val table = Table()
     private val matrixTable = Table()
+    private val matrixPanel = Table()
+    private val legendDialog = LegendDialog(skin)
     private val neutralCellBackground = coloredDrawable(NeutralCellColor)
     private val currentStateBackground = coloredDrawable(CurrentStateColor)
 
@@ -154,22 +141,29 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             MatrixCell(container, actionZone, sensorValueLabel, jumpValueLabel, tooltip)
         }
         matrixTable.pack()
-        matrixTable.setPosition(x, y - 2 * CELL_RADIUS - PANEL_GAP, Align.topLeft)
-        addActor(matrixTable)
-    }
 
-    private fun coloredDrawable(color: Color): TextureRegionDrawable {
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        pixmap.setColor(color)
-        pixmap.fill()
-        val texture = Texture(pixmap)
-        pixmap.dispose()
-        return TextureRegionDrawable(TextureRegion(texture))
+        val legendButton = TextButton("?", skin)
+        legendButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent, clickX: Float, clickY: Float) {
+                legendDialog.show(this@CellDetailsStage)
+            }
+        })
+
+        val matrixHeader = Table()
+        matrixHeader.add(Label("Decision Matrix", skin)).left().expandX()
+        matrixHeader.add(legendButton).right().size(LEGEND_BUTTON_SIZE)
+
+        matrixPanel.add(matrixHeader).fillX().padBottom(4f).row()
+        matrixPanel.add(matrixTable)
+        matrixPanel.pack()
+        matrixPanel.setPosition(x, y - 2 * CELL_RADIUS - PANEL_GAP, Align.topLeft)
+        addActor(matrixPanel)
     }
 
     override fun dispose() {
         super.dispose()
         shapeRenderer.dispose()
+        legendDialog.dispose()
         skin.dispose()
         neutralCellBackground.region.texture.dispose()
         currentStateBackground.region.texture.dispose()
@@ -184,7 +178,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
 
         if (cell != null) {
             table.isVisible = true
-            matrixTable.isVisible = true
+            matrixPanel.isVisible = true
             val position = cell!!.position
             positionLabel.setText("[${position.x}, ${position.y}]")
             energyValueLabel.setText(cell!!.energy.toString())
@@ -195,7 +189,7 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
             updateMatrixCells(matrixCells)
         } else {
             table.isVisible = false
-            matrixTable.isVisible = false
+            matrixPanel.isVisible = false
         }
     }
 
@@ -262,16 +256,8 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         val toxinColor = Color(cell.dna.toxin.color)
             .sub(BacillusGdxGame.TransparentMask)
             .add(0f, 0f, 0f, sqrt(alpha))
-        drawXMark(x + CELL_RADIUS, y - CELL_RADIUS, radius, toxinColor)
+        DecisionMatrixRenderer.drawXMark(shapeRenderer, x + CELL_RADIUS, y - CELL_RADIUS, radius, toxinColor)
         shapeRenderer.end()
-    }
-
-    private fun drawXMark(cx: Float, cy: Float, radius: Float, color: Color) {
-        shapeRenderer.color = color
-        shapeRenderer.line(cx - radius, cy + radius, cx - radius / 2, cy + radius / 2)
-        shapeRenderer.line(cx + radius, cy + radius, cx + radius / 2, cy + radius / 2)
-        shapeRenderer.line(cx + radius, cy - radius, cx + radius / 2, cy - radius / 2)
-        shapeRenderer.line(cx - radius, cy - radius, cx - radius / 2, cy - radius / 2)
     }
 
     private fun drawDecisionMatrix(cell: Organic) {
@@ -281,26 +267,40 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
         for (i in matrixCells.indices) {
             val matrixCell = matrixCells[i]
             val instruction = decisionMatrix[i]
+            val icon = instruction.action.toIcon()
 
             val actionCenter = matrixCell.actionZone.localToStageCoordinates(
                 Vector2(matrixCell.actionZone.width / 2f, matrixCell.actionZone.height / 2f)
             )
-            drawActionIcon(instruction.action.toIcon(), actionCenter.x, actionCenter.y)
+            DecisionMatrixRenderer.drawBadge(
+                shapeRenderer, actionCenter.x, actionCenter.y,
+                matrixCell.actionZone.width, matrixCell.actionZone.height,
+                ACTION_BADGE_INSET, icon.badgeColor()
+            )
+            DecisionMatrixRenderer.drawActionIcon(shapeRenderer, icon, actionCenter.x, actionCenter.y, ACTION_ICON_SIZE, IconStrokeColor)
 
-            val sensorColor = sensorGlyphColor(instruction.sensor)
             val sensorAnchor = matrixCell.sensorValueLabel.localToStageCoordinates(
                 Vector2(0f, matrixCell.sensorValueLabel.height / 2f)
             )
-            drawSensorGlyph(instruction.sensor.toGlyph(), sensorAnchor.x + GLYPH_INSET, sensorAnchor.y, sensorColor)
-            drawTriangleGlyph(
-                instruction.comparator.toChevron().toTriDirection(),
-                sensorAnchor.x + CHEVRON_INSET, sensorAnchor.y, CHEVRON_SIZE, sensorColor
+            DecisionMatrixRenderer.drawBadge(
+                shapeRenderer, sensorAnchor.x + SENSOR_BADGE_WIDTH / 2f, sensorAnchor.y,
+                SENSOR_BADGE_WIDTH, SENSOR_ROW_HEIGHT,
+                SENSOR_BADGE_INSET, instruction.sensor.badgeColor()
+            )
+            DecisionMatrixRenderer.drawSensorGlyph(
+                shapeRenderer, instruction.sensor.toGlyph(), sensorAnchor.x + GLYPH_INSET, sensorAnchor.y, GLYPH_SIZE, IconStrokeColor
+            )
+            DecisionMatrixRenderer.drawChevron(
+                shapeRenderer, instruction.comparator.toChevron(),
+                sensorAnchor.x + CHEVRON_INSET, sensorAnchor.y, CHEVRON_SIZE, IconStrokeColor
             )
 
             val jumpAnchor = matrixCell.jumpValueLabel.localToStageCoordinates(
                 Vector2(0f, matrixCell.jumpValueLabel.height / 2f)
             )
-            drawJumpGlyph(instruction.jumpOffset.toJumpDirection(), jumpAnchor.x + GLYPH_INSET, jumpAnchor.y)
+            DecisionMatrixRenderer.drawJumpGlyph(
+                shapeRenderer, instruction.jumpOffset.toJumpDirection(), jumpAnchor.x + GLYPH_INSET, jumpAnchor.y, CHEVRON_SIZE, JumpGlyphColor
+            )
         }
         shapeRenderer.end()
 
@@ -310,144 +310,10 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
                 val actionCenter = matrixCell.actionZone.localToStageCoordinates(
                     Vector2(matrixCell.actionZone.width / 2f, matrixCell.actionZone.height / 2f)
                 )
-                drawExploreRing(actionCenter.x, actionCenter.y)
+                DecisionMatrixRenderer.drawExploreRing(shapeRenderer, actionCenter.x, actionCenter.y, ACTION_ICON_SIZE, IconStrokeColor)
             }
         }
         shapeRenderer.end()
-    }
-
-    private fun drawActionIcon(icon: ActionIcon, cx: Float, cy: Float) {
-        when (icon) {
-            ActionIcon.RestBars -> drawRestBars(cx, cy, RestIconColor)
-            ActionIcon.Seek -> drawSeekIcon(cx, cy, SeekColor)
-            ActionIcon.Flee -> drawFleeIcon(cx, cy, FleeColor)
-            ActionIcon.Explore -> drawTriangleGlyph(TriDirection.Up, cx, cy - ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, ExploreColor)
-            ActionIcon.Random -> drawRandomIcon(cx, cy, RandomColor)
-            ActionIcon.Hold -> drawHoldIcon(cx, cy, HoldColor)
-            ActionIcon.Release -> drawReleaseIcon(cx, cy, ReleaseColor)
-            ActionIcon.Retain -> drawRetainIcon(cx, cy, RetainColor)
-            ActionIcon.Split -> drawSplitIcon(cx, cy, SplitColor)
-        }
-    }
-
-    private fun drawRestBars(cx: Float, cy: Float, color: Color) {
-        val barWidth = ACTION_ICON_SIZE * 0.22f
-        val barHeight = ACTION_ICON_SIZE
-        val gap = ACTION_ICON_SIZE * 0.16f
-        shapeRenderer.color = color
-        shapeRenderer.rect(cx - gap / 2 - barWidth, cy - barHeight / 2, barWidth, barHeight)
-        shapeRenderer.rect(cx + gap / 2, cy - barHeight / 2, barWidth, barHeight)
-    }
-
-    private fun drawSeekIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Up, cx, cy - ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, color)
-        shapeRenderer.color = color
-        shapeRenderer.circle(cx, cy + ACTION_ICON_SIZE * 0.55f, ACTION_ICON_SIZE * 0.12f)
-    }
-
-    private fun drawFleeIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Up, cx, cy + ACTION_ICON_SIZE * 0.15f, ACTION_ICON_SIZE * 0.8f, color)
-        drawXMark(cx, cy - ACTION_ICON_SIZE * 0.45f, ACTION_ICON_SIZE * 0.18f, color)
-    }
-
-    private fun drawExploreRing(cx: Float, cy: Float) {
-        shapeRenderer.color = ExploreColor
-        shapeRenderer.circle(cx, cy + ACTION_ICON_SIZE * 0.55f, ACTION_ICON_SIZE * 0.14f)
-    }
-
-    private fun drawRandomIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val h = ACTION_ICON_SIZE * 0.4f
-        val w = ACTION_ICON_SIZE * 0.35f
-        shapeRenderer.line(cx - w, cy - h, cx, cy - h * 0.2f)
-        shapeRenderer.line(cx, cy - h * 0.2f, cx - w * 0.5f, cy + h * 0.3f)
-        shapeRenderer.line(cx - w * 0.5f, cy + h * 0.3f, cx + w, cy + h)
-        shapeRenderer.triangle(
-            cx + w, cy + h,
-            cx + w - ACTION_ICON_SIZE * 0.18f, cy + h - ACTION_ICON_SIZE * 0.05f,
-            cx + w - ACTION_ICON_SIZE * 0.05f, cy + h - ACTION_ICON_SIZE * 0.18f
-        )
-    }
-
-    private fun drawHoldIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val size = ACTION_ICON_SIZE * 0.55f
-        shapeRenderer.rect(cx - size / 2, cy - size / 2, size, size)
-    }
-
-    private fun drawReleaseIcon(cx: Float, cy: Float, color: Color) {
-        drawTriangleGlyph(TriDirection.Down, cx, cy, ACTION_ICON_SIZE * 0.8f, color)
-    }
-
-    private fun drawRetainIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        shapeRenderer.circle(cx, cy, ACTION_ICON_SIZE * 0.4f)
-    }
-
-    private fun drawSplitIcon(cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        val r = ACTION_ICON_SIZE * 0.28f
-        val offset = ACTION_ICON_SIZE * 0.3f
-        shapeRenderer.circle(cx - offset, cy, r)
-        shapeRenderer.circle(cx + offset, cy, r)
-    }
-
-    private fun drawSensorGlyph(glyph: SensorGlyph, cx: Float, cy: Float, color: Color) {
-        shapeRenderer.color = color
-        when (glyph) {
-            SensorGlyph.Dot -> shapeRenderer.circle(cx, cy, GLYPH_SIZE / 2)
-            SensorGlyph.Diamond -> {
-                shapeRenderer.triangle(cx, cy + GLYPH_SIZE / 2, cx - GLYPH_SIZE / 2, cy, cx + GLYPH_SIZE / 2, cy)
-                shapeRenderer.triangle(cx, cy - GLYPH_SIZE / 2, cx - GLYPH_SIZE / 2, cy, cx + GLYPH_SIZE / 2, cy)
-            }
-            SensorGlyph.Triangle -> drawTriangleGlyph(TriDirection.Up, cx, cy, GLYPH_SIZE, color)
-            SensorGlyph.InvertedTriangle -> drawTriangleGlyph(TriDirection.Down, cx, cy, GLYPH_SIZE, color)
-            SensorGlyph.Cross -> drawXMark(cx, cy, GLYPH_SIZE / 2, color)
-            SensorGlyph.Cluster -> {
-                val r = GLYPH_SIZE * 0.18f
-                shapeRenderer.circle(cx - GLYPH_SIZE * 0.3f, cy, r)
-                shapeRenderer.circle(cx + GLYPH_SIZE * 0.3f, cy, r)
-                shapeRenderer.circle(cx, cy + GLYPH_SIZE * 0.3f, r)
-            }
-            SensorGlyph.Spark -> shapeRenderer.rect(cx - GLYPH_SIZE / 2, cy - GLYPH_SIZE / 2, GLYPH_SIZE, GLYPH_SIZE)
-        }
-    }
-
-    private fun sensorGlyphColor(sensor: Sensor): Color = when (sensor) {
-        Sensor.FoodDistance -> FoodGlyphColor
-        Sensor.EnergyRatio -> EnergyGlyphColor
-        Sensor.ToxinDistance -> ToxinGlyphColor
-        Sensor.SizeRatio -> SizeGlyphColor
-        Sensor.Age -> AgeGlyphColor
-        Sensor.Crowding -> CrowdingGlyphColor
-        Sensor.Random -> RandomGlyphColor
-    }
-
-    private fun ChevronDirection.toTriDirection(): TriDirection = when (this) {
-        ChevronDirection.Up -> TriDirection.Up
-        ChevronDirection.Down -> TriDirection.Down
-    }
-
-    private fun drawJumpGlyph(direction: JumpDirection, cx: Float, cy: Float) {
-        when (direction) {
-            JumpDirection.Forward -> drawTriangleGlyph(TriDirection.Right, cx, cy, CHEVRON_SIZE, JumpGlyphColor)
-            JumpDirection.Backward -> drawTriangleGlyph(TriDirection.Left, cx, cy, CHEVRON_SIZE, JumpGlyphColor)
-            JumpDirection.Neutral -> {
-                shapeRenderer.color = JumpGlyphColor
-                shapeRenderer.circle(cx, cy, CHEVRON_SIZE * 0.25f)
-            }
-        }
-    }
-
-    private fun drawTriangleGlyph(direction: TriDirection, cx: Float, cy: Float, size: Float, color: Color) {
-        shapeRenderer.color = color
-        val h = size / 2
-        when (direction) {
-            TriDirection.Up -> shapeRenderer.triangle(cx, cy + h, cx - h, cy - h, cx + h, cy - h)
-            TriDirection.Down -> shapeRenderer.triangle(cx, cy - h, cx - h, cy + h, cx + h, cy + h)
-            TriDirection.Left -> shapeRenderer.triangle(cx - h, cy, cx + h, cy - h, cx + h, cy + h)
-            TriDirection.Right -> shapeRenderer.triangle(cx + h, cy, cx - h, cy - h, cx - h, cy + h)
-        }
     }
 
     private fun Organic.getAlpha() =
@@ -459,11 +325,16 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val position = fromDisplay(screenX, screenY)
 
-        val something = field[position]
-        if (something == null || something is Mineral) {
-            cell = null
-        } else if (something is Organic) {
-            cell = something
+        // Clicks landing on this stage's own UI (e.g. the legend button, #36) fall outside
+        // the field grid; field[position] has no bounds check, so skip it here rather than
+        // let it throw and abort before super.touchUp() gets to dispatch the click to actors.
+        if (!field.isOutside(position)) {
+            val something = field[position]
+            if (something == null || something is Mineral) {
+                cell = null
+            } else if (something is Organic) {
+                cell = something
+            }
         }
 
         return super.touchUp(screenX, screenY, pointer, button)

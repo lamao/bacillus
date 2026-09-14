@@ -3,6 +3,7 @@ package com.invenit.bacillus.ui
 import com.invenit.bacillus.model.matrix.Action
 import com.invenit.bacillus.model.matrix.Comparator
 import com.invenit.bacillus.model.matrix.Sensor
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
@@ -56,5 +57,41 @@ internal class TestDecisionMatrixIcons {
     )
     fun testJumpOffsetToDirection(jumpOffset: Int, expected: JumpDirection) {
         assertEquals(expected, jumpOffset.toJumpDirection())
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "RestBars",
+        "Seek",
+        "Flee",
+        "Explore",
+        "Random",
+        "Hold",
+        "Release",
+        "Retain",
+        "Split",
+    )
+    fun testEveryActionIconHasABadgeColor(icon: ActionIcon) {
+        assertEquals(true, icon.badgeColor().a > 0f)
+    }
+
+    @Test
+    fun testActionIconsHaveDistinctBadgeColors() {
+        val colors = ActionIcon.entries.map { it.badgeColor() }
+        assertEquals(ActionIcon.entries.size, colors.distinct().size)
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "FoodDistance",
+        "ToxinDistance",
+        "EnergyRatio",
+        "SizeRatio",
+        "Age",
+        "Crowding",
+        "Random",
+    )
+    fun testEverySensorHasABadgeColor(sensor: Sensor) {
+        assertEquals(true, sensor.badgeColor().a > 0f)
     }
 }
