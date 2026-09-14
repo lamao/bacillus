@@ -81,10 +81,14 @@ class BacillusGdxGame : ApplicationAdapter() {
             }.showConfiguration(cellDetailsStage)
         }
 
+        // cellDetailsStage must come before UserInputListener (#36): its own actors (e.g. the
+        // Decision Matrix legend button) live outside the field grid, and UserInputListener.
+        // onMouseClick returns true (short-circuiting the multiplexer) for every out-of-field
+        // click, so listed after it cellDetailsStage's actors would never receive touch events.
         Gdx.input.inputProcessor = InputMultiplexer(
             slidersStage,
-            UserInputListener(field, environmentStage.viewport, creatureFactory),
             cellDetailsStage,
+            UserInputListener(field, environmentStage.viewport, creatureFactory),
             statisticsStage
         )
 
