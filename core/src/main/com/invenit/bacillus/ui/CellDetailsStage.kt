@@ -464,11 +464,16 @@ class CellDetailsStage(val field: Field, val x: Float, val y: Float) : Stage() {
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val position = fromDisplay(screenX, screenY)
 
-        val something = field[position]
-        if (something == null || something is Mineral) {
-            cell = null
-        } else if (something is Organic) {
-            cell = something
+        // Clicks landing on this stage's own UI (e.g. the legend button, #36) fall outside
+        // the field grid; field[position] has no bounds check, so skip it here rather than
+        // let it throw and abort before super.touchUp() gets to dispatch the click to actors.
+        if (!field.isOutside(position)) {
+            val something = field[position]
+            if (something == null || something is Mineral) {
+                cell = null
+            } else if (something is Organic) {
+                cell = something
+            }
         }
 
         return super.touchUp(screenX, screenY, pointer, button)
